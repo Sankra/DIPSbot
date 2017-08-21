@@ -32,7 +32,7 @@ namespace Hjerpbakk.DIPSbot.Runner {
         static IServiceContainer CompositionRoot() {
             var serviceContainer = new ServiceContainer();
 
-            serviceContainer.RegisterInstance("xoxb-74447052882-CjgPJUCBXfPydIZ9dMD5V3Ey");
+            serviceContainer.RegisterInstance("");
             serviceContainer.Register<ISlackConnector, SlackConnector.SlackConnector>(new PerContainerLifetime());
             serviceContainer.Register<ISlackIntegration, SlackIntegration>(new PerContainerLifetime());
 
