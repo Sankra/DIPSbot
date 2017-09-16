@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSbot.Services;
+using Hjerpbakk.DIPSBot;
 using SlackConnector.Models;
 
 namespace Hjerpbakk.DIPSbot
@@ -12,11 +13,14 @@ namespace Hjerpbakk.DIPSbot
 	{
 		readonly ISlackIntegration slackIntegration;
 		readonly IOrganizationService organizationService;
+        readonly Action<Exception> fatalExceptionHandler;
 
-		public DIPSbotImplementation(ISlackIntegration slackIntegration, IOrganizationService organizationService)
+		public DIPSbotImplementation(ISlackIntegration slackIntegration, IOrganizationService organizationService, Configuration configuration)
 		{
 			this.slackIntegration = slackIntegration ?? throw new ArgumentNullException(nameof(slackIntegration));
 			this.organizationService = organizationService ?? throw new ArgumentNullException(nameof(organizationService));
+            // TODO: to nullsjekker
+            fatalExceptionHandler = configuration.FatalExceptionHandler;
 		}
 
 		/// <summary>
@@ -58,9 +62,9 @@ namespace Hjerpbakk.DIPSbot
             }
             catch (Exception exception)
             {
-                // TODO: Hvordan propagere feil opp til det ytterste laget?
+                // TODO: Send til admin-brukeren
                 await slackIntegration.SendDirectMessage(message.User  , "I died:\n" + exception);
-                throw new Exception();
+                fatalExceptionHandler(exception);
             }
 		}
 

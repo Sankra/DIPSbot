@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using Hjerpbakk.DIPSBot.Runner;
+using Hjerpbakk.DIPSBot;
 using Newtonsoft.Json;
 
 namespace Hjerpbakk.DIPSbot.Runner
@@ -11,37 +11,22 @@ namespace Hjerpbakk.DIPSbot.Runner
 		{
 			try
             {
-                DIPSbotHost dipsBot = Start();
+				Console.WriteLine("Fetching configuration...");
+				var configuration = ReadConfig();
+				var dipsBot = new DIPSbotHost();
 
-                Console.ReadLine();
-
-                Stop(dipsBot);
+				var res = dipsBot.Start(configuration).GetAwaiter().GetResult();
+				if (!string.IsNullOrEmpty(res))
+				{
+					Console.WriteLine(res);
+					Environment.Exit(1);
+				}
             }
             catch (Exception e)
 			{
 				Console.WriteLine("Could not start DIPSbot.");
                 Console.WriteLine(e);
 			}
-		}
-
-        static DIPSbotHost Start()
-        {
-            Console.WriteLine("Fetching configuration...");
-            var configuration = ReadConfig();
-
-            Console.WriteLine("Starting DIPSbot...");
-            var dipsBot = new DIPSbotHost();
-            dipsBot.Start(configuration);
-
-            Console.WriteLine("DIPSbot started.");
-            return dipsBot;
-        }
-
-        static void Stop(DIPSbotHost dipsBot)
-		{
-			var res = dipsBot.Stop().GetAwaiter().GetResult();
-			Console.WriteLine(res);
-			Console.WriteLine("DIPSbot stopped.");
 		}
 
         static Configuration ReadConfig() {

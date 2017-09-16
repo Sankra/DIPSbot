@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSbot.Extensions;
+using Hjerpbakk.DIPSBot;
 using SlackConnector;
 using SlackConnector.EventHandlers;
 using SlackConnector.Models;
@@ -23,17 +24,18 @@ namespace Hjerpbakk.DIPSbot
 		///     Constructor.
 		/// </summary>
 		/// <param name="connector">The Slack connector to use.</param>
-		/// <param name="slackKey">The Slack key to use.</param>
-		public SlackIntegration(ISlackConnector connector, string slackKey)
+		/// <param name="configuration">The Slack configuration.</param>
+		public SlackIntegration(ISlackConnector connector, Configuration configuration)
 		{
 			this.connector = connector ?? throw new ArgumentNullException(nameof(connector));
 
-			if (string.IsNullOrEmpty(slackKey))
+            // TODO: sjekk configuration mot null
+            if (string.IsNullOrEmpty(configuration.SlackAPIToken))
 			{
-				throw new ArgumentException(nameof(slackKey));
+                throw new ArgumentException(nameof(configuration.SlackAPIToken));
 			}
 
-			this.slackKey = slackKey;
+            slackKey = configuration.SlackAPIToken;
 		}
 
 		/// <summary>

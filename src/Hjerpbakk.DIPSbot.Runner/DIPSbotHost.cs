@@ -1,35 +1,57 @@
 ﻿using LightInject;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSbot.Services;
 using SlackConnector;
-using Hjerpbakk.DIPSBot.Runner;
+using Hjerpbakk.DIPSBot;
+using System.Threading;
 
 namespace Hjerpbakk.DIPSbot.Runner
 {
-	class DIPSbotHost
+    class DIPSbotHost
 	{
+        static readonly ManualResetEvent manualResetEvent;
+
 		DIPSbotImplementation DIPSbot;
 
-        public void Start(Configuration configuration)
+        static DIPSbotHost() {
+            manualResetEvent = new ManualResetEvent(false);
+        }
+
+        public async Task<string> Start(Configuration configuration)
 		{
-			var serviceContainer = CompositionRoot(configuration);
-			DIPSbot = serviceContainer.GetInstance<DIPSbotImplementation>();
-			DIPSbot
-				.Connect()
-				.ContinueWith(task => {
-					if (!task.IsCompleted || task.IsFaulted)
+            try
+            {
+				configuration.FatalExceptionHandler = RestartBot;
+				while (true)
+				{
+                    Console.WriteLine("Starting DIPSbot...");
+					var serviceContainer = CompositionRoot(configuration);
+					DIPSbot = serviceContainer.GetInstance<DIPSbotImplementation>();
+					try
 					{
-						Console.WriteLine($"Error connecting to Slack: {task.Exception}");
-                    // TODO: Ikke restart her...
+						await DIPSbot.Connect();
 					}
-				});
-             
-			// TODO: Må restarte dersom krasjer eller blir disconnected
-            // TODO: Ta ned hele containeren mellom hver kjøring
+					catch (Exception e)
+					{
+						Console.WriteLine($"Error connecting to Slack: {e}");
+						return "";
+					}
+
+                    Console.WriteLine("DIPSbot started.");
+					manualResetEvent.WaitOne();
+
+					Console.WriteLine("Stopping before restart...");
+					var res = Stop().GetAwaiter().GetResult();
+					serviceContainer.Dispose();
+
+					manualResetEvent.Reset();
+				}
+			}
+            catch (Exception e)
+            {
+                return e.ToString();
+            }
         }
 
         public async Task<string> Stop()
@@ -38,6 +60,7 @@ namespace Hjerpbakk.DIPSbot.Runner
 				Console.WriteLine("Disconnecting...");
 				await DIPSbot.Close();
 				DIPSbot = null;
+                Console.WriteLine("DIPSbot stopped.");
             } catch (Exception e) {
                 return e.ToString();
             }
@@ -45,11 +68,17 @@ namespace Hjerpbakk.DIPSbot.Runner
             return "";
 		}
 
+        void RestartBot(Exception exception) {
+            manualResetEvent.Set();
+            Console.WriteLine("DIPSBot crashed:");
+            Console.WriteLine(exception);
+        }
+
 		static IServiceContainer CompositionRoot(Configuration configuration)
 		{
 			var serviceContainer = new ServiceContainer();
 
-            serviceContainer.RegisterInstance(configuration.SlackAPIToken);
+            serviceContainer.RegisterInstance(configuration);
 			serviceContainer.Register<ISlackConnector, SlackConnector.SlackConnector>(new PerContainerLifetime());
 			serviceContainer.Register<ISlackIntegration, SlackIntegration>(new PerContainerLifetime());
 
