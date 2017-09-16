@@ -7,106 +7,123 @@ using SlackConnector;
 using SlackConnector.EventHandlers;
 using SlackConnector.Models;
 
-namespace Hjerpbakk.DIPSbot {
-    /// <summary>
-    ///     Wrapps the Slack APIs needed for Profilebot.
-    /// </summary>
-    public sealed class SlackIntegration : ISlackIntegration {
-        readonly ISlackConnector connector;
-        readonly string slackKey;
+namespace Hjerpbakk.DIPSbot
+{
+	/// <summary>
+	///     Wrapps the Slack APIs needed for Profilebot.
+	/// </summary>
+	public sealed class SlackIntegration : ISlackIntegration
+	{
+		readonly ISlackConnector connector;
+		readonly string slackKey;
 
-        ISlackConnection connection;
+		ISlackConnection connection;
 
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
-        /// <param name="connector">The Slack connector to use.</param>
-        /// <param name="slackKey">The Slack key to use.</param>
-        public SlackIntegration(ISlackConnector connector, string slackKey) {
-            this.connector = connector ?? throw new ArgumentNullException(nameof(connector));
+		/// <summary>
+		///     Constructor.
+		/// </summary>
+		/// <param name="connector">The Slack connector to use.</param>
+		/// <param name="slackKey">The Slack key to use.</param>
+		public SlackIntegration(ISlackConnector connector, string slackKey)
+		{
+			this.connector = connector ?? throw new ArgumentNullException(nameof(connector));
 
-            if (string.IsNullOrEmpty(slackKey)) {
-                throw new ArgumentException(nameof(slackKey));
+			if (string.IsNullOrEmpty(slackKey))
+			{
+				throw new ArgumentException(nameof(slackKey));
+			}
+
+			this.slackKey = slackKey;
+		}
+
+		/// <summary>
+		///     Raised everytime the bot gets a DM.
+		/// </summary>
+		public event MessageReceivedEventHandler MessageReceived
+		{
+			add => connection.OnMessageReceived += value;
+			remove => connection.OnMessageReceived -= value;
+		}
+
+		/// <summary>
+		///     Connects the bot to Slack.
+		/// </summary>
+		/// <returns>No object or value is returned by this method when it completes.</returns>
+		public async Task Connect()
+		{
+			connection = await connector.Connect(slackKey);
+            if (connection == null) {
+                throw new ArgumentException("Could not connect to Slack.");
             }
+		}
 
-            this.slackKey = slackKey;
-        }
+        public async Task Close()
+		{
+            await connection.Close();
+		}
 
-        /// <summary>
-        ///     Raised everytime the bot gets a DM.
-        /// </summary>
-        public event MessageReceivedEventHandler MessageReceived {
-            add => connection.OnMessageReceived += value;
-            remove => connection.OnMessageReceived -= value;
-        }
+		/// <summary>
+		///     Gets all the users in the Slack team.
+		/// </summary>
+		/// <returns>All users.</returns>
+		public async Task<IEnumerable<SlackUser>> GetAllUsers()
+		{
+			return await connection.GetUsers();
+		}
 
-        /// <summary>
-        ///     Connects the bot to Slack.
-        /// </summary>
-        /// <returns>No object or value is returned by this method when it completes.</returns>
-        public async Task Connect() {
-            connection = await connector.Connect(slackKey);
-        }
+		/// <summary>
+		///     Gets the user with the given Id.
+		/// </summary>
+		/// <param name="userId">The id of the user to be found.</param>
+		/// <returns>The wanted user or null if not found.</returns>
+		public async Task<SlackUser> GetUser(string userId)
+		{
+			if (string.IsNullOrEmpty(userId))
+			{
+				throw new ArgumentException(nameof(userId));
+			}
 
-        public void Dispose() {
-            connection?.Disconnect();
-        }
+			return connection.UserCache.ContainsKey(userId)
+				? connection.UserCache[userId]
+				: (await GetAllUsers()).SingleOrDefault(u => u.Id == userId);
+		}
 
-        /// <summary>
-        ///     Gets all the users in the Slack team.
-        /// </summary>
-        /// <returns>All users.</returns>
-        public async Task<IEnumerable<SlackUser>> GetAllUsers() {
-            return await connection.GetUsers();
-        }
+		/// <summary>
+		///     Sends a DM to the given user.
+		/// </summary>
+		/// <param name="user">The recipient of the DM.</param>
+		/// <param name="text">The message itself.</param>
+		/// <returns>No object or value is returned by this method when it completes.</returns>
+		public async Task SendDirectMessage(SlackUser user, string text)
+		{
+			user.Guard();
+			if (string.IsNullOrEmpty(text))
+			{
+				throw new ArgumentException(nameof(text));
+			}
 
-        /// <summary>
-        ///     Gets the user with the given Id.
-        /// </summary>
-        /// <param name="userId">The id of the user to be found.</param>
-        /// <returns>The wanted user or null if not found.</returns>
-        public async Task<SlackUser> GetUser(string userId) {
-            if (string.IsNullOrEmpty(userId)) {
-                throw new ArgumentException(nameof(userId));
-            }
+			var channel = await connection.JoinDirectMessageChannel(user.Id);
+			await connection.IndicateTyping(channel);
+			var message = new BotMessage { ChatHub = channel, Text = text };
+			await connection.Say(message);
+		}
 
-            return connection.UserCache.ContainsKey(userId)
-                ? connection.UserCache[userId]
-                : (await GetAllUsers()).SingleOrDefault(u => u.Id == userId);
-        }
+		/// <summary>
+		///     Indicates that the bot is typing for a given user.
+		/// </summary>
+		/// <param name="user">The user who will see the bot typing.</param>
+		/// <returns>No object or value is returned by this method when it completes.</returns>
+		public async Task IndicateTyping(SlackUser user)
+		{
+			user.Guard();
+			await connection.IndicateTyping(await connection.JoinDirectMessageChannel(user.Id));
+		}
 
-        /// <summary>
-        ///     Sends a DM to the given user.
-        /// </summary>
-        /// <param name="user">The recipient of the DM.</param>
-        /// <param name="text">The message itself.</param>
-        /// <returns>No object or value is returned by this method when it completes.</returns>
-        public async Task SendDirectMessage(SlackUser user, string text) {
-            user.Guard();
-            if (string.IsNullOrEmpty(text)) {
-                throw new ArgumentException(nameof(text));
-            }
-
-            var channel = await connection.JoinDirectMessageChannel(user.Id);
-            await connection.IndicateTyping(channel);
-            var message = new BotMessage {ChatHub = channel, Text = text};
-            await connection.Say(message);
-        }
-
-        /// <summary>
-        ///     Indicates that the bot is typing for a given user.
-        /// </summary>
-        /// <param name="user">The user who will see the bot typing.</param>
-        /// <returns>No object or value is returned by this method when it completes.</returns>
-        public async Task IndicateTyping(SlackUser user) {
-            user.Guard();
-            await connection.IndicateTyping(await connection.JoinDirectMessageChannel(user.Id));
-        }
-
-        public async Task AddUsersToChannel(IEnumerable<SlackUser> users, string channelName) {
-            // TODO: nullsjekker
-            var channels = await connection.GetChannels();
-            var devChannel = channels.Single(c => c.Name == channelName);
-        }
-    }
+		public async Task AddUsersToChannel(IEnumerable<SlackUser> users, string channelName)
+		{
+			// TODO: nullsjekker
+			var channels = await connection.GetChannels();
+			var devChannel = channels.Single(c => c.Name == channelName);
+		}
+	}
 }

@@ -1,45 +1,51 @@
-﻿using NLog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Topshelf;
+﻿using System;
+using System.IO;
+using Hjerpbakk.DIPSBot.Runner;
+using Newtonsoft.Json;
 
-namespace Hjerpbakk.DIPSbot.Runner {
-    class Program {
-        static readonly Logger logger;
+namespace Hjerpbakk.DIPSbot.Runner
+{
+    class Program
+	{
+        static void Main()
+		{
+			try
+            {
+                DIPSbotHost dipsBot = Start();
 
-        static Program() {
-            logger = LogManager.GetCurrentClassLogger();
+                Console.ReadLine();
+
+                Stop(dipsBot);
+            }
+            catch (Exception e)
+			{
+				Console.WriteLine("Could not start DIPSbot.");
+                Console.WriteLine(e);
+			}
+		}
+
+        static DIPSbotHost Start()
+        {
+            Console.WriteLine("Fetching configuration...");
+            var configuration = ReadConfig();
+
+            Console.WriteLine("Starting DIPSbot...");
+            var dipsBot = new DIPSbotHost();
+            dipsBot.Start(configuration);
+
+            Console.WriteLine("DIPSbot started.");
+            return dipsBot;
         }
 
-        static void Main(string[] args) {
-            try {
-                logger.Info("Starting DIPSbot.");
-                HostFactory.Run(host => {
-                    host.Service<DIPSbotHost>(service => {
-                        service.ConstructUsing(name => new DIPSbotHost());
-                        service.WhenStarted(n => { n.Start(); });
-                        service.WhenStopped(n => n.Stop());
-                    });
+        static void Stop(DIPSbotHost dipsBot)
+		{
+			var res = dipsBot.Stop().GetAwaiter().GetResult();
+			Console.WriteLine(res);
+			Console.WriteLine("DIPSbot stopped.");
+		}
 
-                    host.UseNLog();
-
-                    host.OnException(exception => { logger.Fatal(exception, "Fatal error, DIPSbot going down."); });
-
-                    host.RunAsNetworkService();
-
-                    host.SetDisplayName("Slack DIPSbot");
-                    host.SetServiceName("Slack DIPSbot");
-                    host.SetDescription("The DIPS specific Slackbot.");
-                });
-
-                logger.Info("DIPSbot stopped.");
-            }
-            catch (Exception e) {
-                logger.Fatal(e, "Could not start DIPSbot");
-            }
+        static Configuration ReadConfig() {
+            return JsonConvert.DeserializeObject<Configuration>(File.ReadAllText("config.json"));
         }
-    }
+	}
 }

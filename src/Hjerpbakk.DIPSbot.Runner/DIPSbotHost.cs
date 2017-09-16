@@ -6,41 +6,58 @@ using System.Text;
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSbot.Services;
 using SlackConnector;
+using Hjerpbakk.DIPSBot.Runner;
 
-namespace Hjerpbakk.DIPSbot.Runner {
-    class DIPSbotHost {
-        DIPSbotImplementation DIPSbot;
+namespace Hjerpbakk.DIPSbot.Runner
+{
+	class DIPSbotHost
+	{
+		DIPSbotImplementation DIPSbot;
 
-        public void Start() {
-            var serviceContainer = CompositionRoot();
-            DIPSbot = serviceContainer.GetInstance<DIPSbotImplementation>();
-            DIPSbot
-                .Connect()
-                .ContinueWith(task => {
-                    if (!task.IsCompleted || task.IsFaulted) {
-                        Console.WriteLine($"Error connecting to Slack: {task.Exception}");
-                    }
-                });
+        public void Start(Configuration configuration)
+		{
+			var serviceContainer = CompositionRoot(configuration);
+			DIPSbot = serviceContainer.GetInstance<DIPSbotImplementation>();
+			DIPSbot
+				.Connect()
+				.ContinueWith(task => {
+					if (!task.IsCompleted || task.IsFaulted)
+					{
+						Console.WriteLine($"Error connecting to Slack: {task.Exception}");
+                    // TODO: Ikke restart her...
+					}
+				});
+
+			// TODO: Må restarte dersom krasjer eller blir disconnected
+            // TODO: Ta ned hele containeren mellom hver kjøring
         }
 
-        public void Stop() {
-            Console.WriteLine("Disconnecting...");
-            DIPSbot.Dispose();
-            DIPSbot = null;
-        }
+        public async Task<string> Stop()
+		{
+            try {
+				Console.WriteLine("Disconnecting...");
+				await DIPSbot.Close();
+				DIPSbot = null;
+            } catch (Exception e) {
+                return e.ToString();
+            }
 
-        static IServiceContainer CompositionRoot() {
-            var serviceContainer = new ServiceContainer();
+            return "";
+		}
 
-            serviceContainer.RegisterInstance("xoxb-74447052882-CjgPJUCBXfPydIZ9dMD5V3Ey");
-            serviceContainer.Register<ISlackConnector, SlackConnector.SlackConnector>(new PerContainerLifetime());
-            serviceContainer.Register<ISlackIntegration, SlackIntegration>(new PerContainerLifetime());
+		static IServiceContainer CompositionRoot(Configuration configuration)
+		{
+			var serviceContainer = new ServiceContainer();
 
-            serviceContainer.Register<IOrganizationService, FileOrganizationService>(new PerContainerLifetime());
+            serviceContainer.RegisterInstance(configuration.SlackAPIToken);
+			serviceContainer.Register<ISlackConnector, SlackConnector.SlackConnector>(new PerContainerLifetime());
+			serviceContainer.Register<ISlackIntegration, SlackIntegration>(new PerContainerLifetime());
 
-            serviceContainer.Register<DIPSbotImplementation>();
+			serviceContainer.Register<IOrganizationService, FileOrganizationService>(new PerContainerLifetime());
 
-            return serviceContainer;
-        }
-    }
+			serviceContainer.Register<DIPSbotImplementation>();
+
+			return serviceContainer;
+		}
+	}
 }
