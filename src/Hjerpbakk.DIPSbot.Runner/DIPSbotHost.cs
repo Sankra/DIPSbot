@@ -27,7 +27,7 @@ namespace Hjerpbakk.DIPSbot.Runner
                     // TODO: Ikke restart her...
 					}
 				});
-
+             
 			// TODO: Må restarte dersom krasjer eller blir disconnected
             // TODO: Ta ned hele containeren mellom hver kjøring
         }
