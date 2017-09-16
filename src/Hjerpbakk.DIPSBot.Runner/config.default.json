@@ -1,3 +1,4 @@
 ﻿{
-  "SlackAPIToken": "[SlackAPIToken]"
+  "SlackAPIToken": "[SlackAPIToken]",
+  "AdminUser":  "[AdminUser]"
 }

@@ -14,6 +14,7 @@ namespace Hjerpbakk.DIPSbot
 		readonly ISlackIntegration slackIntegration;
 		readonly IOrganizationService organizationService;
         readonly Action<Exception> fatalExceptionHandler;
+        readonly SlackUser adminUser;
 
 		public DIPSbotImplementation(ISlackIntegration slackIntegration, IOrganizationService organizationService, Configuration configuration)
 		{
@@ -21,6 +22,7 @@ namespace Hjerpbakk.DIPSbot
 			this.organizationService = organizationService ?? throw new ArgumentNullException(nameof(organizationService));
             // TODO: to nullsjekker
             fatalExceptionHandler = configuration.FatalExceptionHandler;
+            adminUser = new SlackUser { Id = configuration.AdminUser };
 		}
 
 		/// <summary>
@@ -62,8 +64,7 @@ namespace Hjerpbakk.DIPSbot
             }
             catch (Exception exception)
             {
-                // TODO: Send til admin-brukeren
-                await slackIntegration.SendDirectMessage(message.User  , "I died:\n" + exception);
+                await slackIntegration.SendDirectMessage(adminUser , "I died:\n" + exception);
                 fatalExceptionHandler(exception);
             }
 		}
