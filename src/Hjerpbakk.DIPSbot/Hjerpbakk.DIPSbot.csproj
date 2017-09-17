@@ -9,8 +9,11 @@
     <Folder Include="Services\" />
     <Folder Include="Properties\" />
     <Folder Include="MessageHandlers\" />
+    <Folder Include="Clients\" />
+    <Folder Include="Model\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="SlackConnector" Version="4.1.13" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
 </Project>

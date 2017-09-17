@@ -5,6 +5,8 @@ using Hjerpbakk.DIPSbot.Services;
 using SlackConnector;
 using Hjerpbakk.DIPSBot;
 using System.Threading;
+using System.Net.Http;
+using Hjerpbakk.DIPSBot.Clients;
 
 namespace Hjerpbakk.DIPSbot.Runner
 {
@@ -79,9 +81,11 @@ namespace Hjerpbakk.DIPSbot.Runner
 			var serviceContainer = new ServiceContainer();
 
             serviceContainer.RegisterInstance(configuration);
+            serviceContainer.RegisterInstance(new HttpClient());
 			serviceContainer.Register<ISlackConnector, SlackConnector.SlackConnector>(new PerContainerLifetime());
 			serviceContainer.Register<ISlackIntegration, SlackIntegration>(new PerContainerLifetime());
 
+            serviceContainer.Register<IKitchenResponsibleClient, KitchenResponsibleClient>(new PerContainerLifetime());
 			serviceContainer.Register<IOrganizationService, FileOrganizationService>(new PerContainerLifetime());
 
 			serviceContainer.Register<DIPSbotImplementation>();

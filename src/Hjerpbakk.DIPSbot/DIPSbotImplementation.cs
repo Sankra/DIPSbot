@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSbot.Services;
 using Hjerpbakk.DIPSBot;
+using Hjerpbakk.DIPSBot.Clients;
 using Hjerpbakk.DIPSBot.MessageHandlers;
 using SlackConnector.Models;
 
@@ -14,13 +15,19 @@ namespace Hjerpbakk.DIPSbot
 	{
 		readonly ISlackIntegration slackIntegration;
 		readonly IOrganizationService organizationService;
+        readonly IKitchenResponsibleClient kitchenResponsibleClient;
+
         readonly Action<Exception> fatalExceptionHandler;
         readonly SlackUser adminUser;
 
-		public DIPSbotImplementation(ISlackIntegration slackIntegration, IOrganizationService organizationService, Configuration configuration)
+		public DIPSbotImplementation(ISlackIntegration slackIntegration, 
+                                     IOrganizationService organizationService, 
+                                     IKitchenResponsibleClient kitchenResponsibleClient, 
+                                     Configuration configuration)
 		{
 			this.slackIntegration = slackIntegration ?? throw new ArgumentNullException(nameof(slackIntegration));
 			this.organizationService = organizationService ?? throw new ArgumentNullException(nameof(organizationService));
+            this.kitchenResponsibleClient = kitchenResponsibleClient ?? throw new ArgumentNullException(nameof(kitchenResponsibleClient));
             // TODO: to nullsjekker
             fatalExceptionHandler = configuration.FatalExceptionHandler;
             adminUser = new SlackUser { Id = configuration.AdminUser };
@@ -71,9 +78,9 @@ namespace Hjerpbakk.DIPSbot
 
         IMessageHandler GetMessageHandler(SlackMessage message) {
             if (message.ChatHub.Type == SlackChatHubType.Group) {
-				if (message.ChatHub.Name == "#trondheim")
+				if (message.ChatHub.Name == "#bot-test")
 				{
-					return new TrondheimMessageHandler(slackIntegration);
+					return new TrondheimMessageHandler(slackIntegration, kitchenResponsibleClient);
 				}
             }
 
