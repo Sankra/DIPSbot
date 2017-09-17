@@ -8,6 +8,7 @@
     <Folder Include="Extensions\" />
     <Folder Include="Services\" />
     <Folder Include="Properties\" />
+    <Folder Include="MessageHandlers\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="SlackConnector" Version="4.1.13" />

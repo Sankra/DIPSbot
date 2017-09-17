@@ -110,6 +110,11 @@ namespace Hjerpbakk.DIPSbot
 			await connection.Say(message);
 		}
 
+        public async Task SendMessageToChannel(SlackChatHub channel, string text) {
+			var message = new BotMessage { ChatHub = channel, Text = text };
+			await connection.Say(message);
+        }
+
 		/// <summary>
 		///     Indicates that the bot is typing for a given user.
 		/// </summary>

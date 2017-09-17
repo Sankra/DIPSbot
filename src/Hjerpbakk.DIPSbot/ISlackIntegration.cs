@@ -45,6 +45,8 @@ namespace Hjerpbakk.DIPSbot
 		/// <returns>No object or value is returned by this method when it completes.</returns>
 		Task SendDirectMessage(SlackUser user, string text);
 
+        Task SendMessageToChannel(SlackChatHub channel, string text);
+
 		/// <summary>
 		///     Indicates that the bot is typing for a given user.
 		/// </summary>

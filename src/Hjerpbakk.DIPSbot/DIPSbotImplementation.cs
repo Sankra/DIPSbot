@@ -5,11 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSbot.Services;
 using Hjerpbakk.DIPSBot;
+using Hjerpbakk.DIPSBot.MessageHandlers;
 using SlackConnector.Models;
 
 namespace Hjerpbakk.DIPSbot
 {
-	internal class DIPSbotImplementation
+	class DIPSbotImplementation
 	{
 		readonly ISlackIntegration slackIntegration;
 		readonly IOrganizationService organizationService;
@@ -54,13 +55,12 @@ namespace Hjerpbakk.DIPSbot
 		{
             try
             {
-				if (message.Text != "utv")
-				{
-					await slackIntegration.SendDirectMessage(message.User, "Unknown command");
-					return;
-				}
+                if (MessageIsInvalid(message)) {
+                    return;
+                }
 
-				await AddDevelopersToDeveloperChannel(message);
+                var messageHandler = GetMessageHandler(message);
+                await messageHandler.HandleMessage(message);
             }
             catch (Exception exception)
             {
@@ -69,11 +69,36 @@ namespace Hjerpbakk.DIPSbot
             }
 		}
 
-		async Task AddDevelopersToDeveloperChannel(SlackMessage message)
-		{
-			await slackIntegration.IndicateTyping(message.User);
-			var developers = await organizationService.GetDevelopers();
-			var slackUsers = await slackIntegration.GetAllUsers();
-		}
+        IMessageHandler GetMessageHandler(SlackMessage message) {
+            if (message.ChatHub.Type == SlackChatHubType.Group) {
+				if (message.ChatHub.Name == "#trondheim")
+				{
+					return new TrondheimMessageHandler(slackIntegration);
+				}
+            }
+
+			if (message.ChatHub.Type == SlackChatHubType.Channel)
+			{
+			    return new ChannelMessageHandler(slackIntegration);
+			}
+
+			if (message.ChatHub.Type == SlackChatHubType.DM)
+			{
+                if (message.User.Id == adminUser.Id) {
+                    return new AdminMessageHandler(slackIntegration, organizationService);
+                }
+
+                return new RegularUserMessageHandler(slackIntegration);
+			}
+
+            return new DefaultMessageHandler(slackIntegration);
+        }
+
+		static bool MessageIsInvalid(SlackMessage message) =>
+	        message == null && 
+            message.User == null && 
+            string.IsNullOrEmpty(message.User.Id) && 
+            string.IsNullOrEmpty(message.Text) && 
+            message.ChatHub == null;
 	}
 }
