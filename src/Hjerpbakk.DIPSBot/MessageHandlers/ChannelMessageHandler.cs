@@ -5,7 +5,7 @@ using SlackConnector.Models;
 
 namespace Hjerpbakk.DIPSBot.MessageHandlers
 {
-    class ChannelMessageHandler : IMessageHandler
+    class ChannelMessageHandler : MessageHandler
     {
         readonly ISlackIntegration slackIntegration;
 

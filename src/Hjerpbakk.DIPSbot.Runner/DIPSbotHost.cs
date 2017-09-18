@@ -89,7 +89,8 @@ namespace Hjerpbakk.DIPSbot.Runner
             serviceContainer.Register<IKitchenResponsibleClient, KitchenResponsibleClient>(new PerContainerLifetime());
 			serviceContainer.Register<IOrganizationService, FileOrganizationService>(new PerContainerLifetime());
 
-            serviceContainer.Register<KitchenResponsibleActions>();
+            serviceContainer.Register<UserKitchenResponsibleAction>();
+            serviceContainer.Register<TrondheimKitchenResponsibleAction>();
 
 			serviceContainer.Register<DIPSbotImplementation>();
 

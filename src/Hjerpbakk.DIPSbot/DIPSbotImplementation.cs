@@ -16,19 +16,22 @@ namespace Hjerpbakk.DIPSbot
 	{
 		readonly ISlackIntegration slackIntegration;
 		readonly IOrganizationService organizationService;
-        readonly KitchenResponsibleActions kitchenResponsibleActions;
+        readonly TrondheimKitchenResponsibleAction trondheimKitchenResponsibleActions;
+        readonly UserKitchenResponsibleAction userKitchenResponsibleAction;
 
         readonly Action<Exception> fatalExceptionHandler;
         readonly SlackUser adminUser;
 
 		public DIPSbotImplementation(ISlackIntegration slackIntegration, 
                                      IOrganizationService organizationService, 
-                                     KitchenResponsibleActions kitchenResponsibleActions, 
+                                     TrondheimKitchenResponsibleAction trondheimKitchenResponsibleActions, 
+                                     UserKitchenResponsibleAction userKitchenResponsibleAction,
                                      Configuration configuration)
 		{
 			this.slackIntegration = slackIntegration ?? throw new ArgumentNullException(nameof(slackIntegration));
 			this.organizationService = organizationService ?? throw new ArgumentNullException(nameof(organizationService));
-            this.kitchenResponsibleActions = kitchenResponsibleActions ?? throw new ArgumentNullException(nameof(kitchenResponsibleActions));
+            this.trondheimKitchenResponsibleActions = trondheimKitchenResponsibleActions ?? throw new ArgumentNullException(nameof(trondheimKitchenResponsibleActions));
+            this.userKitchenResponsibleAction = userKitchenResponsibleAction ?? throw new ArgumentNullException(nameof(userKitchenResponsibleAction));
             // TODO: to nullsjekker
             fatalExceptionHandler = configuration.FatalExceptionHandler;
             adminUser = new SlackUser { Id = configuration.AdminUser };
@@ -78,11 +81,11 @@ namespace Hjerpbakk.DIPSbot
             }
 		}
 
-        IMessageHandler GetMessageHandler(SlackMessage message) {
+        MessageHandler GetMessageHandler(SlackMessage message) {
             if (message.ChatHub.Type == SlackChatHubType.Group) {
 				if (message.ChatHub.Name == "#bot-test")
 				{
-					return new TrondheimMessageHandler(slackIntegration, kitchenResponsibleActions);
+					return new TrondheimMessageHandler(slackIntegration, trondheimKitchenResponsibleActions);
 				}
             }
 
@@ -94,10 +97,10 @@ namespace Hjerpbakk.DIPSbot
 			if (message.ChatHub.Type == SlackChatHubType.DM)
 			{
                 if (message.User.Id == adminUser.Id) {
-                    return new AdminMessageHandler(slackIntegration, organizationService, kitchenResponsibleActions);
+                    return new AdminMessageHandler(slackIntegration, organizationService, userKitchenResponsibleAction);
                 }
 
-                return new RegularUserMessageHandler(slackIntegration, kitchenResponsibleActions);
+                return new RegularUserMessageHandler(slackIntegration, userKitchenResponsibleAction);
 			}
 
             return new DefaultMessageHandler();

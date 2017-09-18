@@ -7,18 +7,18 @@ using SlackConnector.Models;
 
 namespace Hjerpbakk.DIPSBot.Actions
 {
-    class KitchenResponsibleActions
+    abstract class KitchenResponsibleAction
     {
 		readonly ISlackIntegration slackIntegration;
 		readonly IKitchenResponsibleClient kitchenResponsibleClient;
 
-		public KitchenResponsibleActions(ISlackIntegration slackIntegration, IKitchenResponsibleClient kitchenResponsibleClient)
-		{
-			this.slackIntegration = slackIntegration;
-			this.kitchenResponsibleClient = kitchenResponsibleClient;
-		}
+        public KitchenResponsibleAction(ISlackIntegration slackIntegration, IKitchenResponsibleClient kitchenResponsibleClient)
+        {
+            this.slackIntegration = slackIntegration;
+            this.kitchenResponsibleClient = kitchenResponsibleClient;
+        }
 
-		public async Task SendMessageWithKitchenResponsibles(SlackMessage message)
+		public async Task Execute(SlackMessage message)
 		{
 			var employeesAndWeeks = await kitchenResponsibleClient.GetAllWeeks();
 			var kitchenResponsibleTable = string.Join("\n", employeesAndWeeks.Select(w => w.WeekNumber + ". " + w.SlackUser.FormattedUserId));

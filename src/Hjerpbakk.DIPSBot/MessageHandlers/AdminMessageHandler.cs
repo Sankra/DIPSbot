@@ -7,31 +7,35 @@ using SlackConnector.Models;
 
 namespace Hjerpbakk.DIPSBot.MessageHandlers
 {
-    class AdminMessageHandler : IMessageHandler
+    class AdminMessageHandler : MessageHandler
     {
         readonly ISlackIntegration slackIntegration;
         readonly IOrganizationService organizationService;
-        readonly KitchenResponsibleActions kitchenResponsibleActions;
+        readonly UserKitchenResponsibleAction kitchenResponsibleActions;
 
-        public AdminMessageHandler(ISlackIntegration slackIntegration, IOrganizationService organizationService, KitchenResponsibleActions kitchenResponsibleActions)
+        public AdminMessageHandler(ISlackIntegration slackIntegration, IOrganizationService organizationService, UserKitchenResponsibleAction kitchenResponsibleActions)
         {
             this.slackIntegration = slackIntegration;
             this.organizationService = organizationService;
             this.kitchenResponsibleActions = kitchenResponsibleActions;
+
+            // TODO: Legg inn UTV-action
+			// TODO: Legg inn unknown command action til slutt som lister alle commands
+			actions.Add(kitchenResponsibleActions);
         }
 
-        public async Task HandleMessage(SlackMessage message)
-        {
-			if (message.Text.Contains("kjøkken")) {
-				await kitchenResponsibleActions.SendMessageWithKitchenResponsibles(message);
-			} else if (message.Text == "utv") {
-				await AddDevelopersToDeveloperChannel(message);
-            } else {
-                await slackIntegration.SendDirectMessage(message.User, "Unknown command");
-            }
+   //     public async Task HandleMessage(SlackMessage message)
+   //     {
+			//if (message.Text.Contains("kjøkken")) {
+			//	await kitchenResponsibleActions.SendMessageWithKitchenResponsibles(message);
+			//} else if (message.Text == "utv") {
+				//await AddDevelopersToDeveloperChannel(message);
+        //    } else {
+        //        await slackIntegration.SendDirectMessage(message.User, "Unknown command");
+        //    }
 
 			
-        }
+        //}
 
 		async Task AddDevelopersToDeveloperChannel(SlackMessage message)
 		{

@@ -8,27 +8,17 @@ using SlackConnector.Models;
 
 namespace Hjerpbakk.DIPSBot.MessageHandlers
 {
-    class TrondheimMessageHandler : IMessageHandler
+    class TrondheimMessageHandler : MessageHandler
     {
         readonly ISlackIntegration slackIntegration;
-        readonly KitchenResponsibleActions kitchenResponsibleActions;
+        readonly TrondheimKitchenResponsibleAction kitchenResponsibleActions;
 
-        public TrondheimMessageHandler(ISlackIntegration slackIntegration, KitchenResponsibleActions kitchenResponsibleActions)
+        public TrondheimMessageHandler(ISlackIntegration slackIntegration, TrondheimKitchenResponsibleAction kitchenResponsibleActions)
         {
             this.slackIntegration = slackIntegration;
             this.kitchenResponsibleActions = kitchenResponsibleActions;
+
+            actions.Add(kitchenResponsibleActions);
         }
-
-        public async Task HandleMessage(SlackMessage message)
-        {
-            if (message.MentionsBot == true) {
-                if (message.Text.Contains("kjøkken"))
-                {
-                    await kitchenResponsibleActions.SendMessageWithKitchenResponsibles(message);
-                }
-            }
-        }
-
-
     }
 }

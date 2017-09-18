@@ -6,25 +6,18 @@ using SlackConnector.Models;
 
 namespace Hjerpbakk.DIPSBot.MessageHandlers
 {
-    class RegularUserMessageHandler : IMessageHandler
+    class RegularUserMessageHandler : MessageHandler
     {
 		readonly ISlackIntegration slackIntegration;
-		readonly KitchenResponsibleActions kitchenResponsibleActions;
+        readonly UserKitchenResponsibleAction kitchenResponsibleActions;
 
-		public RegularUserMessageHandler(ISlackIntegration slackIntegration, KitchenResponsibleActions kitchenResponsibleActions)
+		public RegularUserMessageHandler(ISlackIntegration slackIntegration, UserKitchenResponsibleAction kitchenResponsibleActions)
 		{
 			this.slackIntegration = slackIntegration;
 			this.kitchenResponsibleActions = kitchenResponsibleActions;
-		}
 
-        public async Task HandleMessage(SlackMessage message)
-        {
-			if (message.Text.Contains("kjøkken"))
-			{
-				await kitchenResponsibleActions.SendMessageWithKitchenResponsibles(message);
-            } else {
-                await slackIntegration.SendDirectMessage(message.User, "Unknown command");
-            }
-        }
+            // TODO: Legg inn unknown command action til slutt som lister alle commands
+            actions.Add(kitchenResponsibleActions);
+		}
     }
 }
