@@ -8,6 +8,7 @@ using System.Threading;
 using System.Net.Http;
 using Hjerpbakk.DIPSBot.Clients;
 using Hjerpbakk.DIPSBot.Actions;
+using Hjerpbakk.DIPSBot.MessageHandlers;
 
 namespace Hjerpbakk.DIPSbot.Runner
 {
@@ -30,7 +31,7 @@ namespace Hjerpbakk.DIPSbot.Runner
 				{
                     Console.WriteLine("Starting DIPSbot...");
 					var serviceContainer = CompositionRoot(configuration);
-					DIPSbot = serviceContainer.GetInstance<DIPSbotImplementation>();
+                    DIPSbot = serviceContainer.GetInstance<DIPSbotImplementation>();
 					try
 					{
 						await DIPSbot.Connect();
@@ -80,6 +81,7 @@ namespace Hjerpbakk.DIPSbot.Runner
 		static IServiceContainer CompositionRoot(Configuration configuration)
 		{
 			var serviceContainer = new ServiceContainer();
+            serviceContainer.RegisterInstance<IServiceContainer>(serviceContainer);
 
             serviceContainer.RegisterInstance(configuration);
             serviceContainer.RegisterInstance(new HttpClient());
@@ -89,10 +91,18 @@ namespace Hjerpbakk.DIPSbot.Runner
             serviceContainer.Register<IKitchenResponsibleClient, KitchenResponsibleClient>(new PerContainerLifetime());
 			serviceContainer.Register<IOrganizationService, FileOrganizationService>(new PerContainerLifetime());
 
-            serviceContainer.Register<UserKitchenResponsibleAction>();
-            serviceContainer.Register<TrondheimKitchenResponsibleAction>();
+            serviceContainer.Register<AdminMessageHandler>(new PerContainerLifetime());
+            serviceContainer.Register<ChannelMessageHandler>(new PerContainerLifetime());
+            serviceContainer.Register<MessageHandler>(new PerContainerLifetime());
+            serviceContainer.Register<RegularUserMessageHandler>(new PerContainerLifetime());
+            serviceContainer.Register<TrondheimMessageHandler>(new PerContainerLifetime());
 
-			serviceContainer.Register<DIPSbotImplementation>();
+            serviceContainer.Register<AddDevelopersToUtviklingChannelAction>(new PerContainerLifetime());
+            serviceContainer.Register<ListCommandsAction>(new PerContainerLifetime());
+            serviceContainer.Register<UserKitchenResponsibleAction>(new PerContainerLifetime());
+            serviceContainer.Register<TrondheimKitchenResponsibleAction>(new PerContainerLifetime());
+
+            serviceContainer.Register<DIPSbotImplementation>(new PerContainerLifetime());
 
 			return serviceContainer;
 		}

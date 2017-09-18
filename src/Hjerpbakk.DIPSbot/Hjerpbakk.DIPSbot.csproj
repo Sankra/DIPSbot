@@ -16,5 +16,6 @@
   <ItemGroup>
     <PackageReference Include="SlackConnector" Version="4.1.13" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="LightInject" Version="5.1.0" />
   </ItemGroup>
 </Project>

@@ -8,31 +8,25 @@ using Hjerpbakk.DIPSBot;
 using Hjerpbakk.DIPSBot.Actions;
 using Hjerpbakk.DIPSBot.Clients;
 using Hjerpbakk.DIPSBot.MessageHandlers;
+using LightInject;
 using SlackConnector.Models;
 
 namespace Hjerpbakk.DIPSbot
 {
 	class DIPSbotImplementation
 	{
+        readonly IServiceContainer serviceContainer;
 		readonly ISlackIntegration slackIntegration;
-		readonly IOrganizationService organizationService;
-        readonly TrondheimKitchenResponsibleAction trondheimKitchenResponsibleActions;
-        readonly UserKitchenResponsibleAction userKitchenResponsibleAction;
-
+		
         readonly Action<Exception> fatalExceptionHandler;
         readonly SlackUser adminUser;
 
-		public DIPSbotImplementation(ISlackIntegration slackIntegration, 
-                                     IOrganizationService organizationService, 
-                                     TrondheimKitchenResponsibleAction trondheimKitchenResponsibleActions, 
-                                     UserKitchenResponsibleAction userKitchenResponsibleAction,
-                                     Configuration configuration)
+		public DIPSbotImplementation(IServiceContainer serviceContainer)
 		{
-			this.slackIntegration = slackIntegration ?? throw new ArgumentNullException(nameof(slackIntegration));
-			this.organizationService = organizationService ?? throw new ArgumentNullException(nameof(organizationService));
-            this.trondheimKitchenResponsibleActions = trondheimKitchenResponsibleActions ?? throw new ArgumentNullException(nameof(trondheimKitchenResponsibleActions));
-            this.userKitchenResponsibleAction = userKitchenResponsibleAction ?? throw new ArgumentNullException(nameof(userKitchenResponsibleAction));
-            // TODO: to nullsjekker
+			this.serviceContainer = serviceContainer ?? throw new ArgumentNullException(nameof(serviceContainer));
+
+            slackIntegration = serviceContainer.GetInstance<ISlackIntegration>();
+            var configuration = serviceContainer.GetInstance<Configuration>();
             fatalExceptionHandler = configuration.FatalExceptionHandler;
             adminUser = new SlackUser { Id = configuration.AdminUser };
 		}
@@ -85,25 +79,25 @@ namespace Hjerpbakk.DIPSbot
             if (message.ChatHub.Type == SlackChatHubType.Group) {
 				if (message.ChatHub.Name == "#bot-test")
 				{
-					return new TrondheimMessageHandler(slackIntegration, trondheimKitchenResponsibleActions);
+					return serviceContainer.GetInstance<TrondheimMessageHandler>();
 				}
             }
 
 			if (message.ChatHub.Type == SlackChatHubType.Channel)
 			{
-			    return new ChannelMessageHandler(slackIntegration);
+			    return serviceContainer.GetInstance<ChannelMessageHandler>();
 			}
 
 			if (message.ChatHub.Type == SlackChatHubType.DM)
 			{
                 if (message.User.Id == adminUser.Id) {
-                    return new AdminMessageHandler(slackIntegration, organizationService, userKitchenResponsibleAction);
+                    return serviceContainer.GetInstance<AdminMessageHandler>();
                 }
 
-                return new RegularUserMessageHandler(slackIntegration, userKitchenResponsibleAction);
+                return serviceContainer.GetInstance<RegularUserMessageHandler>();
 			}
 
-            return new DefaultMessageHandler();
+            return serviceContainer.GetInstance<MessageHandler>();
         }
 
 		static bool MessageIsInvalid(SlackMessage message) =>

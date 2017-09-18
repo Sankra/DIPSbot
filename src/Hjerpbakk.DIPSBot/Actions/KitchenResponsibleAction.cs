@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSbot;
 using Hjerpbakk.DIPSBot.Clients;
@@ -12,7 +11,7 @@ namespace Hjerpbakk.DIPSBot.Actions
 		readonly ISlackIntegration slackIntegration;
 		readonly IKitchenResponsibleClient kitchenResponsibleClient;
 
-        public KitchenResponsibleAction(ISlackIntegration slackIntegration, IKitchenResponsibleClient kitchenResponsibleClient)
+        protected KitchenResponsibleAction(ISlackIntegration slackIntegration, IKitchenResponsibleClient kitchenResponsibleClient)
         {
             this.slackIntegration = slackIntegration;
             this.kitchenResponsibleClient = kitchenResponsibleClient;

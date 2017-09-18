@@ -1,28 +1,15 @@
-﻿using System;
-using System.Threading.Tasks;
-using Hjerpbakk.DIPSbot;
-using Hjerpbakk.DIPSbot.Services;
-using Hjerpbakk.DIPSBot.Actions;
-using SlackConnector.Models;
+﻿using Hjerpbakk.DIPSBot.Actions;
+using LightInject;
 
 namespace Hjerpbakk.DIPSBot.MessageHandlers
 {
     class AdminMessageHandler : MessageHandler
     {
-        readonly ISlackIntegration slackIntegration;
-        readonly IOrganizationService organizationService;
-        readonly UserKitchenResponsibleAction kitchenResponsibleActions;
-
-        public AdminMessageHandler(ISlackIntegration slackIntegration, IOrganizationService organizationService, UserKitchenResponsibleAction userKitchenResponsibleActions)
+        public AdminMessageHandler(IServiceContainer serviceContainer)
         {
-            this.slackIntegration = slackIntegration;
-            this.organizationService = organizationService;
-            this.kitchenResponsibleActions = userKitchenResponsibleActions;
-
-            actions.Add(userKitchenResponsibleActions);
-            // TODO: Inn i containeren med både handlers og actions...
-            actions.Add(new AddDevelopersToUtviklingChannelAction(slackIntegration, organizationService));
-            actions.Add(new ListCommandsAction(slackIntegration, actions));
+            actions.Add(serviceContainer.GetInstance<UserKitchenResponsibleAction>());
+            actions.Add(serviceContainer.GetInstance<AddDevelopersToUtviklingChannelAction>());
+            actions.Add(serviceContainer.GetInstance<ListCommandsAction>());
         }
     }
 }

@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSBot.Actions;
 using SlackConnector.Models;
 
 namespace Hjerpbakk.DIPSBot.MessageHandlers
 {
-    abstract class MessageHandler
+    class MessageHandler
     {
         protected readonly List<IAction> actions;
 
-        protected MessageHandler()
+        public MessageHandler()
         {
             actions = new List<IAction>();
         }
