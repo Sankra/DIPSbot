@@ -16,8 +16,8 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers
 			this.slackIntegration = slackIntegration;
 			this.kitchenResponsibleActions = kitchenResponsibleActions;
 
-            // TODO: Legg inn unknown command action til slutt som lister alle commands
             actions.Add(kitchenResponsibleActions);
+            actions.Add(new ListCommandsAction(slackIntegration, actions));
 		}
     }
 }

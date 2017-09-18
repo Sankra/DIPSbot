@@ -13,35 +13,16 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers
         readonly IOrganizationService organizationService;
         readonly UserKitchenResponsibleAction kitchenResponsibleActions;
 
-        public AdminMessageHandler(ISlackIntegration slackIntegration, IOrganizationService organizationService, UserKitchenResponsibleAction kitchenResponsibleActions)
+        public AdminMessageHandler(ISlackIntegration slackIntegration, IOrganizationService organizationService, UserKitchenResponsibleAction userKitchenResponsibleActions)
         {
             this.slackIntegration = slackIntegration;
             this.organizationService = organizationService;
-            this.kitchenResponsibleActions = kitchenResponsibleActions;
+            this.kitchenResponsibleActions = userKitchenResponsibleActions;
 
-            // TODO: Legg inn UTV-action
-			// TODO: Legg inn unknown command action til slutt som lister alle commands
-			actions.Add(kitchenResponsibleActions);
+            actions.Add(userKitchenResponsibleActions);
+            // TODO: Inn i containeren med både handlers og actions...
+            actions.Add(new AddDevelopersToUtviklingChannelAction(slackIntegration, organizationService));
+            actions.Add(new ListCommandsAction(slackIntegration, actions));
         }
-
-   //     public async Task HandleMessage(SlackMessage message)
-   //     {
-			//if (message.Text.Contains("kjøkken")) {
-			//	await kitchenResponsibleActions.SendMessageWithKitchenResponsibles(message);
-			//} else if (message.Text == "utv") {
-				//await AddDevelopersToDeveloperChannel(message);
-        //    } else {
-        //        await slackIntegration.SendDirectMessage(message.User, "Unknown command");
-        //    }
-
-			
-        //}
-
-		async Task AddDevelopersToDeveloperChannel(SlackMessage message)
-		{
-			await slackIntegration.IndicateTyping(message.User);
-			var developers = await organizationService.GetDevelopers();
-			var slackUsers = await slackIntegration.GetAllUsers();
-		}
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using SlackConnector.Models;
 
 namespace Hjerpbakk.DIPSBot.Actions
@@ -10,6 +9,5 @@ namespace Hjerpbakk.DIPSBot.Actions
 
         bool ShouldExecute(SlackMessage message);
         Task Execute(SlackMessage message);
-
     }
 }
