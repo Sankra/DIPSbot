@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSbot;
+using Hjerpbakk.DIPSBot.Actions;
 using Hjerpbakk.DIPSBot.Clients;
 using SlackConnector.Models;
 
@@ -10,32 +11,24 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers
     class TrondheimMessageHandler : IMessageHandler
     {
         readonly ISlackIntegration slackIntegration;
-        readonly IKitchenResponsibleClient kitchenResponsibleClient;
+        readonly KitchenResponsibleActions kitchenResponsibleActions;
 
-        public TrondheimMessageHandler(ISlackIntegration slackIntegration, IKitchenResponsibleClient kitchenResponsibleClient)
+        public TrondheimMessageHandler(ISlackIntegration slackIntegration, KitchenResponsibleActions kitchenResponsibleActions)
         {
             this.slackIntegration = slackIntegration;
-            this.kitchenResponsibleClient = kitchenResponsibleClient;
+            this.kitchenResponsibleActions = kitchenResponsibleActions;
         }
 
         public async Task HandleMessage(SlackMessage message)
         {
             if (message.MentionsBot == true) {
-                var normalizedText = message.Text.ToLower();
-                if (normalizedText.Contains("kjøkken"))
+                if (message.Text.Contains("kjøkken"))
                 {
-                    //await slackIntegration.SendMessageToChannel(message.ChatHub, "Alle andre enn Runar.");    
-                    await GetAllKitchenResponsibles(message);
+                    await kitchenResponsibleActions.SendMessageWithKitchenResponsibles(message);
                 }
             }
         }
 
-        async Task GetAllKitchenResponsibles(SlackMessage message)
-        {
-            var employeesAndWeeks = await kitchenResponsibleClient.GetAllWeeks();
-            var kitchenResponsibleTable = string.Join("\n", employeesAndWeeks.Select(w => w.WeekNumber + ". " + w.SlackUser.FormattedUserId));
-            var kitchenResponsible = "*Kjøkkenansvarlig*\n" + kitchenResponsibleTable;
-            await slackIntegration.SendMessageToChannel(message.ChatHub, kitchenResponsible);
-        }
+
     }
 }

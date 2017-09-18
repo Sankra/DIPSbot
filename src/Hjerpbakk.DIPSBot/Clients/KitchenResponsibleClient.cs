@@ -24,10 +24,6 @@ namespace Hjerpbakk.DIPSBot.Clients
 
 		public async Task<EmployeeWeek[]> GetAllWeeks()
         {
-			httpClient.DefaultRequestHeaders.Accept.Clear();
-			httpClient.DefaultRequestHeaders.Accept.Add(
-				new MediaTypeWithQualityHeaderValue("application/json"));
-
 			var weeksAndEmployees = await httpClient.GetStringAsync("http://localhost:5000/api/values");
 
             return JsonConvert.DeserializeObject<EmployeeWeek[]>(weeksAndEmployees);

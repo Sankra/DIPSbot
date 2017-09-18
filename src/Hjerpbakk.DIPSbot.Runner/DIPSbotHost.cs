@@ -7,6 +7,7 @@ using Hjerpbakk.DIPSBot;
 using System.Threading;
 using System.Net.Http;
 using Hjerpbakk.DIPSBot.Clients;
+using Hjerpbakk.DIPSBot.Actions;
 
 namespace Hjerpbakk.DIPSbot.Runner
 {
@@ -87,6 +88,8 @@ namespace Hjerpbakk.DIPSbot.Runner
 
             serviceContainer.Register<IKitchenResponsibleClient, KitchenResponsibleClient>(new PerContainerLifetime());
 			serviceContainer.Register<IOrganizationService, FileOrganizationService>(new PerContainerLifetime());
+
+            serviceContainer.Register<KitchenResponsibleActions>();
 
 			serviceContainer.Register<DIPSbotImplementation>();
 

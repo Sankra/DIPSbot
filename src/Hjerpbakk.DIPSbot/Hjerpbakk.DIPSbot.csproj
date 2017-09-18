@@ -11,6 +11,7 @@
     <Folder Include="MessageHandlers\" />
     <Folder Include="Clients\" />
     <Folder Include="Model\" />
+    <Folder Include="Actions\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="SlackConnector" Version="4.1.13" />

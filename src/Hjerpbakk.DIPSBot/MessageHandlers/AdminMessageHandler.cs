@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSbot;
 using Hjerpbakk.DIPSbot.Services;
+using Hjerpbakk.DIPSBot.Actions;
 using SlackConnector.Models;
 
 namespace Hjerpbakk.DIPSBot.MessageHandlers
@@ -10,22 +11,26 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers
     {
         readonly ISlackIntegration slackIntegration;
         readonly IOrganizationService organizationService;
+        readonly KitchenResponsibleActions kitchenResponsibleActions;
 
-        public AdminMessageHandler(ISlackIntegration slackIntegration, IOrganizationService organizationService)
+        public AdminMessageHandler(ISlackIntegration slackIntegration, IOrganizationService organizationService, KitchenResponsibleActions kitchenResponsibleActions)
         {
             this.slackIntegration = slackIntegration;
             this.organizationService = organizationService;
+            this.kitchenResponsibleActions = kitchenResponsibleActions;
         }
 
         public async Task HandleMessage(SlackMessage message)
         {
-			if (message.Text != "utv")
-			{
-				await slackIntegration.SendDirectMessage(message.User, "Unknown command");
-				return;
-			}
+			if (message.Text.Contains("kjøkken")) {
+				await kitchenResponsibleActions.SendMessageWithKitchenResponsibles(message);
+			} else if (message.Text == "utv") {
+				await AddDevelopersToDeveloperChannel(message);
+            } else {
+                await slackIntegration.SendDirectMessage(message.User, "Unknown command");
+            }
 
-			await AddDevelopersToDeveloperChannel(message);
+			
         }
 
 		async Task AddDevelopersToDeveloperChannel(SlackMessage message)
