@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSBot.Model;
 using Newtonsoft.Json;
@@ -10,6 +13,8 @@ namespace Hjerpbakk.DIPSBot.Clients
 {
     class KitchenResponsibleClient : IKitchenResponsibleClient
     {
+        const string ServiceURL = "http://localhost:5000/api/";
+
         readonly HttpClient httpClient;
 
         public KitchenResponsibleClient(HttpClient httpClient)
@@ -17,15 +22,29 @@ namespace Hjerpbakk.DIPSBot.Clients
             this.httpClient = httpClient;
         }
 
-        public Task AddEmployee(SlackUser employee)
+        public async Task<(bool ok, string error)> AddEmployee(SlackUser employee)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var jsonContent = JsonConvert.SerializeObject(employee.Id);
+				var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+				var response = await httpClient.PostAsync(ServiceURL + "employee", content);
+				if (response.StatusCode == HttpStatusCode.OK)
+				{
+					return (true, "");
+				}
+
+				return (false, "An error occurred: \n" + response);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.ToString());
+            }
         }
 
 		public async Task<EmployeeWeek[]> GetAllWeeks()
         {
-			var weeksAndEmployees = await httpClient.GetStringAsync("http://localhost:5000/api/values");
-
+			var weeksAndEmployees = await httpClient.GetStringAsync(ServiceURL + "kitchen");
             return JsonConvert.DeserializeObject<EmployeeWeek[]>(weeksAndEmployees);
         }
 

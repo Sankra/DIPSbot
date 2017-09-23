@@ -10,7 +10,7 @@ namespace Hjerpbakk.DIPSBot.Clients
         Task<EmployeeWeek[]> GetAllWeeks();
         Task<EmployeeWeek> GetResponsibleForWeek(ushort week);
         Task<EmployeeWeek> GetNextWeekForEmployee(SlackUser employee);
-        Task AddEmployee(SlackUser employee);
+        Task<(bool ok, string error)> AddEmployee(SlackUser employee);
         Task RemoveEmployee(SlackUser employee);
     }
 }

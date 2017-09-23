@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSbot;
 using Hjerpbakk.DIPSBot.Clients;
@@ -19,10 +20,18 @@ namespace Hjerpbakk.DIPSBot.Actions
 
 		public async Task Execute(SlackMessage message)
 		{
-			var employeesAndWeeks = await kitchenResponsibleClient.GetAllWeeks();
-			var kitchenResponsibleTable = string.Join("\n", employeesAndWeeks.Select(w => w.WeekNumber + ". " + w.SlackUser.FormattedUserId));
-			var kitchenResponsible = "*Kjøkkenansvarlig*\n" + kitchenResponsibleTable;
-			await slackIntegration.SendMessageToChannel(message.ChatHub, kitchenResponsible);
+            try
+            {
+				// TODO: Får StackOverflow Exception når server returnerer crash...
+				var employeesAndWeeks = await kitchenResponsibleClient.GetAllWeeks();
+				var kitchenResponsibleTable = string.Join("\n", employeesAndWeeks.Select(w => w.WeekNumber + ". " + w.SlackUser.FormattedUserId));
+				var kitchenResponsible = "*Kjøkkenansvarlig*\n" + kitchenResponsibleTable;
+				await slackIntegration.SendMessageToChannel(message.ChatHub, kitchenResponsible);
+            }
+            catch (Exception ex)
+            {
+                await slackIntegration.SendMessageToChannel(message.ChatHub, ex.ToString());
+            }
 		}
     }
 }

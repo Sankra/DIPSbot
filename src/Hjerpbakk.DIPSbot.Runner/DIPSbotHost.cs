@@ -101,6 +101,7 @@ namespace Hjerpbakk.DIPSbot.Runner
             serviceContainer.Register<ListCommandsAction>(new PerContainerLifetime());
             serviceContainer.Register<UserKitchenResponsibleAction>(new PerContainerLifetime());
             serviceContainer.Register<TrondheimKitchenResponsibleAction>(new PerContainerLifetime());
+            serviceContainer.Register<AddEmployeeAction>(new PerContainerLifetime());
 
             serviceContainer.Register<DIPSbotImplementation>(new PerContainerLifetime());
 
