@@ -58,6 +58,11 @@ namespace Hjerpbakk.DIPSBot.Clients
             throw new NotImplementedException();
         }
 
+		public Task<EmployeeWeek> GetResponsibleForCurrentWeek()
+		{
+			throw new NotImplementedException();
+		}
+
         public Task RemoveEmployee(SlackUser employee)
         {
             throw new NotImplementedException();

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSbot;
 using Hjerpbakk.DIPSBot.Clients;
+using Hjerpbakk.DIPSBot.Predicates;
 using SlackConnector.Models;
 
 namespace Hjerpbakk.DIPSBot.Actions
@@ -11,20 +12,21 @@ namespace Hjerpbakk.DIPSBot.Actions
         readonly ISlackIntegration slackIntegration;
         readonly IKitchenResponsibleClient kitchenResponsibleClient;
 
-        SlackUser userToAdd;
-
 		public AddEmployeeAction(ISlackIntegration slackIntegration, IKitchenResponsibleClient kitchenResponsibleClient)
         {
             this.slackIntegration = slackIntegration;
             this.kitchenResponsibleClient = kitchenResponsibleClient;
         }
 
-        public string CommandText => "add @user";
+        public AddEmployeePredicate AddEmployeePredicate { private get; set; }
 
         public async Task Execute(SlackMessage message)
         {
             try
             {
+                var commandParts = message.Text.Split(' ');
+				var slackUserId = commandParts[1].Substring(2, commandParts[1].Length - 3).ToUpper();
+				var userToAdd = new SlackUser { Id = slackUserId };
 				await slackIntegration.SendMessageToChannel(message.ChatHub, $"Adding {userToAdd.FormattedUserId} as employee...");
 				var result = await kitchenResponsibleClient.AddEmployee(userToAdd);
 				if (result.ok)
@@ -40,20 +42,6 @@ namespace Hjerpbakk.DIPSBot.Actions
             {
                 await slackIntegration.SendMessageToChannel(message.ChatHub, ex.ToString());
             }
-        }
-
-        public bool ShouldExecute(SlackMessage message) {
-            if (message.Text.StartsWith("add <@", StringComparison.InvariantCulture)) {
-                var commandParts = message.Text.Split(' ');
-				if (commandParts.Length == 2 && commandParts[1].StartsWith("<@", StringComparison.InvariantCulture) && commandParts[1][commandParts[1].Length - 1] == '>')
-				{
-					var slackUserId = commandParts[1].Substring(2, commandParts[1].Length - 3).ToUpper();
-					userToAdd = new SlackUser { Id = slackUserId };
-                    return true;
-				}
-            }
-
-            return false;
         }
     }
 }

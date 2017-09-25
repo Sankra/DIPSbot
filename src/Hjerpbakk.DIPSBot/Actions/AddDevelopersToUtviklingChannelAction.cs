@@ -17,15 +17,11 @@ namespace Hjerpbakk.DIPSBot.Actions
 			this.organizationService = organizationService;
         }
 
-        public string CommandText => "utv";
-
         public async Task Execute(SlackMessage message)
         {
 			await slackIntegration.IndicateTyping(message.User);
 			var developers = await organizationService.GetDevelopers();
 			var slackUsers = await slackIntegration.GetAllUsers();
         }
-
-        public bool ShouldExecute(SlackMessage message) => message.Text == "utv";
     }
 }

@@ -8,6 +8,7 @@ namespace Hjerpbakk.DIPSBot.Clients
     interface IKitchenResponsibleClient
     {
         Task<EmployeeWeek[]> GetAllWeeks();
+        Task<EmployeeWeek> GetResponsibleForCurrentWeek();
         Task<EmployeeWeek> GetResponsibleForWeek(ushort week);
         Task<EmployeeWeek> GetNextWeekForEmployee(SlackUser employee);
         Task<(bool ok, string error)> AddEmployee(SlackUser employee);

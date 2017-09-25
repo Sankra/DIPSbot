@@ -1,16 +1,19 @@
-﻿using Hjerpbakk.DIPSBot.Actions;
+﻿using System.Linq;
+using Hjerpbakk.DIPSbot;
+using Hjerpbakk.DIPSBot.Actions;
+using Hjerpbakk.DIPSBot.Predicates;
 using LightInject;
 
 namespace Hjerpbakk.DIPSBot.MessageHandlers
 {
     class AdminMessageHandler : MessageHandler
     {
-        public AdminMessageHandler(IServiceContainer serviceContainer)
+        public AdminMessageHandler(IServiceContainer serviceContainer) : base(serviceContainer)
         {
-            actions.Add(serviceContainer.GetInstance<AddDevelopersToUtviklingChannelAction>());
-            actions.Add(serviceContainer.GetInstance<UserKitchenResponsibleAction>());
-            actions.Add(serviceContainer.GetInstance<AddEmployeeAction>());
-            actions.Add(serviceContainer.GetInstance<ListCommandsAction>());
+			AddCommand<KitchenResponsibleAction>(new KitchenOverviewPredicate());
+            AddCommand<AddDevelopersToUtviklingChannelAction>(new AddEmployeePredicate());
+            AddCommand<AddEmployeeAction>(new AddDevelopersToUtviklingChannelPredicate());
+			AddCommandListingAsUnknownCommand(new TruePredicate());
         }
     }
 }

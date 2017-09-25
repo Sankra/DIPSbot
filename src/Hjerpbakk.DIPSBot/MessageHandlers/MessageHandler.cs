@@ -1,28 +1,43 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSBot.Actions;
+using Hjerpbakk.DIPSBot.Predicates;
 using SlackConnector.Models;
+using LightInject;
+using Hjerpbakk.DIPSbot;
 
 namespace Hjerpbakk.DIPSBot.MessageHandlers
 {
     class MessageHandler
     {
-        protected readonly List<IAction> actions;
+        readonly IServiceContainer serviceContainer;
+        readonly List<(IAction action, IPredicate[] predicates)> commands;
 
-        public MessageHandler()
+        public MessageHandler(IServiceContainer serviceContainer)
         {
-            actions = new List<IAction>();
+            this.serviceContainer = serviceContainer;
+            commands = new List<(IAction action, IPredicate[] predicates)>();
         }
 
         public async Task HandleMessage(SlackMessage message) {
 
-            foreach (var action in actions)
+            foreach (var command in commands)
             {
-                if (action.ShouldExecute(message)) {
-                    await action.Execute(message);
+                if (command.predicates.All(p => p.ShouldExecute(message))) {
+                    await command.action.Execute(message);
                     break;
                 }
             }
+        }
+
+        protected void AddCommand<T>(params IPredicate[] predicates) {
+            var action = (IAction)serviceContainer.GetInstance<T>();
+            commands.Add((action, predicates));
+        }
+
+        protected void AddCommandListingAsUnknownCommand(IPredicate listCommandsPredicate) {
+            commands.Add((new ListCommandsAction(serviceContainer.GetInstance<ISlackIntegration>(), commands.Select(c => c.predicates.First())), new [] {listCommandsPredicate }));
         }
     }
 }
