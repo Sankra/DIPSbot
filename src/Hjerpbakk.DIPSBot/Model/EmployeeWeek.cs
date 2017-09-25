@@ -10,5 +10,7 @@ namespace Hjerpbakk.DIPSBot.Model
         public ushort WeekNumber { get; set; }
         [JsonConverter(typeof(SlackUserJsonConverter))]
         public SlackUser SlackUser { get; set; }
+
+        public string FormattedEmployeeWeek => WeekNumber + ". " + SlackUser.FormattedUserId;
     }
 }

@@ -11,6 +11,7 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers
         public TrondheimMessageHandler(IServiceContainer serviceContainer) : base(serviceContainer)
 		{
             AddCommand<KitchenResponsibleAction>(new KitchenOverviewPredicate(), new BotMentionedPredicate());
+            AddCommand<ThanksAction>(new ThanksPredicate(), new BotMentionedPredicate());
             AddCommandListingAsUnknownCommand(new BotMentionedPredicate());
         }
     }
