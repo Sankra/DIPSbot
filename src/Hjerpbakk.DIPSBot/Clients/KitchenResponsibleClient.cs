@@ -53,9 +53,10 @@ namespace Hjerpbakk.DIPSBot.Clients
             throw new NotImplementedException();
         }
 
-        public Task<EmployeeWeek> GetResponsibleForWeek(ushort week)
+        public async Task<EmployeeWeek> GetResponsibleForWeek(ushort week)
         {
-            throw new NotImplementedException();
+            var employeeAndWeek = await httpClient.GetStringAsync(ServiceURL + "week/" + week);
+			return JsonConvert.DeserializeObject<EmployeeWeek>(employeeAndWeek);
         }
 
 		public async Task<EmployeeWeek> GetResponsibleForCurrentWeek()

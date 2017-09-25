@@ -10,8 +10,9 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers
     {
         public TrondheimMessageHandler(IServiceContainer serviceContainer) : base(serviceContainer)
 		{
-            AddCommand<KitchenResponsibleAction>(new KitchenOverviewPredicate(), new BotMentionedPredicate());
-            AddCommand<ThanksAction>(new ThanksPredicate(), new BotMentionedPredicate());
+            AddCommand<KitchenResponsibleAction>(new BotMentionedPredicate(), new KitchenPredicate());
+            AddCommand<ThanksAction>(new BotMentionedPredicate(), new ThanksPredicate());
+            AddCommand<NegativeAction>(new BotMentionedPredicate(), new NegativePredicate());
             AddCommandListingAsUnknownCommand(new BotMentionedPredicate());
         }
     }

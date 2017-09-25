@@ -10,7 +10,8 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers
     {
         public RegularUserMessageHandler(IServiceContainer serviceContainer) : base(serviceContainer)
 		{
-            AddCommand<KitchenResponsibleAction>(new KitchenOverviewPredicate());
+            AddCommand<KitchenResponsibleAction>(new KitchenPredicate());
+            AddCommand<ThanksAction>(new ThanksPredicate());
 			AddCommandListingAsUnknownCommand(new TruePredicate());
 		}
     }

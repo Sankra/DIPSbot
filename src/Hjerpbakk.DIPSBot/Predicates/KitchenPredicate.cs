@@ -2,7 +2,7 @@
 
 namespace Hjerpbakk.DIPSBot.Predicates
 {
-    struct KitchenOverviewPredicate : IPredicate
+    struct KitchenPredicate : IPredicate
     {
 		public string CommandText => "kjøkken";
 

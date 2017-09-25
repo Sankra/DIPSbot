@@ -28,20 +28,30 @@ namespace Hjerpbakk.DIPSBot.Actions
                     var employeeAndWeek = await kitchenResponsibleClient.GetResponsibleForCurrentWeek();
                     var kitchenResponsible = $"Kjøkkenansvarlig for uke {employeeAndWeek.WeekNumber} er {employeeAndWeek.SlackUser.FormattedUserId}.";
 					await slackIntegration.SendMessageToChannel(message.ChatHub, kitchenResponsible);
-                } else if (message.Text.Contains("neste") || message.Text.Contains("når")) {
-                    // TODO: Sjekk om person blir nevnt
-                    // TODO: ellers er det den som sender meldingen 
+                } else if (message.Text.Contains("neste")) {
+                    var thisWeek = GetIso8601WeekOfYear(DateTime.Now);
+                    var nextWeek = GetNextWeek(thisWeek);
+                    var employeeAndWeek = await kitchenResponsibleClient.GetResponsibleForWeek(nextWeek);
+                    if (employeeAndWeek.SlackUser.Id == null) {
+                        await slackIntegration.SendMessageToChannel(message.ChatHub, 
+                            $"Ingen er kjøkkenansvarlig ennå for uke {employeeAndWeek.WeekNumber}.");
+                    } else {
+                        await slackIntegration.SendMessageToChannel(message.ChatHub, 
+                            $"Kjøkkenansvarlig for uke {employeeAndWeek.WeekNumber} er {employeeAndWeek.SlackUser.FormattedUserId}.");
+                    }
                 }
 
-                // TODO: Dersom melding har tall
-                // TODO: Sjekk om person blir nevnt
-                // TODO: ellers er det den som sender meldingen 
+				// TODO: Dersom melding har tall
+				// TODO: Sjekk om person blir nevnt
+				// TODO: ellers er det den som sender meldingen 
 
+				// TODO: Sjekk om person blir nevnt
+				// TODO: ellers er det den som sender meldingen 
 
-                // TODO: Ellers blir det denne
+				// TODO: Ellers blir det denne
 
-                // TODO: Får StackOverflow Exception når server returnerer crash...
-                else {
+				// TODO: Får StackOverflow Exception når server returnerer crash...
+				else {
     				var employeesAndWeeks = await kitchenResponsibleClient.GetAllWeeks();
     				var kitchenResponsibleTable = string.Join("\n", employeesAndWeeks.Select(w => w.FormattedEmployeeWeek));
                     var kitchenResponsible = $"*Kjøkkenansvarlig*\n{kitchenResponsibleTable}";

@@ -77,7 +77,9 @@ namespace Hjerpbakk.DIPSbot
 
         MessageHandler GetMessageHandler(SlackMessage message) {
             if (message.ChatHub.Type == SlackChatHubType.Group) {
-				if (message.ChatHub.Name == "#bot-test")
+                // This is the bot-test channel
+                // if (message.ChatHub.Name == "#bot-test")
+                if (message.ChatHub.Name == "#trondheim")
 				{
 					return serviceContainer.GetInstance<TrondheimMessageHandler>();
 				}

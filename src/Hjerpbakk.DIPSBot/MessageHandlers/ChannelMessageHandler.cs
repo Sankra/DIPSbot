@@ -10,7 +10,8 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers
     {
         public ChannelMessageHandler(IServiceContainer serviceContainer) : base(serviceContainer)
 		{
-			AddCommandListingAsUnknownCommand(new BotMentionedPredicate());
+			AddCommand<ThanksAction>(new BotMentionedPredicate(), new ThanksPredicate());
+            AddCommandListingAsUnknownCommand(new BotMentionedPredicate());
 		}
     }
 }
