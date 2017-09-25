@@ -13,6 +13,7 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers
 			AddCommand<KitchenResponsibleAction>(new KitchenPredicate());
             AddCommand<AddDevelopersToUtviklingChannelAction>(new AddEmployeePredicate());
             AddCommand<AddEmployeeAction>(new AddDevelopersToUtviklingChannelPredicate());
+            AddCommand<WeekAction>(new WeekPredicate());
 			AddCommandListingAsUnknownCommand(new TruePredicate());
         }
     }
