@@ -25,7 +25,7 @@ namespace Hjerpbakk.DIPSBot.Actions
             this.kitchenResponsibleClient = kitchenResponsibleClient;
             this.configuration = configuration;
 
-            numberInStringRegex = new Regex(@"\d+", RegexOptions.Compiled);
+            numberInStringRegex = new Regex(@"\b\d+", RegexOptions.Compiled);
             slackUserRegex = new Regex(@"<@(\S{9})>", RegexOptions.Compiled);
         }
 
@@ -67,7 +67,7 @@ namespace Hjerpbakk.DIPSBot.Actions
                         var nextWeek = EmployeeWeek.GetNextWeek(thisWeek);
                         await SendMessageForWeek(message.ChatHub, nextWeek);
                     }				
-                } else if ((numberInString = numberInStringRegex.Match(message.Text).Value) != null) {
+                } else if ((numberInString = numberInStringRegex.Match(message.Text).Value) != "") {
                     var number = int.Parse(numberInString);
 					if (number <= 0 || number > 53)	{
 						await slackIntegration.SendMessageToChannel(message.ChatHub, 
