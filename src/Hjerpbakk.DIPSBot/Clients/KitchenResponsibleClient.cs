@@ -48,9 +48,10 @@ namespace Hjerpbakk.DIPSBot.Clients
             return JsonConvert.DeserializeObject<EmployeeWeek[]>(weeksAndEmployees);
         }
 
-        public Task<EmployeeWeek> GetNextWeekForEmployee(SlackUser employee)
+        public async Task<EmployeeWeek> GetNextWeekForEmployee(SlackUser employee)
         {
-            throw new NotImplementedException();
+            var employeeAndWeek = await httpClient.GetStringAsync(ServiceURL + "employee/" + employee.Id);
+			return JsonConvert.DeserializeObject<EmployeeWeek>(employeeAndWeek);
         }
 
         public async Task<EmployeeWeek> GetResponsibleForWeek(ushort week)

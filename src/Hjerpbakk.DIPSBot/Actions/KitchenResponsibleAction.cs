@@ -12,15 +12,24 @@ namespace Hjerpbakk.DIPSBot.Actions
 {
     class KitchenResponsibleAction : IAction
     {
-		readonly ISlackIntegration slackIntegration;
+        readonly ISlackIntegration slackIntegration;
 		readonly IKitchenResponsibleClient kitchenResponsibleClient;
+        readonly Configuration configuration;
 
-        public KitchenResponsibleAction(ISlackIntegration slackIntegration, IKitchenResponsibleClient kitchenResponsibleClient)
+        readonly Regex numberInStringRegex;
+        readonly Regex slackUserRegex;
+
+        public KitchenResponsibleAction(ISlackIntegration slackIntegration, IKitchenResponsibleClient kitchenResponsibleClient, Configuration configuration)
         {
             this.slackIntegration = slackIntegration;
             this.kitchenResponsibleClient = kitchenResponsibleClient;
+            this.configuration = configuration;
+
+            numberInStringRegex = new Regex(@"\d+", RegexOptions.Compiled);
+            slackUserRegex = new Regex(@"<@(\S{9})>", RegexOptions.Compiled);
         }
 
+        // TODO: Vi har uendelig mange string contains, dette kan gjøres mye mer sm00th. Gjelder predicater også...
 		public async Task Execute(SlackMessage message)
 		{
 			try
@@ -28,24 +37,39 @@ namespace Hjerpbakk.DIPSBot.Actions
                 string numberInString = null;
                 if (message.Text.Contains("denne")) {
                     var employeeAndWeek = await kitchenResponsibleClient.GetResponsibleForCurrentWeek();
-                    var kitchenResponsible = $"Kjøkkenansvarlig for uke {employeeAndWeek.WeekNumber} er {employeeAndWeek.SlackUser.FormattedUserId}.";
-					await slackIntegration.SendMessageToChannel(message.ChatHub, kitchenResponsible);
+                    await SendWeekAndResponsible(message.ChatHub, employeeAndWeek);
                 } else if (message.Text.Contains("neste")) {
-					// TODO: Sjekk om person blir nevnt, da skal vi finne denne personens neste uke
-					if (message.Text.Contains("uke"))
+					if (message.ChatHub.Type == SlackChatHubType.DM || message.Text.Contains("jeg")) {
+                        await SendMessageWithNextWeekForUser(message.ChatHub, message.User);
+                        return;
+                    }
+
+                    string slackUserToCheck = null;
+                    Match match = slackUserRegex.Match(message.Text);
+                    while (match.Success)
                     {
+                        if (match.Groups.Count == 2) {
+                            var slackUserId = match.Groups[1].Value;
+                            if (!slackUserId.Equals(configuration.BotUser, StringComparison.InvariantCultureIgnoreCase)) {
+                                slackUserToCheck = slackUserId.ToUpper();
+                                break;
+                            }
+                        } 
+
+                        match = match.NextMatch();
+                    }
+
+                    if (slackUserToCheck != null) {
+                        var slackUser = new SlackUser { Id = slackUserToCheck };
+                        await SendMessageWithNextWeekForUser(message.ChatHub, slackUser);
+                    } else {
                         var thisWeek = EmployeeWeek.GetIso8601WeekOfYear(DateTime.Now);
                         var nextWeek = EmployeeWeek.GetNextWeek(thisWeek);
-                        await SendMessageForWeek(message, nextWeek);
-                    }
-                    else {
-						// TODO: Må også støtte når en person spør direktenår denne personens neste uke blir...
-					}
-					
-                } else if ((numberInString = Regex.Match(message.Text, @"\d+").Value) != null) {
+                        await SendMessageForWeek(message.ChatHub, nextWeek);
+                    }				
+                } else if ((numberInString = numberInStringRegex.Match(message.Text).Value) != null) {
                     var number = int.Parse(numberInString);
-					if (number <= 0 || number > 53)
-					{
+					if (number <= 0 || number > 53)	{
 						await slackIntegration.SendMessageToChannel(message.ChatHub, 
                             $"Uke {number} er ikke en god uke for kjøkkenjobbing.");
                         return;
@@ -58,24 +82,8 @@ namespace Hjerpbakk.DIPSBot.Actions
                     } 
                         
                     var weekNumber = (ushort)number;
-                    await SendMessageForWeek(message, weekNumber);
-
-						
-						
-					
-
-
-                }
-
-				
-
-				// TODO: Sjekk om person blir nevnt
-				// TODO: ellers er det den som sender meldingen 
-
-
-
-				// TODO: Får StackOverflow Exception når server returnerer crash...
-				else {
+                    await SendMessageForWeek(message.ChatHub, weekNumber);
+                } else {
     				var employeesAndWeeks = await kitchenResponsibleClient.GetAllWeeks();
     				var kitchenResponsibleTable = string.Join("\n", employeesAndWeeks.Select(w => w.FormattedEmployeeWeek));
                     var kitchenResponsible = $"*Kjøkkenansvarlig*\n{kitchenResponsibleTable}";
@@ -88,19 +96,31 @@ namespace Hjerpbakk.DIPSBot.Actions
             }
 		}
 
-        async Task SendMessageForWeek(SlackMessage message, ushort nextWeek)
+        async Task SendMessageWithNextWeekForUser(SlackChatHub chatHub, SlackUser slackUser)
+		{
+            var employeeAndWeek = await kitchenResponsibleClient.GetNextWeekForEmployee(slackUser);
+            if (employeeAndWeek.WeekNumber == 0) {
+				await slackIntegration.SendMessageToChannel(chatHub,
+                    $"Fant ingen uker der {slackUser.FormattedUserId} er kjøkkenansvarlig.");
+            } else {
+                await SendWeekAndResponsible(chatHub, employeeAndWeek);
+            }
+		}
+
+        async Task SendMessageForWeek(SlackChatHub chatHub, ushort nextWeek)
         {
             var employeeAndWeek = await kitchenResponsibleClient.GetResponsibleForWeek(nextWeek);
-            if (employeeAndWeek.SlackUser.Id == null)
-            {
-                await slackIntegration.SendMessageToChannel(message.ChatHub,
+            if (employeeAndWeek.SlackUser.Id == null) {
+                await slackIntegration.SendMessageToChannel(chatHub,
                     $"Ingen er kjøkkenansvarlig ennå for uke {employeeAndWeek.WeekNumber}.");
             }
-            else
-            {
-                await slackIntegration.SendMessageToChannel(message.ChatHub,
-                    $"Kjøkkenansvarlig for uke {employeeAndWeek.WeekNumber} er {employeeAndWeek.SlackUser.FormattedUserId}.");
+            else {
+                await SendWeekAndResponsible(chatHub, employeeAndWeek);
             }
         }
+
+        async Task SendWeekAndResponsible(SlackChatHub chatHub, EmployeeWeek employeeAndWeek) =>
+			await slackIntegration.SendMessageToChannel(chatHub,
+					$"Kjøkkenansvarlig for uke {employeeAndWeek.WeekNumber} er {employeeAndWeek.SlackUser.FormattedUserId}.");
     }
 }
