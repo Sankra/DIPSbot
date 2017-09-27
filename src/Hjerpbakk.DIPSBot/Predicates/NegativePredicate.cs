@@ -11,6 +11,7 @@ namespace Hjerpbakk.DIPSBot.Predicates
 			message.Text.Contains("fuck you") ||
             message.Text.Contains("slem") ||
             message.Text.Contains("stille") ||
+            message.Text.Contains("dust") ||
 			message.Text.Contains("damn");
 	}
 }

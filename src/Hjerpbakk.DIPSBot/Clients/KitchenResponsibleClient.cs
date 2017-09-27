@@ -13,13 +13,16 @@ namespace Hjerpbakk.DIPSBot.Clients
 {
     class KitchenResponsibleClient : IKitchenResponsibleClient
     {
-        const string ServiceURL = "http://localhost:5000/api/";
+        readonly string serviceURL;
 
         readonly HttpClient httpClient;
+        readonly Configuration configuration;
 
-        public KitchenResponsibleClient(HttpClient httpClient)
+        public KitchenResponsibleClient(HttpClient httpClient, Configuration configuration)
         {
             this.httpClient = httpClient;
+            this.configuration = configuration;
+            serviceURL = configuration.KitchenServiceURL + "/api/";
         }
 
         public async Task<(bool ok, string error)> AddEmployee(SlackUser employee)
@@ -28,7 +31,7 @@ namespace Hjerpbakk.DIPSBot.Clients
             {
                 var jsonContent = JsonConvert.SerializeObject(employee.Id);
 				var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-				var response = await httpClient.PostAsync(ServiceURL + "employee", content);
+				var response = await httpClient.PostAsync(serviceURL + "employee", content);
 				if (response.StatusCode == HttpStatusCode.OK)
 				{
 					return (true, "");
@@ -44,25 +47,25 @@ namespace Hjerpbakk.DIPSBot.Clients
 
 		public async Task<EmployeeWeek[]> GetAllWeeks()
         {
-			var weeksAndEmployees = await httpClient.GetStringAsync(ServiceURL + "kitchen");
+			var weeksAndEmployees = await httpClient.GetStringAsync(serviceURL + "kitchen");
             return JsonConvert.DeserializeObject<EmployeeWeek[]>(weeksAndEmployees);
         }
 
         public async Task<EmployeeWeek> GetNextWeekForEmployee(SlackUser employee)
         {
-            var employeeAndWeek = await httpClient.GetStringAsync(ServiceURL + "employee/" + employee.Id);
+            var employeeAndWeek = await httpClient.GetStringAsync(serviceURL + "employee/" + employee.Id);
 			return JsonConvert.DeserializeObject<EmployeeWeek>(employeeAndWeek);
         }
 
         public async Task<EmployeeWeek> GetResponsibleForWeek(ushort week)
         {
-            var employeeAndWeek = await httpClient.GetStringAsync(ServiceURL + "week/" + week);
+            var employeeAndWeek = await httpClient.GetStringAsync(serviceURL + "week/" + week);
 			return JsonConvert.DeserializeObject<EmployeeWeek>(employeeAndWeek);
         }
 
 		public async Task<EmployeeWeek> GetResponsibleForCurrentWeek()
 		{
-			var employeeAndWeek = await httpClient.GetStringAsync(ServiceURL + "week");
+			var employeeAndWeek = await httpClient.GetStringAsync(serviceURL + "week");
             return JsonConvert.DeserializeObject<EmployeeWeek>(employeeAndWeek);
 		}
 

@@ -10,6 +10,8 @@ namespace Hjerpbakk.DIPSBot.Predicates
 			message.Text.Contains("thank you") ||
 			message.Text.Contains("thanks") ||
 			message.Text.Contains("yndlingsbot") ||
+            message.Text.Contains("søt") ||
+            message.Text.Contains("fin") ||
 			message.Text.Contains("takk");
 	}
 }

@@ -1,9 +1,9 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hjerpbakk.DIPSBot.Runner", "Hjerpbakk.DIPSBot.Runner\Hjerpbakk.DIPSBot.Runner.csproj", "{507C87ED-5EBD-41B9-8183-9DED2C907718}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hjerpbakk.DIPSBot.Runner", "src\Hjerpbakk.DIPSBot.Runner\Hjerpbakk.DIPSBot.Runner.csproj", "{507C87ED-5EBD-41B9-8183-9DED2C907718}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hjerpbakk.DIPSBot", "Hjerpbakk.DIPSBot\Hjerpbakk.DIPSBot.csproj", "{582611E8-7C4B-4296-89E7-5D179173B309}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hjerpbakk.DIPSBot", "src\Hjerpbakk.DIPSBot\Hjerpbakk.DIPSBot.csproj", "{582611E8-7C4B-4296-89E7-5D179173B309}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

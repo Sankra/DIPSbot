@@ -1,5 +1,6 @@
 ﻿{
   "SlackAPIToken": "[SlackAPIToken]",
   "AdminUser": "[AdminUser]",
-  "BotUser":  "[BotUser]"
+  "BotUser": "[BotUser]",
+  "KitchenServiceURL": "[KitchenServiceURL]"
 }
