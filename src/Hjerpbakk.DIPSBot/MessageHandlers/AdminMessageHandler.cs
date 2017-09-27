@@ -11,9 +11,10 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers
         public AdminMessageHandler(IServiceContainer serviceContainer) : base(serviceContainer)
         {
 			AddCommand<KitchenResponsibleAction>(new KitchenPredicate());
-            AddCommand<AddDevelopersToUtviklingChannelAction>(new AddDevelopersToUtviklingChannelPredicate());
             AddCommand<AddEmployeeAction>(new AddEmployeePredicate());
+            AddCommand<RemoveEmployeeAction>(new RemoveEmployeePredicate());
             AddCommand<WeekAction>(new WeekPredicate());
+            AddCommand<AddDevelopersToUtviklingChannelAction>(new AddDevelopersToUtviklingChannelPredicate());
 			AddCommandListingAsUnknownCommand(new TruePredicate());
         }
     }

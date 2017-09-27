@@ -69,9 +69,7 @@ namespace Hjerpbakk.DIPSBot.Clients
             return JsonConvert.DeserializeObject<EmployeeWeek>(employeeAndWeek);
 		}
 
-        public Task RemoveEmployee(SlackUser employee)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task RemoveEmployee(SlackUser employee) =>
+            await httpClient.DeleteAsync(serviceURL + "employee/" + employee.Id);
     }
 }
