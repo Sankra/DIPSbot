@@ -38,7 +38,7 @@ namespace Hjerpbakk.DIPSBot.Actions
                 if (message.Text.Contains("denne")) {
                     var employeeAndWeek = await kitchenResponsibleClient.GetResponsibleForCurrentWeek();
                     await SendWeekAndResponsible(message.ChatHub, employeeAndWeek);
-                } else if (message.Text.Contains("neste")) {
+                } else if (message.Text.Contains("neste") || message.Text.Contains("når")) {
 					if (message.ChatHub.Type == SlackChatHubType.DM || message.Text.Contains("jeg")) {
                         await SendMessageWithNextWeekForUser(message.ChatHub, message.User);
                         return;
