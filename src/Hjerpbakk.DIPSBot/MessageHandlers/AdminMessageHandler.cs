@@ -10,6 +10,7 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers
     {
         public AdminMessageHandler(IServiceContainer serviceContainer) : base(serviceContainer)
         {
+            // TODO: Add echo functionality
 			AddCommand<KitchenResponsibleAction>(new KitchenPredicate());
             AddCommand<AddEmployeeAction>(new AddEmployeePredicate());
             AddCommand<RemoveEmployeeAction>(new RemoveEmployeePredicate());

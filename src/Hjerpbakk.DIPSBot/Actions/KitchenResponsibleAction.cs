@@ -88,6 +88,7 @@ namespace Hjerpbakk.DIPSBot.Actions
     				var kitchenResponsibleTable = string.Join("\n", employeesAndWeeks.Select(w => w.FormattedEmployeeWeek));
                     var kitchenResponsible = $"*Kjøkkenansvarlig*\n{kitchenResponsibleTable}";
     				await slackIntegration.SendMessageToChannel(message.ChatHub, kitchenResponsible);
+                    // TODO: Also add link to website
                 }
             }
             catch (Exception ex)
