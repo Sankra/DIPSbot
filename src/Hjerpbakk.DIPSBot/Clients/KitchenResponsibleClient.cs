@@ -29,14 +29,14 @@ namespace Hjerpbakk.DIPSBot.Clients
                 // TODO: Duplicated below, #MakeBetter
                 var serviceURL = Configuration.KitchenServiceURL + "/api/";
                 var jsonContent = JsonConvert.SerializeObject(employee.Id);
-				var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-				var response = await httpClient.PostAsync(serviceURL + "employee", content);
-				if (response.StatusCode == HttpStatusCode.OK)
-				{
-					return (true, "");
-				}
+                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                var response = await httpClient.PostAsync(serviceURL + "employee", content);
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    return (true, "");
+                }
 
-				return (false, "An error occurred: \n" + response);
+                return (false, "An error occurred: \n" + response);
             }
             catch (Exception ex)
             {
@@ -44,10 +44,10 @@ namespace Hjerpbakk.DIPSBot.Clients
             }
         }
 
-		public async Task<EmployeeWeek[]> GetAllWeeks()
+        public async Task<EmployeeWeek[]> GetAllWeeks()
         {
             var serviceURL = Configuration.KitchenServiceURL + "/api/";
-			var weeksAndEmployees = await httpClient.GetStringAsync(serviceURL + "kitchen");
+            var weeksAndEmployees = await httpClient.GetStringAsync(serviceURL + "kitchen");
             return JsonConvert.DeserializeObject<EmployeeWeek[]>(weeksAndEmployees);
         }
 
@@ -55,26 +55,29 @@ namespace Hjerpbakk.DIPSBot.Clients
         {
             var serviceURL = Configuration.KitchenServiceURL + "/api/";
             var employeeAndWeek = await httpClient.GetStringAsync(serviceURL + "employee/" + employee.Id);
-			return JsonConvert.DeserializeObject<EmployeeWeek>(employeeAndWeek);
+            return JsonConvert.DeserializeObject<EmployeeWeek>(employeeAndWeek);
         }
 
         public async Task<EmployeeWeek> GetResponsibleForWeek(ushort week)
         {
             var serviceURL = Configuration.KitchenServiceURL + "/api/";
             var employeeAndWeek = await httpClient.GetStringAsync(serviceURL + "week/" + week);
-			return JsonConvert.DeserializeObject<EmployeeWeek>(employeeAndWeek);
+            return JsonConvert.DeserializeObject<EmployeeWeek>(employeeAndWeek);
         }
 
-		public async Task<EmployeeWeek> GetResponsibleForCurrentWeek()
-		{
+        public async Task<EmployeeWeek> GetResponsibleForCurrentWeek()
+        {
             var serviceURL = Configuration.KitchenServiceURL + "/api/";
-			var employeeAndWeek = await httpClient.GetStringAsync(serviceURL + "week");
+            var employeeAndWeek = await httpClient.GetStringAsync(serviceURL + "week");
             return JsonConvert.DeserializeObject<EmployeeWeek>(employeeAndWeek);
-		}
+        }
 
-        public async Task RemoveEmployee(SlackUser employee) {
+        public async Task RemoveEmployee(SlackUser employee)
+        {
             var serviceURL = Configuration.KitchenServiceURL + "/api/";
             await httpClient.DeleteAsync(serviceURL + "employee/" + employee.Id);
         }
+
+        public string GetWebsiteURL() => Configuration.KitchenServiceURL + "/";
     }
 }

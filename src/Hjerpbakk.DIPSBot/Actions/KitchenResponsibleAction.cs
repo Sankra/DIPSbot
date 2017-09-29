@@ -86,9 +86,8 @@ namespace Hjerpbakk.DIPSBot.Actions
                 } else {
     				var employeesAndWeeks = await kitchenResponsibleClient.GetAllWeeks();
     				var kitchenResponsibleTable = string.Join("\n", employeesAndWeeks.Select(w => w.FormattedEmployeeWeek));
-                    var kitchenResponsible = $"*Kjøkkenansvarlig*\n{kitchenResponsibleTable}";
+                    var kitchenResponsible = $"*Kjøkkenansvarlig*\n{kitchenResponsibleTable}\n\n<{kitchenResponsibleClient.GetWebsiteURL()}|Kjøkkenansvarligoversikt på nett>";
     				await slackIntegration.SendMessageToChannel(message.ChatHub, kitchenResponsible);
-                    // TODO: Also add link to website
                 }
             }
             catch (Exception ex)

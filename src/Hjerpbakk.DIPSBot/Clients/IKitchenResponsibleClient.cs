@@ -13,5 +13,6 @@ namespace Hjerpbakk.DIPSBot.Clients
         Task<EmployeeWeek> GetNextWeekForEmployee(SlackUser employee);
         Task<(bool ok, string error)> AddEmployee(SlackUser employee);
         Task RemoveEmployee(SlackUser employee);
+        string GetWebsiteURL();
     }
 }
