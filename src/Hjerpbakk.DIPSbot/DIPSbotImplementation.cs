@@ -58,7 +58,9 @@ namespace Hjerpbakk.DIPSbot
         /// <returns>No object or value is returned by this method when it completes.</returns>
         async Task MessageReceived(SlackMessage message)
         {
-            try
+			// TODO: Add insite RSS to #alle-i-dips
+			// TODO: Add support for creating bugs from within Slack: @DIPS-bot CreateBug Shit doesnt work! | helt-ainnsles | 17.2
+			try
             {
                 if (MessageIsInvalid(message))
                 {
