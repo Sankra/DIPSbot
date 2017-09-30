@@ -16,7 +16,7 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers
             AddCommand<RemoveEmployeeAction>(new RemoveEmployeePredicate());
             AddCommand<WeekAction>(new WeekPredicate());
             AddCommand<AddDevelopersToUtviklingChannelAction>(new AddDevelopersToUtviklingChannelPredicate());
-            AddCommand<ChangeKitchenServiceIPAction>(new ChangeKitchenServiceIPPredicate());
+            AddCommand<ChangeKitchenServiceIPAction>(new KitchenServiceIPPredicate());
 			AddCommandListingAsUnknownCommand(new TruePredicate());
         }
     }

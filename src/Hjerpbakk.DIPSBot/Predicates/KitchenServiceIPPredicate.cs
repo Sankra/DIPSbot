@@ -3,7 +3,7 @@ using SlackConnector.Models;
 
 namespace Hjerpbakk.DIPSBot.Predicates
 {
-	public struct ChangeKitchenServiceIPPredicate : IPredicate
+	public struct KitchenServiceIPPredicate : IPredicate
 	{
 		public string CommandText => "kitchen ip";
 
