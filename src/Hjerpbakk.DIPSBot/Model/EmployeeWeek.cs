@@ -12,6 +12,7 @@ namespace Hjerpbakk.DIPSBot.Model
         [JsonConverter(typeof(SlackUserJsonConverter))]
         public SlackUser SlackUser { get; set; }
 
+        // TODO: Show full name also for easier overview
         public string FormattedEmployeeWeek => WeekNumber + ". " + SlackUser.FormattedUserId;
 
 		public static ushort GetIso8601WeekOfYear(DateTime time)
