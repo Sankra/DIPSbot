@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -e
 rm -r ./publish
 dotnet restore
 dotnet build
