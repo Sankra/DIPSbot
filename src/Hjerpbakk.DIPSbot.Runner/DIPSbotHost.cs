@@ -30,15 +30,16 @@ namespace Hjerpbakk.DIPSbot.Runner
 				while (true)
 				{
                     Console.WriteLine("Starting DIPSbot...");
-					var serviceContainer = CompositionRoot(configuration);
-                    DIPSbot = serviceContainer.GetInstance<DIPSbotImplementation>();
+                    IServiceContainer serviceContainer;
 					try
 					{
+						serviceContainer = await CompositionRoot(configuration);
+						DIPSbot = serviceContainer.GetInstance<DIPSbotImplementation>();
 						await DIPSbot.Connect();
 					}
 					catch (Exception e)
 					{
-						Console.WriteLine($"Error connecting to Slack: {e}");
+						Console.WriteLine($"Error connecting to Slack or other services: {e}");
 						return "";
 					}
 
@@ -78,12 +79,17 @@ namespace Hjerpbakk.DIPSbot.Runner
             Console.WriteLine(exception);
         }
 
-		static IServiceContainer CompositionRoot(Configuration configuration)
+		static async Task<IServiceContainer> CompositionRoot(Configuration configuration)
 		{
+            var serviceDiscoveryClient = new ServiceDiscoveryClient(configuration);
+            await serviceDiscoveryClient.SetKitchenServiceURL();
+                                        
 			var serviceContainer = new ServiceContainer();
             serviceContainer.RegisterInstance<IServiceContainer>(serviceContainer);
 
             serviceContainer.RegisterInstance(configuration);
+            serviceContainer.RegisterInstance<IReadOnlyConfiguration>(configuration);
+            serviceContainer.RegisterInstance(serviceDiscoveryClient);
             serviceContainer.RegisterInstance(new HttpClient());
 			serviceContainer.Register<ISlackConnector, SlackConnector.SlackConnector>(new PerContainerLifetime());
 			serviceContainer.Register<ISlackIntegration, SlackIntegration>(new PerContainerLifetime());

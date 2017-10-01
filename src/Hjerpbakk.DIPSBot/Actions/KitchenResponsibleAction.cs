@@ -14,12 +14,12 @@ namespace Hjerpbakk.DIPSBot.Actions
     {
         readonly ISlackIntegration slackIntegration;
 		readonly IKitchenResponsibleClient kitchenResponsibleClient;
-        readonly Configuration configuration;
+        readonly IReadOnlyConfiguration configuration;
 
         readonly Regex numberInStringRegex;
         readonly Regex slackUserRegex;
 
-        public KitchenResponsibleAction(ISlackIntegration slackIntegration, IKitchenResponsibleClient kitchenResponsibleClient, Configuration configuration)
+        public KitchenResponsibleAction(ISlackIntegration slackIntegration, IKitchenResponsibleClient kitchenResponsibleClient, IReadOnlyConfiguration configuration)
         {
             this.slackIntegration = slackIntegration;
             this.kitchenResponsibleClient = kitchenResponsibleClient;
@@ -86,7 +86,7 @@ namespace Hjerpbakk.DIPSBot.Actions
                 } else {
     				var employeesAndWeeks = await kitchenResponsibleClient.GetAllWeeks();
     				var kitchenResponsibleTable = string.Join("\n", employeesAndWeeks.Select(w => w.FormattedEmployeeWeek));
-                    var kitchenResponsible = $"*Kjøkkenansvarlig*\n{kitchenResponsibleTable}\n\n<{kitchenResponsibleClient.GetWebsiteURL()}|Kjøkkenansvarligoversikt på nett>";
+                    var kitchenResponsible = $"*Kjøkkenansvarlig*\n{kitchenResponsibleTable}\n\n<{configuration.KitchenServiceURL}|Kjøkkenansvarligoversikt på nett>";
     				await slackIntegration.SendMessageToChannel(message.ChatHub, kitchenResponsible);
                 }
             }

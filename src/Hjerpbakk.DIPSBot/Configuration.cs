@@ -1,18 +1,24 @@
 ﻿using System;
+using Newtonsoft.Json;
+
 namespace Hjerpbakk.DIPSBot
 {
-    public class Configuration
+    public class Configuration : IReadOnlyConfiguration
     {
         public string SlackAPIToken { get; set; }
         public string AdminUser { get; set;  }
         public string BotUser { get; set; }
-        public string KitchenServiceURLDefault { 
-            get { return KitchenServiceURL; }
-            set { KitchenServiceURL = value; } 
-        }
-        public Action<Exception> FatalExceptionHandler { get; set; }
+		 
+        public string KitchenServiceURL { get; set; }
 
-        // TODO: User "proper" service discovery
-        public static string KitchenServiceURL { get; set; }
+		public string BlobStorageAccessKey { get; set; }
+		public string BlobStorageAccountName { get; set; }
+		public string BlobStorageEndpointSuffix { get; set; }
+
+		[JsonIgnore]
+		public string ConnectionString =>
+			$"DefaultEndpointsProtocol=https;AccountName={BlobStorageAccountName};AccountKey={BlobStorageAccessKey};EndpointSuffix={BlobStorageEndpointSuffix}";
+
+        public Action<Exception> FatalExceptionHandler { get; set; }
     }
 }

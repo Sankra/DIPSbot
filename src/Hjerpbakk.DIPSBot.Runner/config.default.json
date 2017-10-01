@@ -2,5 +2,7 @@
   "SlackAPIToken": "[SlackAPIToken]",
   "AdminUser": "[AdminUser]",
   "BotUser": "[BotUser]",
-  "KitchenServiceURLDefault": "[KitchenServiceURL]"
+  "BlobStorageAccessKey": "[BlobStorageAccessKey]",
+  "BlobStorageAccountName": "[BlobStorageAccountName]",
+  "BlobStorageEndpointSuffix": "[BlobStorageEndpointSuffix]"
 }

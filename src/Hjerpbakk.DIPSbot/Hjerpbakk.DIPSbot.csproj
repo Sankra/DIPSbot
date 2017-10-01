@@ -15,8 +15,9 @@
     <Folder Include="Predicates\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="SlackConnector" Version="4.1.13" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="LightInject" Version="5.1.0" />
+    <PackageReference Include="WindowsAzure.Storage" Version="8.4.0" />
+    <PackageReference Include="SlackConnector" Version="4.1.16" />
   </ItemGroup>
 </Project>

@@ -26,7 +26,7 @@ namespace Hjerpbakk.DIPSbot
             this.serviceContainer = serviceContainer ?? throw new ArgumentNullException(nameof(serviceContainer));
 
             slackIntegration = serviceContainer.GetInstance<ISlackIntegration>();
-            var configuration = serviceContainer.GetInstance<Configuration>();
+            var configuration = serviceContainer.GetInstance<IReadOnlyConfiguration>();
             fatalExceptionHandler = configuration.FatalExceptionHandler;
             adminUser = new SlackUser { Id = configuration.AdminUser };
         }
