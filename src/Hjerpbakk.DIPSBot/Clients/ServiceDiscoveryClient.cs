@@ -41,7 +41,7 @@ namespace Hjerpbakk.DIPSBot.Clients
                 throw new ArgumentException($"Could not find Kitchen Service IP in container {ContainerName} with blob name {KitchenServiceURLBlobName}");
             }
 
-			configuration.KitchenServiceURL = "http://" + ip + "/";
+			configuration.KitchenServiceURL = "http://" + ip.Trim('"') + "/";
         }
 
         public async Task UploadNewKitchenServiceURL(string url) {
