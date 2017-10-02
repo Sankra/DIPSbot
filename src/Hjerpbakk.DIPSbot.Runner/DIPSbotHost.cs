@@ -94,7 +94,7 @@ namespace Hjerpbakk.DIPSbot.Runner
 			serviceContainer.Register<ISlackConnector, SlackConnector.SlackConnector>(new PerContainerLifetime());
 			serviceContainer.Register<ISlackIntegration, SlackIntegration>(new PerContainerLifetime());
 
-            serviceContainer.Register<IKitchenResponsibleClient, KitchenResponsibleClient>(new PerContainerLifetime());
+            serviceContainer.Register<IKitchenResponsibleClient, KitchenResponsibleClientWithURLPolling>(new PerContainerLifetime());
 			serviceContainer.Register<IOrganizationService, FileOrganizationService>(new PerContainerLifetime());
 
             serviceContainer.Register<AdminMessageHandler>(new PerContainerLifetime());

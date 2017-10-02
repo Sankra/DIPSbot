@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSBot.Model;
@@ -22,60 +20,48 @@ namespace Hjerpbakk.DIPSBot.Clients
             this.configuration = configuration;
         }
 
-        public async Task<(bool ok, string error)> AddEmployee(SlackUser employee)
-        {
-            try
-            {
-                // TODO: Duplicated below, #MakeBetter
-                var serviceURL = configuration.KitchenServiceURL + "api/";
-                var jsonContent = JsonConvert.SerializeObject(employee.Id);
-                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-                var response = await httpClient.PostAsync(serviceURL + "employee", content);
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    return (true, "");
-                }
+        string ServiceURL => configuration.KitchenServiceURL + "api/";
 
-                return (false, "An error occurred: \n" + response);
-            }
-            catch (Exception ex)
-            {
-                return (false, ex.ToString());
-            }
+        public async Task AddEmployee(SlackUser employee)
+        {
+			var jsonContent = JsonConvert.SerializeObject(employee.Id);
+			var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+			var response = await httpClient.PostAsync(ServiceURL + "employee", content);
+			if (response.StatusCode == HttpStatusCode.OK)
+			{
+                return;
+			}
+
+            throw new Exception("An error occurred: \n" + response);
         }
 
         public async Task<EmployeeWeek[]> GetAllWeeks()
         {
-            var serviceURL = configuration.KitchenServiceURL + "api/";
-            var weeksAndEmployees = await httpClient.GetStringAsync(serviceURL + "kitchen");
+            var weeksAndEmployees = await httpClient.GetStringAsync(ServiceURL + "kitchen");
             return JsonConvert.DeserializeObject<EmployeeWeek[]>(weeksAndEmployees);
         }
 
         public async Task<EmployeeWeek> GetNextWeekForEmployee(SlackUser employee)
         {
-            var serviceURL = configuration.KitchenServiceURL + "api/";
-            var employeeAndWeek = await httpClient.GetStringAsync(serviceURL + "employee/" + employee.Id);
+            var employeeAndWeek = await httpClient.GetStringAsync(ServiceURL + "employee/" + employee.Id);
             return JsonConvert.DeserializeObject<EmployeeWeek>(employeeAndWeek);
         }
 
         public async Task<EmployeeWeek> GetResponsibleForWeek(ushort week)
         {
-            var serviceURL = configuration.KitchenServiceURL + "api/";
-            var employeeAndWeek = await httpClient.GetStringAsync(serviceURL + "week/" + week);
+            var employeeAndWeek = await httpClient.GetStringAsync(ServiceURL + "week/" + week);
             return JsonConvert.DeserializeObject<EmployeeWeek>(employeeAndWeek);
         }
 
         public async Task<EmployeeWeek> GetResponsibleForCurrentWeek()
         {
-            var serviceURL = configuration.KitchenServiceURL + "api/";
-            var employeeAndWeek = await httpClient.GetStringAsync(serviceURL + "week");
+            var employeeAndWeek = await httpClient.GetStringAsync(ServiceURL + "week");
             return JsonConvert.DeserializeObject<EmployeeWeek>(employeeAndWeek);
         }
 
         public async Task RemoveEmployee(SlackUser employee)
         {
-            var serviceURL = configuration.KitchenServiceURL + "api/";
-            await httpClient.DeleteAsync(serviceURL + "employee/" + employee.Id);
+            await httpClient.DeleteAsync(ServiceURL + "employee/" + employee.Id);
         }
     }
 }

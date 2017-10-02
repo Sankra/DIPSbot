@@ -28,15 +28,8 @@ namespace Hjerpbakk.DIPSBot.Actions
 				var slackUserId = commandParts[1].Substring(2, commandParts[1].Length - 3).ToUpper();
 				var userToAdd = new SlackUser { Id = slackUserId };
 				await slackIntegration.SendMessageToChannel(message.ChatHub, $"Adding {userToAdd.FormattedUserId} as employee...");
-				var result = await kitchenResponsibleClient.AddEmployee(userToAdd);
-				if (result.ok)
-				{
-					await slackIntegration.SendMessageToChannel(message.ChatHub, $"{userToAdd.FormattedUserId} was added.");
-				}
-				else
-				{
-					await slackIntegration.SendMessageToChannel(message.ChatHub, result.error);
-				}
+				await kitchenResponsibleClient.AddEmployee(userToAdd);
+				await slackIntegration.SendMessageToChannel(message.ChatHub, $"{userToAdd.FormattedUserId} was added.");
             }
             catch (Exception ex)
             {
