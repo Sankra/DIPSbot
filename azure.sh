@@ -20,4 +20,19 @@ docker push dipsbot.azurecr.io/dipsbot
 az container delete --name dipsbot --resource-group kitchen-responsible-rg --yes
 az container create --name dipsbot --image dipsbot.azurecr.io/dipsbot --cpu 1 --memory 1 --registry-password $AZUREPW --ip-address public -g kitchen-responsible-rg
 # az container show --name dipsbot --resource-group kitchen-responsible-rg --query state
-az container show --name dipsbot --resource-group kitchen-responsible-rg --query ipAddress.ip
+
+container_status=$(az container show --name dipsbot --resource-group kitchen-responsible-rg --query state)
+echo $container_status
+while [ $container_status != "\"Running\"" ]
+do 
+    sleep 5
+    container_status=$(az container show --name dipsbot --resource-group kitchen-responsible-rg --query state)
+    echo $container_status
+done
+
+# Uploud IP to Blob Storage
+touch ./dipsbot-service.txt
+# Needs. AZURE_STORAGE_CONNECTION_STRING environment variable
+az container show --name dipsbot --resource-group kitchen-responsible-rg --query ipAddress.ip > ./dipsbot-service.txt
+cat ./dipsbot-service.txt
+az storage blob upload --container-name discovery --file dipsbot-service.txt --name dipsbot-service.txt

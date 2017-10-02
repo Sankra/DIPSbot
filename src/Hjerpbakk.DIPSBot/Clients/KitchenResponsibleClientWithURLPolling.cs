@@ -12,6 +12,8 @@ namespace Hjerpbakk.DIPSBot.Clients
         readonly ServiceDiscoveryClient serviceDiscoveryClient;
         readonly IKitchenResponsibleClient kitchenResponsibleClient;
 
+
+        // TODO: Need to fail faster when ip is wrong
         public KitchenResponsibleClientWithURLPolling(HttpClient httpClient, IReadOnlyConfiguration configuration, ServiceDiscoveryClient serviceDiscoveryClient)
         {
 			// TODO: Remove this class and replace the polling with events when available
