@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Hjerpbakk.DIPSBot.Configuration;
 using Hjerpbakk.DIPSBot.Model;
 using Newtonsoft.Json;
 using SlackConnector.Models;
@@ -14,7 +15,7 @@ namespace Hjerpbakk.DIPSBot.Clients
 
 
         // TODO: Need to fail faster when ip is wrong
-        public KitchenResponsibleClientWithURLPolling(HttpClient httpClient, IReadOnlyConfiguration configuration, ServiceDiscoveryClient serviceDiscoveryClient)
+        public KitchenResponsibleClientWithURLPolling(HttpClient httpClient, IReadOnlyAppConfiguration configuration, ServiceDiscoveryClient serviceDiscoveryClient)
         {
 			// TODO: Remove this class and replace the polling with events when available
 			// https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blob-event-overview

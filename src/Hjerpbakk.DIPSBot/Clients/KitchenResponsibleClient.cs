@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Hjerpbakk.DIPSBot.Configuration;
 using Hjerpbakk.DIPSBot.Model;
 using Newtonsoft.Json;
 using SlackConnector.Models;
@@ -12,9 +13,9 @@ namespace Hjerpbakk.DIPSBot.Clients
     class KitchenResponsibleClient : IKitchenResponsibleClient
     {
         readonly HttpClient httpClient;
-        readonly IReadOnlyConfiguration configuration;
+        readonly IReadOnlyAppConfiguration configuration;
 
-        public KitchenResponsibleClient(HttpClient httpClient, IReadOnlyConfiguration configuration)
+        public KitchenResponsibleClient(HttpClient httpClient, IReadOnlyAppConfiguration configuration)
         {
             this.httpClient = httpClient;
             this.configuration = configuration;

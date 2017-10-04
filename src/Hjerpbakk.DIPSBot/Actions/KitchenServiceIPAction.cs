@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSbot;
 using Hjerpbakk.DIPSBot.Clients;
+using Hjerpbakk.DIPSBot.Configuration;
 using SlackConnector.Models;
 
 namespace Hjerpbakk.DIPSBot.Actions
@@ -9,10 +10,10 @@ namespace Hjerpbakk.DIPSBot.Actions
     public class KitchenServiceIPAction : IAction
     {
 		readonly ISlackIntegration slackIntegration;
-        readonly IReadOnlyConfiguration configuration;
+        readonly IReadOnlyAppConfiguration configuration;
         readonly ServiceDiscoveryClient serviceDiscoveryClient;
 
-        public KitchenServiceIPAction(ISlackIntegration slackIntegration, ServiceDiscoveryClient serviceDiscoveryClient, IReadOnlyConfiguration configuration)
+        public KitchenServiceIPAction(ISlackIntegration slackIntegration, ServiceDiscoveryClient serviceDiscoveryClient, IReadOnlyAppConfiguration configuration)
 		{
 			this.slackIntegration = slackIntegration;
             this.configuration = configuration;

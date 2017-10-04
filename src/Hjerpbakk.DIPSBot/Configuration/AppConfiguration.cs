@@ -1,9 +1,9 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace Hjerpbakk.DIPSBot
+namespace Hjerpbakk.DIPSBot.Configuration
 {
-    public class Configuration : IReadOnlyConfiguration
+    public class AppConfiguration : IReadOnlyAppConfiguration
     {
         public string SlackAPIToken { get; set; }
         public string AdminUser { get; set;  }

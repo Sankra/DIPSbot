@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Hjerpbakk.DIPSBot;
+using Hjerpbakk.DIPSBot.Configuration;
 using Newtonsoft.Json;
 
 namespace Hjerpbakk.DIPSbot.Runner
@@ -29,8 +30,8 @@ namespace Hjerpbakk.DIPSbot.Runner
 			}
 		}
 
-        static Configuration ReadConfig() {
-            return JsonConvert.DeserializeObject<Configuration>(File.ReadAllText("config.json"));
+        static AppConfiguration ReadConfig() {
+            return JsonConvert.DeserializeObject<AppConfiguration>(File.ReadAllText("config.json"));
         }
 	}
 }

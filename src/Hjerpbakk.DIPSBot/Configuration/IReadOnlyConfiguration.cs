@@ -1,7 +1,7 @@
 ﻿using System;
-namespace Hjerpbakk.DIPSBot
+namespace Hjerpbakk.DIPSBot.Configuration
 {
-    public interface IReadOnlyConfiguration
+    public interface IReadOnlyAppConfiguration
     {
 		string SlackAPIToken { get;  }
 		string AdminUser { get;  }

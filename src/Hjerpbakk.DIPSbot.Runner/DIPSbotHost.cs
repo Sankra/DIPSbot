@@ -9,6 +9,7 @@ using System.Net.Http;
 using Hjerpbakk.DIPSBot.Clients;
 using Hjerpbakk.DIPSBot.Actions;
 using Hjerpbakk.DIPSBot.MessageHandlers;
+using Hjerpbakk.DIPSBot.Configuration;
 
 namespace Hjerpbakk.DIPSbot.Runner
 {
@@ -22,7 +23,7 @@ namespace Hjerpbakk.DIPSbot.Runner
             manualResetEvent = new ManualResetEvent(false);
         }
 
-        public async Task<string> Start(Configuration configuration)
+        public async Task<string> Start(AppConfiguration configuration)
 		{
             try
             {
@@ -79,7 +80,7 @@ namespace Hjerpbakk.DIPSbot.Runner
             Console.WriteLine(exception);
         }
 
-		static async Task<IServiceContainer> CompositionRoot(Configuration configuration)
+		static async Task<IServiceContainer> CompositionRoot(AppConfiguration configuration)
 		{
             var serviceDiscoveryClient = new ServiceDiscoveryClient(configuration);
             await serviceDiscoveryClient.SetKitchenServiceURL();
@@ -88,7 +89,7 @@ namespace Hjerpbakk.DIPSbot.Runner
             serviceContainer.RegisterInstance<IServiceContainer>(serviceContainer);
 
             serviceContainer.RegisterInstance(configuration);
-            serviceContainer.RegisterInstance<IReadOnlyConfiguration>(configuration);
+            serviceContainer.RegisterInstance<IReadOnlyAppConfiguration>(configuration);
             serviceContainer.RegisterInstance(serviceDiscoveryClient);
             serviceContainer.RegisterInstance(new HttpClient());
 			serviceContainer.Register<ISlackConnector, SlackConnector.SlackConnector>(new PerContainerLifetime());

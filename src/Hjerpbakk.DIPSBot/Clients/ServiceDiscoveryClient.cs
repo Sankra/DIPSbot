@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using Hjerpbakk.DIPSBot.Configuration;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 
@@ -12,12 +13,12 @@ namespace Hjerpbakk.DIPSBot.Clients
         const string ContainerName = "discovery";
         const string KitchenServiceURLBlobName = "kitchen-service.txt";
 
-        readonly Configuration configuration;
+        readonly AppConfiguration configuration;
 
         readonly CloudBlobClient blobClient;
         readonly CloudBlobContainer discoveryContainer;
 
-        public ServiceDiscoveryClient(Configuration configuration)
+        public ServiceDiscoveryClient(AppConfiguration configuration)
 		{
             this.configuration = configuration;
 			var storageAccount = CloudStorageAccount.Parse(configuration.ConnectionString);

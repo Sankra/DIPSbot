@@ -13,6 +13,7 @@
     <Folder Include="Model\" />
     <Folder Include="Actions\" />
     <Folder Include="Predicates\" />
+    <Folder Include="Configuration\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />

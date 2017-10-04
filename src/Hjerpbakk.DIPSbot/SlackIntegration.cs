@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSbot.Extensions;
 using Hjerpbakk.DIPSBot;
+using Hjerpbakk.DIPSBot.Configuration;
 using SlackConnector;
 using SlackConnector.EventHandlers;
 using SlackConnector.Models;
@@ -25,7 +26,7 @@ namespace Hjerpbakk.DIPSbot
 		/// </summary>
 		/// <param name="connector">The Slack connector to use.</param>
 		/// <param name="configuration">The Slack configuration.</param>
-		public SlackIntegration(ISlackConnector connector, Configuration configuration)
+		public SlackIntegration(ISlackConnector connector, IReadOnlyAppConfiguration configuration)
 		{
 			this.connector = connector ?? throw new ArgumentNullException(nameof(connector));
 

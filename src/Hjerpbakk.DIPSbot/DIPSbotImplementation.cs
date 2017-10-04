@@ -7,6 +7,7 @@ using Hjerpbakk.DIPSbot.Services;
 using Hjerpbakk.DIPSBot;
 using Hjerpbakk.DIPSBot.Actions;
 using Hjerpbakk.DIPSBot.Clients;
+using Hjerpbakk.DIPSBot.Configuration;
 using Hjerpbakk.DIPSBot.MessageHandlers;
 using LightInject;
 using SlackConnector.Models;
@@ -26,7 +27,7 @@ namespace Hjerpbakk.DIPSbot
             this.serviceContainer = serviceContainer ?? throw new ArgumentNullException(nameof(serviceContainer));
 
             slackIntegration = serviceContainer.GetInstance<ISlackIntegration>();
-            var configuration = serviceContainer.GetInstance<IReadOnlyConfiguration>();
+            var configuration = serviceContainer.GetInstance<IReadOnlyAppConfiguration>();
             fatalExceptionHandler = configuration.FatalExceptionHandler;
             adminUser = new SlackUser { Id = configuration.AdminUser };
         }

@@ -7,6 +7,7 @@ using Hjerpbakk.DIPSBot.Model;
 using Hjerpbakk.DIPSBot.Clients;
 using SlackConnector.Models;
 using System.Text.RegularExpressions;
+using Hjerpbakk.DIPSBot.Configuration;
 
 namespace Hjerpbakk.DIPSBot.Actions
 {
@@ -14,12 +15,12 @@ namespace Hjerpbakk.DIPSBot.Actions
     {
         readonly ISlackIntegration slackIntegration;
 		readonly IKitchenResponsibleClient kitchenResponsibleClient;
-        readonly IReadOnlyConfiguration configuration;
+        readonly IReadOnlyAppConfiguration configuration;
 
         readonly Regex numberInStringRegex;
         readonly Regex slackUserRegex;
 
-        public KitchenResponsibleAction(ISlackIntegration slackIntegration, IKitchenResponsibleClient kitchenResponsibleClient, IReadOnlyConfiguration configuration)
+        public KitchenResponsibleAction(ISlackIntegration slackIntegration, IKitchenResponsibleClient kitchenResponsibleClient, IReadOnlyAppConfiguration configuration)
         {
             this.slackIntegration = slackIntegration;
             this.kitchenResponsibleClient = kitchenResponsibleClient;
