@@ -4,5 +4,7 @@
   "BotUser": "[BotUser]",
   "BlobStorageAccessKey": "[BlobStorageAccessKey]",
   "BlobStorageAccountName": "[BlobStorageAccountName]",
-  "BlobStorageEndpointSuffix": "[BlobStorageEndpointSuffix]"
+  "BlobStorageEndpointSuffix": "[BlobStorageEndpointSuffix]",
+  "ServiceDiscoveryServerName": "[ServiceDiscoveryServerName]",
+  "KitchenResponsibleServiceName": "[KitchenResponsibleServiceName]"
 }

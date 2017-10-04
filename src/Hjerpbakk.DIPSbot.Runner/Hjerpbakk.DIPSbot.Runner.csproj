@@ -19,4 +19,9 @@
   <ItemGroup>
     <Content Include="config.json" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Hjerpbakk.ServiceDiscovery.Client">
+      <HintPath>..\..\lib\Hjerpbakk.ServiceDiscovery.Client.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

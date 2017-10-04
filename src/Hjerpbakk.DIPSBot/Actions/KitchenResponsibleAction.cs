@@ -87,7 +87,8 @@ namespace Hjerpbakk.DIPSBot.Actions
                 } else {
     				var employeesAndWeeks = await kitchenResponsibleClient.GetAllWeeks();
     				var kitchenResponsibleTable = string.Join("\n", employeesAndWeeks.Select(w => w.FormattedEmployeeWeek));
-                    var kitchenResponsible = $"*Kjøkkenansvarlig*\n{kitchenResponsibleTable}\n\n<{configuration.KitchenServiceURL}|Kjøkkenansvarligoversikt på nett>";
+                    // TODO: Fix this later, not all URLs are equal: server, client, website...
+                    var kitchenResponsible = $"*Kjøkkenansvarlig*\n{kitchenResponsibleTable}\n\n<{configuration.KitchenServiceURL.TrimEnd("/api/".ToCharArray())}|Kjøkkenansvarligoversikt på nett>";
     				await slackIntegration.SendMessageToChannel(message.ChatHub, kitchenResponsible);
                 }
             }

@@ -21,4 +21,9 @@
     <PackageReference Include="WindowsAzure.Storage" Version="8.4.0" />
     <PackageReference Include="SlackConnector" Version="4.1.16" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Hjerpbakk.ServiceDiscoveryClient">
+      <HintPath>..\..\bin\Hjerpbakk.ServiceDiscoveryClient.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

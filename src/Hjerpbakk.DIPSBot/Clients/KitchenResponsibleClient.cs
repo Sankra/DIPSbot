@@ -21,13 +21,11 @@ namespace Hjerpbakk.DIPSBot.Clients
             this.configuration = configuration;
         }
 
-        string ServiceURL => configuration.KitchenServiceURL + "api/";
-
         public async Task AddEmployee(SlackUser employee)
         {
 			var jsonContent = JsonConvert.SerializeObject(employee.Id);
 			var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-			var response = await httpClient.PostAsync(ServiceURL + "employee", content);
+			var response = await httpClient.PostAsync(configuration.KitchenServiceURL + "employee", content);
 			if (response.StatusCode == HttpStatusCode.OK)
 			{
                 return;
@@ -38,31 +36,31 @@ namespace Hjerpbakk.DIPSBot.Clients
 
         public async Task<EmployeeWeek[]> GetAllWeeks()
         {
-            var weeksAndEmployees = await httpClient.GetStringAsync(ServiceURL + "kitchen");
+            var weeksAndEmployees = await httpClient.GetStringAsync(configuration.KitchenServiceURL + "kitchen");
             return JsonConvert.DeserializeObject<EmployeeWeek[]>(weeksAndEmployees);
         }
 
         public async Task<EmployeeWeek> GetNextWeekForEmployee(SlackUser employee)
         {
-            var employeeAndWeek = await httpClient.GetStringAsync(ServiceURL + "employee/" + employee.Id);
+            var employeeAndWeek = await httpClient.GetStringAsync(configuration.KitchenServiceURL + "employee/" + employee.Id);
             return JsonConvert.DeserializeObject<EmployeeWeek>(employeeAndWeek);
         }
 
         public async Task<EmployeeWeek> GetResponsibleForWeek(ushort week)
         {
-            var employeeAndWeek = await httpClient.GetStringAsync(ServiceURL + "week/" + week);
+            var employeeAndWeek = await httpClient.GetStringAsync(configuration.KitchenServiceURL + "week/" + week);
             return JsonConvert.DeserializeObject<EmployeeWeek>(employeeAndWeek);
         }
 
         public async Task<EmployeeWeek> GetResponsibleForCurrentWeek()
         {
-            var employeeAndWeek = await httpClient.GetStringAsync(ServiceURL + "week");
+            var employeeAndWeek = await httpClient.GetStringAsync(configuration.KitchenServiceURL + "week");
             return JsonConvert.DeserializeObject<EmployeeWeek>(employeeAndWeek);
         }
 
         public async Task RemoveEmployee(SlackUser employee)
         {
-            await httpClient.DeleteAsync(ServiceURL + "employee/" + employee.Id);
+            await httpClient.DeleteAsync(configuration.KitchenServiceURL + "employee/" + employee.Id);
         }
     }
 }

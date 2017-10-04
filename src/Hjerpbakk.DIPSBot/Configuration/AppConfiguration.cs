@@ -20,5 +20,8 @@ namespace Hjerpbakk.DIPSBot.Configuration
 			$"DefaultEndpointsProtocol=https;AccountName={BlobStorageAccountName};AccountKey={BlobStorageAccessKey};EndpointSuffix={BlobStorageEndpointSuffix}";
 
         public Action<Exception> FatalExceptionHandler { get; set; }
+
+        public string ServiceDiscoveryServerName { get; set; }
+        public string KitchenResponsibleServiceName { get; set; }
     }
 }
