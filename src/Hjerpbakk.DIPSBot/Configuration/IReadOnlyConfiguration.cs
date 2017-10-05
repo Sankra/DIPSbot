@@ -6,7 +6,10 @@ namespace Hjerpbakk.DIPSBot.Configuration
 		string SlackAPIToken { get;  }
 		string AdminUser { get;  }
 		string BotUser { get;  }
-        string KitchenServiceURL { get; }	
+
+        string KitchenServiceURL { get; }
+        string ComicsServiceURL { get; set; }
+
 		Action<Exception> FatalExceptionHandler { get; }
     }
 }

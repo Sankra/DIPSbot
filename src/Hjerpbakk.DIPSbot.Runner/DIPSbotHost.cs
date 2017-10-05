@@ -89,7 +89,13 @@ namespace Hjerpbakk.DIPSbot.Runner
             var httpClient = new HttpClient();
             serviceContainer.RegisterInstance(httpClient);
             var serviceDiscoveryClient = new ServiceDiscoveryClient(httpClient, configuration.ServiceDiscoveryServerName);
-            configuration.KitchenServiceURL = await serviceDiscoveryClient.GetServiceURL(configuration.KitchenResponsibleServiceName);
+
+            // TODO: Smoothify
+            var kitchenServiceTask = serviceDiscoveryClient.GetServiceURL(configuration.KitchenResponsibleServiceName);
+            var comicsServiceTask = serviceDiscoveryClient.GetServiceURL(configuration.ComicsServiceName);
+            await Task.WhenAll(kitchenServiceTask, comicsServiceTask);
+            configuration.KitchenServiceURL = kitchenServiceTask.Result;
+            configuration.ComicsServiceURL = comicsServiceTask.Result;
 
             serviceContainer.RegisterInstance(configuration);
             serviceContainer.RegisterInstance<IReadOnlyAppConfiguration>(configuration);
@@ -98,6 +104,7 @@ namespace Hjerpbakk.DIPSbot.Runner
 			serviceContainer.Register<ISlackConnector, SlackConnector.SlackConnector>(new PerContainerLifetime());
 			serviceContainer.Register<ISlackIntegration, SlackIntegration>(new PerContainerLifetime());
 
+            serviceContainer.Register<ComicsClient>(new PerContainerLifetime());
             serviceContainer.Register<IKitchenResponsibleClient, KitchenResponsibleClient>(new PerContainerLifetime());
 			serviceContainer.Register<IOrganizationService, FileOrganizationService>(new PerContainerLifetime());
 
@@ -107,6 +114,7 @@ namespace Hjerpbakk.DIPSbot.Runner
             serviceContainer.Register<RegularUserMessageHandler>(new PerContainerLifetime());
             serviceContainer.Register<TrondheimMessageHandler>(new PerContainerLifetime());
 
+            // TODO: Smoothify
             serviceContainer.Register<AddDevelopersToUtviklingChannelAction>(new PerContainerLifetime());
             serviceContainer.Register<KitchenResponsibleAction>(new PerContainerLifetime());
             serviceContainer.Register<AddEmployeeAction>(new PerContainerLifetime());
@@ -114,6 +122,7 @@ namespace Hjerpbakk.DIPSbot.Runner
             serviceContainer.Register<NegativeAction>(new PerContainerLifetime());
             serviceContainer.Register<WeekAction>(new PerContainerLifetime());
             serviceContainer.Register<RemoveEmployeeAction>(new PerContainerLifetime());
+            serviceContainer.Register<ComicsAction>(new PerContainerLifetime());
 			
 			serviceContainer.Register<DIPSbotImplementation>(new PerContainerLifetime());
 

@@ -10,6 +10,7 @@ namespace Hjerpbakk.DIPSBot.Configuration
         public string BotUser { get; set; }
 		 
         public string KitchenServiceURL { get; set; }
+        public string ComicsServiceURL { get; set; }
 
 		public string BlobStorageAccessKey { get; set; }
 		public string BlobStorageAccountName { get; set; }
@@ -23,5 +24,6 @@ namespace Hjerpbakk.DIPSBot.Configuration
 
         public string ServiceDiscoveryServerName { get; set; }
         public string KitchenResponsibleServiceName { get; set; }
+        public string ComicsServiceName { get; set; }
     }
 }

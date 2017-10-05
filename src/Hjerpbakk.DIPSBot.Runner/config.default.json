@@ -6,5 +6,6 @@
   "BlobStorageAccountName": "[BlobStorageAccountName]",
   "BlobStorageEndpointSuffix": "[BlobStorageEndpointSuffix]",
   "ServiceDiscoveryServerName": "[ServiceDiscoveryServerName]",
-  "KitchenResponsibleServiceName": "[KitchenResponsibleServiceName]"
+  "KitchenResponsibleServiceName": "[KitchenResponsibleServiceName]",
+  "ComicsServiceName": "[ComicsServiceName]"
 }
