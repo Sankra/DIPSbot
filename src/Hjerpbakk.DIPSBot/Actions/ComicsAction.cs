@@ -16,7 +16,10 @@ namespace Hjerpbakk.DIPSBot.Actions
             this.comicsClient = comicsClient;
 		}
 
-		public async Task Execute(SlackMessage message) =>
-            await slackIntegration.SendMessageToChannel(message.ChatHub, $"<{await comicsClient.GetRandomComicAsync()}|Awesome tegneserie \ud83d\ude03 >");
+        public async Task Execute(SlackMessage message) {
+            var comicURL = await comicsClient.GetRandomComicAsync();
+            var comic = new SlackAttachment { ImageUrl = comicURL };
+            await slackIntegration.SendMessageToChannel(message.ChatHub, "Awesome tegneserie \ud83d\ude03", comic);
+        }
     }
 }

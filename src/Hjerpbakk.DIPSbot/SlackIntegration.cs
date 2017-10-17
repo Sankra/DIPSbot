@@ -111,9 +111,13 @@ namespace Hjerpbakk.DIPSbot
 			await connection.Say(message);
 		}
 
-        public async Task SendMessageToChannel(SlackChatHub channel, string text) {
+        public async Task SendMessageToChannel(SlackChatHub channel, string text, params SlackAttachment[] attachments) {
 			await connection.IndicateTyping(channel);
             var message = new BotMessage { ChatHub = channel, Text = text };
+            if (attachments.Length > 0) {
+                message.Attachments = attachments;
+            }
+
 			await connection.Say(message);
         }
 
