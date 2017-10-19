@@ -18,6 +18,7 @@ namespace Hjerpbakk.DIPSBot.Actions
             this.availableActions = availableActions;
         }
 
+        // TODO: Dersom boten blir tagget i en tråd og han ikke forstår, kommer det en tom listing av kommandoer
         public async Task Execute(SlackMessage message)
         {
             var commands = string.Join("", availableActions.Where(predicate => !string.IsNullOrEmpty(predicate.CommandText)).Select(predicate => "- " + predicate.CommandText + "\n"));
