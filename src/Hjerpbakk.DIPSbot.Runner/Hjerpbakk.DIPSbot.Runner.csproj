@@ -12,7 +12,7 @@
   <ItemGroup>
     <PackageReference Include="LightInject" Version="5.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="SlackConnector" Version="4.1.16" />
+    <PackageReference Include="SlackConnector" Version="4.1.33" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="config.json" />
