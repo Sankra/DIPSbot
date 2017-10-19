@@ -9,11 +9,11 @@ namespace Hjerpbakk.DIPSBot.Model
     public struct EmployeeWeek
     {
         public ushort WeekNumber { get; set; }
-        [JsonConverter(typeof(SlackUserJsonConverter))]
-        public SlackUser SlackUser { get; set; }
+        public string SlackUser { get; set; }
+        public string Name { get; set; }
 
-        // TODO: Show full name also for easier overview
-        public string FormattedEmployeeWeek => WeekNumber + ". " + SlackUser.FormattedUserId;
+        public string FormattedEmployeeWeek => WeekNumber + ": " + Name + " " + FormattedUserId;
+        public string FormattedUserId => (new SlackUser { Id = SlackUser }).FormattedUserId;
 
 		public static ushort GetIso8601WeekOfYear(DateTime time)
 		{

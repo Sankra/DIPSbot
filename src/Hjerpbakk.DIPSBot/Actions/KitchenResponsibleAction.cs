@@ -112,7 +112,7 @@ namespace Hjerpbakk.DIPSBot.Actions
         async Task SendMessageForWeek(SlackChatHub chatHub, ushort nextWeek)
         {
             var employeeAndWeek = await kitchenResponsibleClient.GetResponsibleForWeek(nextWeek);
-            if (employeeAndWeek.SlackUser.Id == null) {
+            if (employeeAndWeek.SlackUser == null) {
                 await slackIntegration.SendMessageToChannel(chatHub,
                     $"Ingen er kjøkkenansvarlig ennå for uke {employeeAndWeek.WeekNumber}.");
             }
@@ -123,6 +123,6 @@ namespace Hjerpbakk.DIPSBot.Actions
 
         async Task SendWeekAndResponsible(SlackChatHub chatHub, EmployeeWeek employeeAndWeek) =>
 			await slackIntegration.SendMessageToChannel(chatHub,
-					$"Kjøkkenansvarlig for uke {employeeAndWeek.WeekNumber} er {employeeAndWeek.SlackUser.FormattedUserId}.");
+                $"Kjøkkenansvarlig for uke {employeeAndWeek.WeekNumber} er {employeeAndWeek.FormattedEmployeeWeek}.");
     }
 }
