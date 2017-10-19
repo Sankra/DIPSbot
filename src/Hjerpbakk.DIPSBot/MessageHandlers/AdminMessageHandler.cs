@@ -10,6 +10,7 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers
     {
         public AdminMessageHandler(IServiceContainer serviceContainer) : base(serviceContainer)
         {
+            // TODO: Get all actions and predicates...
             // TODO: Add echo functionality
             AddCommand<ComicsAction>(new ComicsPredicate());
 			AddCommand<KitchenResponsibleAction>(new KitchenPredicate());

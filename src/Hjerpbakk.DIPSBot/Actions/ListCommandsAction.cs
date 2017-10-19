@@ -20,6 +20,7 @@ namespace Hjerpbakk.DIPSBot.Actions
 
         // TODO: Dersom boten blir tagget i en tråd og han ikke forstår, kommer det en tom listing av kommandoer
         // TODO: Boten forstår ikke meldinger i en dm-kanal med flere...
+        // TODO: Boten forstå ikke meldinger i threads...
         public async Task Execute(SlackMessage message)
         {
             var commands = string.Join("", availableActions.Where(predicate => !string.IsNullOrEmpty(predicate.CommandText)).Select(predicate => "- " + predicate.CommandText + "\n"));
