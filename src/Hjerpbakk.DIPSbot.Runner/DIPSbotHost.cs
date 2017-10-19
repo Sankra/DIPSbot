@@ -123,6 +123,7 @@ namespace Hjerpbakk.DIPSbot.Runner
             serviceContainer.Register<WeekAction>(new PerContainerLifetime());
             serviceContainer.Register<RemoveEmployeeAction>(new PerContainerLifetime());
             serviceContainer.Register<ComicsAction>(new PerContainerLifetime());
+            serviceContainer.Register<VersionAction>(new PerContainerLifetime());
 			
 			serviceContainer.Register<DIPSbotImplementation>(new PerContainerLifetime());
 
