@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using Hjerpbakk.DIPSBot.Actions;
 using Hjerpbakk.DIPSBot.Clients;
 using Hjerpbakk.DIPSBot.Configuration;
 using Hjerpbakk.DIPSBot.MessageHandlers;
+using Hjerpbakk.DIPSBot.Services;
 using LightInject;
 using SlackConnector.Models;
 
@@ -18,6 +20,7 @@ namespace Hjerpbakk.DIPSbot
     {
         readonly IServiceContainer serviceContainer;
         readonly ISlackIntegration slackIntegration;
+        readonly IDebuggingService debuggingService;
 
         readonly Action<Exception> fatalExceptionHandler;
         readonly SlackUser adminUser;
@@ -30,6 +33,7 @@ namespace Hjerpbakk.DIPSbot
             var configuration = serviceContainer.GetInstance<IReadOnlyAppConfiguration>();
             fatalExceptionHandler = configuration.FatalExceptionHandler;
             adminUser = new SlackUser { Id = configuration.AdminUser };
+            debuggingService = serviceContainer.GetInstance<IDebuggingService>();
         }
 
         /// <summary>
@@ -68,8 +72,11 @@ namespace Hjerpbakk.DIPSbot
                     return;
                 }
 
-                message.Text = message.Text.ToLower();
-                var messageHandler = GetMessageHandler(message);
+                message.Text = message.Text.Trim().ToLower();
+                var messageHandler = debuggingService.RunningInDebugMode ?
+                                         GetDEBUGMessageHandler(message) :
+                                         GetMessageHandler(message);
+                
                 await messageHandler.HandleMessage(message);
             }
             catch (Exception exception)
@@ -83,18 +90,15 @@ namespace Hjerpbakk.DIPSbot
         {
             if (message.ChatHub.Type == SlackChatHubType.Group)
             {
-#if DEBUG
-                if (message.ChatHub.Name == "#bot-test")
-#else
                 if (message.ChatHub.Name == "#trondheim")
-#endif
                 {
                     return serviceContainer.GetInstance<TrondheimMessageHandler>();
                 }
+
+                return serviceContainer.GetInstance<ChannelMessageHandler>();
             }
 
-#if !DEBUG
-            if (message.ChatHub.Type == SlackChatHubType.Channel || message.ChatHub.Type == SlackChatHubType.Group)
+            if (message.ChatHub.Type == SlackChatHubType.Channel)
 			{
 			    return serviceContainer.GetInstance<ChannelMessageHandler>();
 			}
@@ -107,7 +111,19 @@ namespace Hjerpbakk.DIPSbot
 
                 return serviceContainer.GetInstance<RegularUserMessageHandler>();
             }
-#else
+
+            return serviceContainer.GetInstance<MessageHandler>();
+        }
+
+        MessageHandler GetDEBUGMessageHandler(SlackMessage message) {
+            if (message.ChatHub.Type == SlackChatHubType.Group)
+            {
+                if (message.ChatHub.Name == "#bot-test")
+                {
+                    return serviceContainer.GetInstance<TrondheimMessageHandler>();
+                }
+            }
+
             if (message.ChatHub.Type == SlackChatHubType.DM)
             {
                 if (message.User.Id == adminUser.Id)
@@ -115,16 +131,15 @@ namespace Hjerpbakk.DIPSbot
                     return serviceContainer.GetInstance<AdminMessageHandler>();
                 }
             }
-#endif
 
             return serviceContainer.GetInstance<MessageHandler>();
         }
 
 		static bool MessageIsInvalid(SlackMessage message) =>
-	        message == null && 
-            message.User == null && 
-            string.IsNullOrEmpty(message.User.Id) && 
-            string.IsNullOrEmpty(message.Text) && 
+	        message == null || 
+            message.User == null || 
+            string.IsNullOrEmpty(message.User.Id) || 
+            string.IsNullOrEmpty(message.Text) || 
             message.ChatHub == null;
 	}
 }

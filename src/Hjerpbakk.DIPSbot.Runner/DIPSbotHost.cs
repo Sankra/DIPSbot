@@ -11,6 +11,7 @@ using Hjerpbakk.DIPSBot.Actions;
 using Hjerpbakk.DIPSBot.MessageHandlers;
 using Hjerpbakk.DIPSBot.Configuration;
 using Hjerpbakk.ServiceDiscovery.Client;
+using Hjerpbakk.DIPSBot.Services;
 
 namespace Hjerpbakk.DIPSbot.Runner
 {
@@ -107,6 +108,7 @@ namespace Hjerpbakk.DIPSbot.Runner
             serviceContainer.Register<ComicsClient>(new PerContainerLifetime());
             serviceContainer.Register<IKitchenResponsibleClient, KitchenResponsibleClient>(new PerContainerLifetime());
 			serviceContainer.Register<IOrganizationService, FileOrganizationService>(new PerContainerLifetime());
+            serviceContainer.Register<IDebuggingService, DebuggingService>(new PerContainerLifetime());
 
             serviceContainer.Register<AdminMessageHandler>(new PerContainerLifetime());
             serviceContainer.Register<ChannelMessageHandler>(new PerContainerLifetime());

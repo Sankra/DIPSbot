@@ -37,7 +37,10 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers
         }
 
         protected void AddCommandListingAsUnknownCommand(IPredicate listCommandsPredicate) {
-            commands.Add((new ListCommandsAction(serviceContainer.GetInstance<ISlackIntegration>(), commands.Select(c => c.predicates.First())), new [] {listCommandsPredicate }));
+            var potentionalCommands = commands.Select(c => c.predicates.First(p => !(p is BotMentionedPredicate)));
+            var availableCommands = potentionalCommands.Where(c => c.CommandText != "").ToArray();
+            var commandsString = string.Join("", availableCommands.Select(predicate => "- " + predicate.CommandText + "\n"));
+            commands.Add((new ListCommandsAction(serviceContainer.GetInstance<ISlackIntegration>(), commandsString), new[] { listCommandsPredicate }));
         }
     }
 }
