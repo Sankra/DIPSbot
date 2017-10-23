@@ -21,9 +21,9 @@ namespace Hjerpbakk.DIPSBot.Clients
             this.configuration = configuration;
         }
 
-        public async Task AddEmployee(SlackUser employee)
+        public async Task AddEmployee(Employee employee)
         {
-			var jsonContent = JsonConvert.SerializeObject(employee.Id);
+			var jsonContent = JsonConvert.SerializeObject(employee);
 			var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 			var response = await httpClient.PostAsync(configuration.KitchenServiceURL + "employee", content);
 			if (response.StatusCode == HttpStatusCode.OK)

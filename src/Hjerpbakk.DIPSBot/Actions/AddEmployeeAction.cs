@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSbot;
 using Hjerpbakk.DIPSBot.Clients;
+using Hjerpbakk.DIPSBot.Model;
 using Hjerpbakk.DIPSBot.Predicates;
 using SlackConnector.Models;
 
@@ -28,7 +29,8 @@ namespace Hjerpbakk.DIPSBot.Actions
 				var slackUserId = commandParts[1].Substring(2, commandParts[1].Length - 3).ToUpper();
 				var userToAdd = new SlackUser { Id = slackUserId };
 				await slackIntegration.SendMessageToChannel(message.ChatHub, $"Adding {userToAdd.FormattedUserId} as employee...");
-				await kitchenResponsibleClient.AddEmployee(userToAdd);
+                userToAdd = await slackIntegration.GetUser(slackUserId);
+                await kitchenResponsibleClient.AddEmployee(new Employee(slackUserId, userToAdd.Name));
 				await slackIntegration.SendMessageToChannel(message.ChatHub, $"{userToAdd.FormattedUserId} was added.");
             }
             catch (Exception ex)
