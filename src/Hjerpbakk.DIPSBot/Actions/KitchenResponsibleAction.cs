@@ -123,6 +123,6 @@ namespace Hjerpbakk.DIPSBot.Actions
 
         async Task SendWeekAndResponsible(SlackChatHub chatHub, EmployeeWeek employeeAndWeek) =>
 			await slackIntegration.SendMessageToChannel(chatHub,
-                $"Kjøkkenansvarlig for uke {employeeAndWeek.WeekNumber} er {employeeAndWeek.FormattedEmployeeWeek}.");
+                $"Kjøkkenansvarlig for uke {employeeAndWeek.FormattedEmployeeWeek}.");
     }
 }
