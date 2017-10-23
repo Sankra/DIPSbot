@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using Hjerpbakk.DIPSbot;
-using Hjerpbakk.DIPSBot.Actions;
+﻿using Hjerpbakk.DIPSBot.Actions;
 using Hjerpbakk.DIPSBot.Predicates;
 using LightInject;
 

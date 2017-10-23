@@ -94,7 +94,7 @@ namespace Hjerpbakk.DIPSbot
             }
 
 #if !DEBUG
-            if (message.ChatHub.Type == SlackChatHubType.Channel)
+            if (message.ChatHub.Type == SlackChatHubType.Channel || message.ChatHub.Type == SlackChatHubType.Group)
 			{
 			    return serviceContainer.GetInstance<ChannelMessageHandler>();
 			}
