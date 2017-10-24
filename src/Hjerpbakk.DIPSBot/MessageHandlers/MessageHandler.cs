@@ -1,11 +1,11 @@
-﻿using System.Linq;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Hjerpbakk.DIPSbot;
 using Hjerpbakk.DIPSBot.Actions;
 using Hjerpbakk.DIPSBot.Predicates;
-using SlackConnector.Models;
 using LightInject;
-using Hjerpbakk.DIPSbot;
+using SlackConnector.Models;
 
 namespace Hjerpbakk.DIPSBot.MessageHandlers
 {
@@ -25,7 +25,7 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers
             foreach (var command in commands)
             {
                 if (command.predicates.All(p => p.ShouldExecute(message))) {
-                    await command.action.Execute(message);
+                    await command.action.Execute(message, this);
                     break;
                 }
             }

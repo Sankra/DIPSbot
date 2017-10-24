@@ -1,11 +1,12 @@
 ﻿using System.Threading.Tasks;
 using Hjerpbakk.DIPSbot;
 using Hjerpbakk.DIPSBot.Clients;
+using Hjerpbakk.DIPSBot.MessageHandlers;
 using SlackConnector.Models;
 
 namespace Hjerpbakk.DIPSBot.Actions
 {
-    public class ComicsAction : IAction
+    class ComicsAction : IAction
 	{
 		readonly ISlackIntegration slackIntegration;
         readonly ComicsClient comicsClient;
@@ -16,7 +17,7 @@ namespace Hjerpbakk.DIPSBot.Actions
             this.comicsClient = comicsClient;
 		}
 
-        public async Task Execute(SlackMessage message) {
+        public async Task Execute(SlackMessage message, MessageHandler caller) {
             var comicURL = await comicsClient.GetRandomComicAsync();
             var comic = new SlackAttachment { ImageUrl = comicURL };
             await slackIntegration.SendMessageToChannel(message.ChatHub, "Awesome tegneserie \ud83d\ude03", comic);

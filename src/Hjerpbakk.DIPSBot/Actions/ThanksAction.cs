@@ -1,10 +1,11 @@
 ﻿using System.Threading.Tasks;
 using Hjerpbakk.DIPSbot;
+using Hjerpbakk.DIPSBot.MessageHandlers;
 using SlackConnector.Models;
 
 namespace Hjerpbakk.DIPSBot.Actions
 {
-    public class ThanksAction : IAction
+    class ThanksAction : IAction
     {
 		readonly ISlackIntegration slackIntegration;
 		
@@ -13,7 +14,7 @@ namespace Hjerpbakk.DIPSBot.Actions
 			this.slackIntegration = slackIntegration;
 		}
 
-        public async Task Execute(SlackMessage message) =>
+        public async Task Execute(SlackMessage message, MessageHandler caller) =>
             await slackIntegration.SendMessageToChannel(message.ChatHub, "You're welcome \ud83d\ude03");
     }
 }

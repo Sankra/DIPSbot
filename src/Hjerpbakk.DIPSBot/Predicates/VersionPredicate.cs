@@ -6,7 +6,7 @@ namespace Hjerpbakk.DIPSBot.Predicates
 	{
 		public string CommandText => "version";
 
-		public bool ShouldExecute(SlackMessage message) => message.Text == CommandText;
+        public bool ShouldExecute(SlackMessage message) => message.Text.Contains(CommandText);
 	}
 }
 

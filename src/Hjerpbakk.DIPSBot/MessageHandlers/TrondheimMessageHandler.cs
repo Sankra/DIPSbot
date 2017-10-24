@@ -13,6 +13,7 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers
             AddCommand<WeekAction>(new BotMentionedPredicate(), new WeekPredicate());
             AddCommand<ThanksAction>(new BotMentionedPredicate(), new ThanksPredicate());
             AddCommand<NegativeAction>(new BotMentionedPredicate(), new NegativePredicate());
+            AddCommand<VersionAction>(new BotMentionedPredicate(), new VersionPredicate());
             AddCommandListingAsUnknownCommand(new BotMentionedPredicate());
         }
     }

@@ -1,13 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Hjerpbakk.DIPSbot.Services;
-using Hjerpbakk.DIPSBot;
-using Hjerpbakk.DIPSBot.Actions;
-using Hjerpbakk.DIPSBot.Clients;
 using Hjerpbakk.DIPSBot.Configuration;
 using Hjerpbakk.DIPSBot.MessageHandlers;
 using Hjerpbakk.DIPSBot.Services;
@@ -63,8 +55,9 @@ namespace Hjerpbakk.DIPSbot
         /// <returns>No object or value is returned by this method when it completes.</returns>
         async Task MessageReceived(SlackMessage message)
         {
-			// TODO: Add insite RSS to #alle-i-dips
-			// TODO: Add support for creating bugs from within Slack: @DIPS-bot CreateBug Shit doesnt work! | helt-ainnsles | 17.2
+            // TODO: Add insite RSS to #alle-i-dips
+            // TODO: Add support for creating bugs from within Slack: @DIPS-bot CreateBug Shit doesnt work! | helt-ainnsles | 17.2
+            MessageHandler messageHandler = null;
 			try
             {
                 if (MessageIsInvalid(message))
@@ -73,7 +66,7 @@ namespace Hjerpbakk.DIPSbot
                 }
 
                 message.Text = message.Text.Trim().ToLower();
-                var messageHandler = debuggingService.RunningInDebugMode ?
+                messageHandler = debuggingService.RunningInDebugMode ?
                                          GetDEBUGMessageHandler(message) :
                                          GetMessageHandler(message);
                 
@@ -81,7 +74,7 @@ namespace Hjerpbakk.DIPSbot
             }
             catch (Exception exception)
             {
-                await slackIntegration.SendDirectMessage(adminUser, "I died:\n" + exception);
+                await slackIntegration.SendDirectMessage(adminUser, $"I died {debuggingService.GetVersionInfo(messageHandler)}:\n{exception}");
                 fatalExceptionHandler(exception);
             }
         }

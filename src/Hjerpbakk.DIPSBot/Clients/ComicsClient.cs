@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSBot.Configuration;
 
@@ -15,7 +16,27 @@ namespace Hjerpbakk.DIPSBot.Clients
 			this.configuration = configuration;
 		}
 
-        public async Task<string> GetRandomComicAsync() =>
-            await httpClient.GetStringAsync(configuration.ComicsServiceURL + "comics/random");
+        public async Task<string> GetRandomComicAsync() {
+            string comicURL;
+            do
+            {
+                // TODO: Add breaker and default comic if this fails too often
+                comicURL = await httpClient.GetStringAsync(configuration.ComicsServiceURL + "comics/random");
+            } while (await ComicIsOffline(comicURL));
+
+            return comicURL;
+        }
+
+        async Task<bool> ComicIsOffline(string comicURL) {
+            try
+            {
+                HttpResponseMessage response = await httpClient.GetAsync(comicURL);
+                return !response.IsSuccessStatusCode;
+            }
+            catch (Exception)
+            {
+                return true;
+            }
+        }
     }
 }

@@ -1,21 +1,23 @@
-﻿using System.Reflection;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Hjerpbakk.DIPSbot;
+using Hjerpbakk.DIPSBot.MessageHandlers;
+using Hjerpbakk.DIPSBot.Services;
 using SlackConnector.Models;
 
 namespace Hjerpbakk.DIPSBot.Actions
 {
-    public class VersionAction : IAction
+    class VersionAction : IAction
     {
         readonly ISlackIntegration slackIntegration;
+        readonly IDebuggingService debuggingService;
 
-        public VersionAction(ISlackIntegration slackIntegration)
+        public VersionAction(ISlackIntegration slackIntegration, IDebuggingService debuggingService)
         {
             this.slackIntegration = slackIntegration;
+            this.debuggingService = debuggingService;
         }
 
-        public async Task Execute(SlackMessage message) =>
-            await slackIntegration.SendMessageToChannel(message.ChatHub, 
-                                                        Assembly.GetExecutingAssembly().GetName().Version.ToString());
+        public async Task Execute(SlackMessage message, MessageHandler caller) =>
+            await slackIntegration.SendMessageToChannel(message.ChatHub, debuggingService.GetVersionInfo(caller));
     }
 }

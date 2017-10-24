@@ -2,11 +2,12 @@
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSbot;
 using Hjerpbakk.DIPSbot.Services;
+using Hjerpbakk.DIPSBot.MessageHandlers;
 using SlackConnector.Models;
 
 namespace Hjerpbakk.DIPSBot.Actions
 {
-    public class AddDevelopersToUtviklingChannelAction : IAction
+    class AddDevelopersToUtviklingChannelAction : IAction
     {
 		readonly ISlackIntegration slackIntegration;
 		readonly IOrganizationService organizationService;
@@ -17,7 +18,7 @@ namespace Hjerpbakk.DIPSBot.Actions
 			this.organizationService = organizationService;
         }
 
-        public async Task Execute(SlackMessage message)
+        public async Task Execute(SlackMessage message, MessageHandler caller)
         {
 			await slackIntegration.IndicateTyping(message.User);
 			var developers = await organizationService.GetDevelopers();

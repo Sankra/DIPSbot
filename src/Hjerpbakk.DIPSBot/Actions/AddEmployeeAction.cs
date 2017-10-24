@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSbot;
 using Hjerpbakk.DIPSBot.Clients;
+using Hjerpbakk.DIPSBot.MessageHandlers;
 using Hjerpbakk.DIPSBot.Model;
 using Hjerpbakk.DIPSBot.Predicates;
 using SlackConnector.Models;
@@ -21,7 +22,7 @@ namespace Hjerpbakk.DIPSBot.Actions
 
         public AddEmployeePredicate AddEmployeePredicate { private get; set; }
 
-        public async Task Execute(SlackMessage message)
+        public async Task Execute(SlackMessage message, MessageHandler caller)
         {
             try
             {

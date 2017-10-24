@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSbot;
+using Hjerpbakk.DIPSBot.MessageHandlers;
 using Hjerpbakk.DIPSBot.Model;
 using SlackConnector.Models;
 
 namespace Hjerpbakk.DIPSBot.Actions
 {
-    public class WeekAction : IAction
+    class WeekAction : IAction
     {
 		readonly ISlackIntegration slackIntegration;
 		
@@ -15,7 +16,7 @@ namespace Hjerpbakk.DIPSBot.Actions
 			this.slackIntegration = slackIntegration;
 		}
 
-        public async Task Execute(SlackMessage message) =>
+        public async Task Execute(SlackMessage message, MessageHandler caller) =>
         await slackIntegration.SendMessageToChannel(message.ChatHub, $"Denne uken har ukenummer {EmployeeWeek.GetIso8601WeekOfYear(DateTime.Now)}.");
     }
 }

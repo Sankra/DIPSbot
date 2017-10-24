@@ -8,6 +8,7 @@ using Hjerpbakk.DIPSBot.Clients;
 using SlackConnector.Models;
 using System.Text.RegularExpressions;
 using Hjerpbakk.DIPSBot.Configuration;
+using Hjerpbakk.DIPSBot.MessageHandlers;
 
 namespace Hjerpbakk.DIPSBot.Actions
 {
@@ -31,7 +32,7 @@ namespace Hjerpbakk.DIPSBot.Actions
         }
 
         // TODO: Vi har uendelig mange string contains, dette kan gjøres mye mer sm00th. Gjelder predicater også...
-		public async Task Execute(SlackMessage message)
+        public async Task Execute(SlackMessage message, MessageHandler caller)
 		{
 			try
             {
