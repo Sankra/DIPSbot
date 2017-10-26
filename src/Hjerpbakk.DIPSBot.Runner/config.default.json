@@ -2,9 +2,6 @@
   "SlackAPIToken": "[SlackAPIToken]",
   "AdminUser": "[AdminUser]",
   "BotUser": "[BotUser]",
-  "BlobStorageAccessKey": "[BlobStorageAccessKey]",
-  "BlobStorageAccountName": "[BlobStorageAccountName]",
-  "BlobStorageEndpointSuffix": "[BlobStorageEndpointSuffix]",
   "ServiceDiscoveryServerName": "[ServiceDiscoveryServerName]",
   "KitchenResponsibleServiceName": "[KitchenResponsibleServiceName]",
   "ComicsServiceName": "[ComicsServiceName]"

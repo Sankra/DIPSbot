@@ -12,14 +12,6 @@ namespace Hjerpbakk.DIPSBot.Configuration
         public string KitchenServiceURL { get; set; }
         public string ComicsServiceURL { get; set; }
 
-		public string BlobStorageAccessKey { get; set; }
-		public string BlobStorageAccountName { get; set; }
-		public string BlobStorageEndpointSuffix { get; set; }
-
-		[JsonIgnore]
-		public string ConnectionString =>
-			$"DefaultEndpointsProtocol=https;AccountName={BlobStorageAccountName};AccountKey={BlobStorageAccessKey};EndpointSuffix={BlobStorageEndpointSuffix}";
-
         public Action<Exception> FatalExceptionHandler { get; set; }
 
         public string ServiceDiscoveryServerName { get; set; }
