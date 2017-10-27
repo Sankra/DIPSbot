@@ -2,6 +2,8 @@
 using System.IO;
 using Hjerpbakk.DIPSBot;
 using Hjerpbakk.DIPSBot.Configuration;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.Extensibility;
 using Newtonsoft.Json;
 
 namespace Hjerpbakk.DIPSbot.Runner
@@ -14,7 +16,10 @@ namespace Hjerpbakk.DIPSbot.Runner
             {
 				Console.WriteLine("Fetching configuration...");
 				var configuration = ReadConfig();
-				var dipsBot = new DIPSbotHost();
+                TelemetryConfiguration.Active.InstrumentationKey = configuration.InstrumentationKey;
+                var telemetryClient = new TelemetryClient();
+
+                var dipsBot = new DIPSbotHost(telemetryClient);
 
 				var res = dipsBot.Start(configuration).GetAwaiter().GetResult();
 				if (!string.IsNullOrEmpty(res))

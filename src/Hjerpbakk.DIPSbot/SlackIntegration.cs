@@ -60,6 +60,9 @@ namespace Hjerpbakk.DIPSbot
             }
 		}
 
+        // TODO: Abonner på flere events og track feil bedre
+        // TODO: Less typing notifications...
+
         public async Task Close()
 		{
             await connection.Close();

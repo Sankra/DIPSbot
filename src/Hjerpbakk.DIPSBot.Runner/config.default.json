@@ -4,5 +4,6 @@
   "BotUser": "[BotUser]",
   "ServiceDiscoveryServerName": "[ServiceDiscoveryServerName]",
   "KitchenResponsibleServiceName": "[KitchenResponsibleServiceName]",
-  "ComicsServiceName": "[ComicsServiceName]"
+  "ComicsServiceName": "[ComicsServiceName]",
+  "InstrumentationKey": "[InstrumentationKey]"
 }

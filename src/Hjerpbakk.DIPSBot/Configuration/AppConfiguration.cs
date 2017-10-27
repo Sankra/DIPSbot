@@ -1,5 +1,4 @@
 ﻿using System;
-using Newtonsoft.Json;
 
 namespace Hjerpbakk.DIPSBot.Configuration
 {
@@ -17,5 +16,7 @@ namespace Hjerpbakk.DIPSBot.Configuration
         public string ServiceDiscoveryServerName { get; set; }
         public string KitchenResponsibleServiceName { get; set; }
         public string ComicsServiceName { get; set; }
+
+        public string InstrumentationKey { get; set; }
     }
 }
