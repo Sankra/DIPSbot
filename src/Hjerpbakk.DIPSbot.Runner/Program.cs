@@ -17,8 +17,11 @@ namespace Hjerpbakk.DIPSbot.Runner
             {
 				Console.WriteLine("Fetching configuration...");
 				var configuration = ReadConfig();
+                configuration.Context = new Context();
+
                 TelemetryConfiguration.Active.InstrumentationKey = configuration.InstrumentationKey;
                 var telemetryClient = new TelemetryClient();
+                telemetryClient.Context.Component.Version = configuration.Context.Version;
                 var telemetryServiceClient = new TelemetryServiceClient(telemetryClient);
 
                 var dipsBot = new DIPSbotHost(telemetryServiceClient);

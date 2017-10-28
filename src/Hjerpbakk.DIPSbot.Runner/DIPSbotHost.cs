@@ -116,7 +116,7 @@ namespace Hjerpbakk.DIPSbot.Runner
             configuration.KitchenServiceURL = kitchenServiceTask.Result;
             configuration.ComicsServiceURL = comicsServiceTask.Result;
 
-            serviceContainer.RegisterInstance(configuration);
+            serviceContainer.RegisterInstance(configuration.Context);
             serviceContainer.RegisterInstance<IReadOnlyAppConfiguration>(configuration);
             serviceContainer.RegisterInstance(serviceDiscoveryClient);
 

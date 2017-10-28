@@ -17,14 +17,14 @@ namespace Hjerpbakk.DIPSBot.Services
 
         bool debugging;
 
-        public DebuggingService(HttpClient httpClient, TelemetryServiceClient telemetryClient)
+        public DebuggingService(Context context, HttpClient httpClient, TelemetryServiceClient telemetryClient)
         {
             this.httpClient = httpClient;
             this.telemetryClient = telemetryClient;
 
             CheckIfDEBUG();
             RunningInDebugMode = debugging;
-            versionAndMode = $"{Assembly.GetExecutingAssembly().GetName().Version} {(RunningInDebugMode ? "DEBUG" : "RELEASE")}";
+            versionAndMode = $"{context.Version} {(RunningInDebugMode ? "DEBUG" : "RELEASE")}";
         }
 
         public bool RunningInDebugMode { get; }
