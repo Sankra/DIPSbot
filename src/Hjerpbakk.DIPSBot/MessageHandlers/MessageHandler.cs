@@ -20,15 +20,17 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers
             commands = new List<(IAction action, IPredicate[] predicates)>();
         }
 
-        public async Task HandleMessage(SlackMessage message) {
+        public async Task<string> HandleMessage(SlackMessage message) {
 
             foreach (var command in commands)
             {
                 if (command.predicates.All(p => p.ShouldExecute(message))) {
                     await command.action.Execute(message, this);
-                    break;
+                    return command.action.GetType().Name;
                 }
             }
+
+            return "No action taken";
         }
 
         protected void AddCommand<T>(params IPredicate[] predicates) {

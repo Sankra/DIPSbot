@@ -37,12 +37,11 @@ namespace Hjerpbakk.DIPSBot.Telemetry
         }
 
         // TODO: Use using using :P
-        // TODO: Track message kinds and such...
         public void StartMetric(string name) {
             activeMetrics.AddOrUpdate(name, DateTime.UtcNow, (a,b) => DateTime.UtcNow);
         }
 
-        public void EndMetric(string name) {
+        public void EndMetric(string name, string metricName = null) {
             activeMetrics.TryRemove(name, out DateTime metricStart);
             if (metricStart == DateTime.MinValue) {
                 return;
@@ -50,7 +49,7 @@ namespace Hjerpbakk.DIPSBot.Telemetry
 
             var timeSpent = DateTime.UtcNow - metricStart;
             var metricValue = timeSpent.Milliseconds;
-            var metric = new MetricTelemetry(name, 1, 0D, metricValue, metricValue, 0D)
+            var metric = new MetricTelemetry(metricName ?? name, 1, metricValue, metricValue, metricValue, 0D)
             {
                 Timestamp = DateTime.UtcNow
             };

@@ -76,10 +76,10 @@ namespace Hjerpbakk.DIPSbot
                     const string TimeSpentOnHandledMessage = "TimeSpentOnHandledMessage";
                     telemetryServiceClient.StartMetric(TimeSpentOnHandledMessage);
 
-                    await messageHandler.HandleMessage(message);
+                    var actionName = await messageHandler.HandleMessage(message);
 
                     // Fuck it for now if message fails
-                    telemetryServiceClient.EndMetric(TimeSpentOnHandledMessage);
+                    telemetryServiceClient.EndMetric(TimeSpentOnHandledMessage, actionName);
                 }
 
             }
