@@ -9,7 +9,7 @@ using SlackConnector.Models;
 
 namespace Hjerpbakk.DIPSBot.MessageHandlers
 {
-    class MessageHandler
+    abstract class MessageHandler
     {
         readonly IServiceContainer serviceContainer;
         readonly List<(IAction action, IPredicate[] predicates)> commands;

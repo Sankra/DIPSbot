@@ -12,6 +12,7 @@ using Hjerpbakk.DIPSBot.MessageHandlers;
 using Hjerpbakk.DIPSBot.Configuration;
 using Hjerpbakk.ServiceDiscovery.Client;
 using Hjerpbakk.DIPSBot.Services;
+using Hjerpbakk.DIPSBot.Telemetry;
 using Microsoft.ApplicationInsights;
 using System.Collections.Generic;
 
@@ -21,7 +22,7 @@ namespace Hjerpbakk.DIPSbot.Runner
 	{
         static readonly ManualResetEvent manualResetEvent;
 
-        readonly TelemetryClient telemetryClient;
+        readonly TelemetryServiceClient telemetryServiceClient;
 
         int restartCount;
         DIPSbotImplementation DIPSbot;
@@ -30,9 +31,9 @@ namespace Hjerpbakk.DIPSbot.Runner
             manualResetEvent = new ManualResetEvent(false);
         }
 
-        public DIPSbotHost(TelemetryClient telemetryClient)
+        public DIPSbotHost(TelemetryServiceClient telemetryServiceClient)
         {
-            this.telemetryClient = telemetryClient;
+            this.telemetryServiceClient = telemetryServiceClient;
         }
 
         public async Task<string> Start(AppConfiguration configuration)
@@ -53,8 +54,7 @@ namespace Hjerpbakk.DIPSbot.Runner
 					catch (Exception e)
 					{
 						Console.WriteLine($"Error connecting to Slack or other services: {e}");
-                        var properties = new Dictionary<string, string> { { "Error connecting to Slack ", restartCount.ToString() } };
-                        telemetryClient.TrackException(e);
+                        telemetryServiceClient.TrackException(e, $"Error connecting to Slack {restartCount}");
 						return "";
 					}
 
@@ -70,8 +70,7 @@ namespace Hjerpbakk.DIPSbot.Runner
 			}
             catch (Exception e)
             {
-                var properties = new Dictionary<string, string> { { "Died unexpectedly ", restartCount.ToString() } };
-                telemetryClient.TrackException(e);
+                telemetryServiceClient.TrackException(e, $"Died unexpectedly {restartCount}");
                 return e.ToString();
             }
         }
@@ -96,8 +95,7 @@ namespace Hjerpbakk.DIPSbot.Runner
             Console.WriteLine("Trying to restart. Cause of death:");
             Console.WriteLine(exception);
 
-            var properties = new Dictionary<string, string> { { "Bot died during message handling, trying to restart ", restartCount.ToString() } };
-            telemetryClient.TrackException(exception);
+            telemetryServiceClient.TrackException(exception, $"Bot died during message handling, trying to restart {restartCount}");
         }
 
 		async Task<IServiceContainer> CompositionRoot(AppConfiguration configuration)
@@ -105,7 +103,7 @@ namespace Hjerpbakk.DIPSbot.Runner
 			var serviceContainer = new ServiceContainer();
 			serviceContainer.RegisterInstance<IServiceContainer>(serviceContainer);
 
-            serviceContainer.RegisterInstance(telemetryClient);
+            serviceContainer.RegisterInstance(telemetryServiceClient);
 
             var httpClient = new HttpClient();
             serviceContainer.RegisterInstance(httpClient);
@@ -132,7 +130,7 @@ namespace Hjerpbakk.DIPSbot.Runner
 
             serviceContainer.Register<AdminMessageHandler>(new PerContainerLifetime());
             serviceContainer.Register<ChannelMessageHandler>(new PerContainerLifetime());
-            serviceContainer.Register<MessageHandler>(new PerContainerLifetime());
+            serviceContainer.Register<NoopMessageHandler>(new PerContainerLifetime());
             serviceContainer.Register<RegularUserMessageHandler>(new PerContainerLifetime());
             serviceContainer.Register<TrondheimMessageHandler>(new PerContainerLifetime());
 

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Hjerpbakk.DIPSBot.Configuration;
 using Hjerpbakk.DIPSBot.MessageHandlers;
 using Hjerpbakk.DIPSBot.Services;
+using Hjerpbakk.DIPSBot.Telemetry;
 using LightInject;
 using SlackConnector.Models;
 
@@ -13,6 +14,7 @@ namespace Hjerpbakk.DIPSbot
         readonly IServiceContainer serviceContainer;
         readonly ISlackIntegration slackIntegration;
         readonly IDebuggingService debuggingService;
+        readonly TelemetryServiceClient telemetryServiceClient;
 
         readonly Action<Exception> fatalExceptionHandler;
         readonly SlackUser adminUser;
@@ -26,6 +28,7 @@ namespace Hjerpbakk.DIPSbot
             fatalExceptionHandler = configuration.FatalExceptionHandler;
             adminUser = new SlackUser { Id = configuration.AdminUser };
             debuggingService = serviceContainer.GetInstance<IDebuggingService>();
+            telemetryServiceClient = serviceContainer.GetInstance<TelemetryServiceClient>();
         }
 
         /// <summary>
@@ -68,8 +71,17 @@ namespace Hjerpbakk.DIPSbot
                 messageHandler = debuggingService.RunningInDebugMode ?
                                          GetDEBUGMessageHandler(message) :
                                          GetMessageHandler(message);
-                
-                await messageHandler.HandleMessage(message);
+
+                if (!(messageHandler is NoopMessageHandler)) {
+                    const string TimeSpentOnHandledMessage = "TimeSpentOnHandledMessage";
+                    telemetryServiceClient.StartMetric(TimeSpentOnHandledMessage);
+
+                    await messageHandler.HandleMessage(message);
+
+                    // Fuck it for now if message fails
+                    telemetryServiceClient.EndMetric(TimeSpentOnHandledMessage);
+                }
+
             }
             catch (Exception exception)
             {
@@ -104,7 +116,7 @@ namespace Hjerpbakk.DIPSbot
                 return serviceContainer.GetInstance<RegularUserMessageHandler>();
             }
 
-            return serviceContainer.GetInstance<MessageHandler>();
+            return serviceContainer.GetInstance<NoopMessageHandler>();
         }
 
         MessageHandler GetDEBUGMessageHandler(SlackMessage message) {
@@ -124,7 +136,7 @@ namespace Hjerpbakk.DIPSbot
                 }
             }
 
-            return serviceContainer.GetInstance<MessageHandler>();
+            return serviceContainer.GetInstance<NoopMessageHandler>();
         }
 
 		static bool MessageIsInvalid(SlackMessage message) =>

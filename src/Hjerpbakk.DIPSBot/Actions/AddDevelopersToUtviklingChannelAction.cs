@@ -18,11 +18,12 @@ namespace Hjerpbakk.DIPSBot.Actions
 			this.organizationService = organizationService;
         }
 
-        public async Task Execute(SlackMessage message, MessageHandler caller)
+        public Task Execute(SlackMessage message, MessageHandler caller)
         {
-			await slackIntegration.IndicateTyping(message.User);
-			var developers = await organizationService.GetDevelopers();
-			var slackUsers = await slackIntegration.GetAllUsers();
+            //await slackIntegration.IndicateTyping(message.User);
+            //var developers = await organizationService.GetDevelopers();
+            //var slackUsers = await slackIntegration.GetAllUsers();
+            return Task.CompletedTask;
         }
     }
 }

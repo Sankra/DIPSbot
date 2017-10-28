@@ -109,13 +109,11 @@ namespace Hjerpbakk.DIPSbot
 			}
 
 			var channel = await connection.JoinDirectMessageChannel(user.Id);
-			await connection.IndicateTyping(channel);
 			var message = new BotMessage { ChatHub = channel, Text = text };
 			await connection.Say(message);
 		}
 
         public async Task SendMessageToChannel(SlackChatHub channel, string text, params SlackAttachment[] attachments) {
-			await connection.IndicateTyping(channel);
             var message = new BotMessage { ChatHub = channel, Text = text };
             if (attachments.Length > 0) {
                 message.Attachments = attachments;
@@ -123,17 +121,6 @@ namespace Hjerpbakk.DIPSbot
 
 			await connection.Say(message);
         }
-
-		/// <summary>
-		///     Indicates that the bot is typing for a given user.
-		/// </summary>
-		/// <param name="user">The user who will see the bot typing.</param>
-		/// <returns>No object or value is returned by this method when it completes.</returns>
-		public async Task IndicateTyping(SlackUser user)
-		{
-			user.Guard();
-			await connection.IndicateTyping(await connection.JoinDirectMessageChannel(user.Id));
-		}
 
 		public async Task AddUsersToChannel(IEnumerable<SlackUser> users, string channelName)
 		{

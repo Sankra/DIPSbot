@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>0.2.6.0</Version>
-    <ReleaseVersion>0.2.6.0</ReleaseVersion>
+    <Version>0.2.7.0</Version>
+    <ReleaseVersion>0.2.7.0</ReleaseVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,6 +16,7 @@
     <Folder Include="Actions\" />
     <Folder Include="Predicates\" />
     <Folder Include="Configuration\" />
+    <Folder Include="Telemetry\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />

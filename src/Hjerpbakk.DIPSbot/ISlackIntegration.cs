@@ -46,12 +46,5 @@ namespace Hjerpbakk.DIPSbot
 		Task SendDirectMessage(SlackUser user, string text);
 
         Task SendMessageToChannel(SlackChatHub channel, string text, params SlackAttachment[] attachments);
-
-		/// <summary>
-		///     Indicates that the bot is typing for a given user.
-		/// </summary>
-		/// <param name="user">The user who will see the bot typing.</param>
-		/// <returns>No object or value is returned by this method when it completes.</returns>
-		Task IndicateTyping(SlackUser user);
 	}
 }
