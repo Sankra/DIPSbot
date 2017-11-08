@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>0.2.9.0</Version>
+    <ReleaseVersion>0.2.9.0</ReleaseVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Extensions\" />
+    <Folder Include="Services\" />
+    <Folder Include="Properties\" />
+    <Folder Include="MessageHandlers\" />
+    <Folder Include="Clients\" />
+    <Folder Include="Model\" />
+    <Folder Include="Actions\" />
+    <Folder Include="Predicates\" />
+    <Folder Include="Configuration\" />
+    <Folder Include="Telemetry\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="LightInject" Version="5.1.0" />
+    <PackageReference Include="WindowsAzure.Storage" Version="8.5.0" />
+    <PackageReference Include="SlackConnector" Version="4.1.33" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.4.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Hjerpbakk.ServiceDiscoveryClient">
+      <HintPath>..\..\bin\Hjerpbakk.ServiceDiscoveryClient.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>
