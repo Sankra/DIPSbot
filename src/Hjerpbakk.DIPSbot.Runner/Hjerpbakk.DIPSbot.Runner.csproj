@@ -19,7 +19,9 @@
     <None Remove="config.json" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="config.json" />
+    <Content Include="config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Hjerpbakk.ServiceDiscovery.Client">
