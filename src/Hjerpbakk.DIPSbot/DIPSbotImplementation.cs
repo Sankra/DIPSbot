@@ -14,7 +14,7 @@ namespace Hjerpbakk.DIPSbot
         readonly IServiceContainer serviceContainer;
         readonly ISlackIntegration slackIntegration;
         readonly IDebuggingService debuggingService;
-        readonly TelemetryServiceClient telemetryServiceClient;
+        readonly ITelemetryServiceClient telemetryServiceClient;
 
         readonly Action<Exception> fatalExceptionHandler;
         readonly SlackUser adminUser;
@@ -28,7 +28,7 @@ namespace Hjerpbakk.DIPSbot
             fatalExceptionHandler = configuration.FatalExceptionHandler;
             adminUser = new SlackUser { Id = configuration.AdminUser };
             debuggingService = serviceContainer.GetInstance<IDebuggingService>();
-            telemetryServiceClient = serviceContainer.GetInstance<TelemetryServiceClient>();
+            telemetryServiceClient = serviceContainer.GetInstance<ITelemetryServiceClient>();
         }
 
         /// <summary>

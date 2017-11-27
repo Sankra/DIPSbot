@@ -6,7 +6,7 @@ using Microsoft.ApplicationInsights.DataContracts;
 
 namespace Hjerpbakk.DIPSBot.Telemetry
 {
-    public class TelemetryServiceClient
+    public class TelemetryServiceClient : ITelemetryServiceClient
     {
         readonly TelemetryClient telemetryClient;
 

@@ -12,12 +12,12 @@ namespace Hjerpbakk.DIPSBot.Services
     class DebuggingService : IDebuggingService
     {
         readonly HttpClient httpClient;
-        readonly TelemetryServiceClient telemetryClient;
+        readonly ITelemetryServiceClient telemetryClient;
         readonly string versionAndMode;
 
         bool debugging;
 
-        public DebuggingService(Context context, HttpClient httpClient, TelemetryServiceClient telemetryClient)
+        public DebuggingService(Context context, HttpClient httpClient, ITelemetryServiceClient telemetryClient)
         {
             this.httpClient = httpClient;
             this.telemetryClient = telemetryClient;

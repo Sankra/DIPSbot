@@ -22,7 +22,7 @@ namespace Hjerpbakk.DIPSbot.Runner
 	{
         static readonly ManualResetEvent manualResetEvent;
 
-        readonly TelemetryServiceClient telemetryServiceClient;
+        readonly ITelemetryServiceClient telemetryServiceClient;
 
         int restartCount;
         DIPSbotImplementation DIPSbot;
@@ -31,7 +31,7 @@ namespace Hjerpbakk.DIPSbot.Runner
             manualResetEvent = new ManualResetEvent(false);
         }
 
-        public DIPSbotHost(TelemetryServiceClient telemetryServiceClient)
+        public DIPSbotHost(ITelemetryServiceClient telemetryServiceClient)
         {
             this.telemetryServiceClient = telemetryServiceClient;
         }
@@ -103,7 +103,7 @@ namespace Hjerpbakk.DIPSbot.Runner
 			var serviceContainer = new ServiceContainer();
 			serviceContainer.RegisterInstance<IServiceContainer>(serviceContainer);
 
-            serviceContainer.RegisterInstance(telemetryServiceClient);
+            serviceContainer.RegisterInstance<ITelemetryServiceClient>(telemetryServiceClient);
 
             var httpClient = new HttpClient();
             serviceContainer.RegisterInstance(httpClient);
