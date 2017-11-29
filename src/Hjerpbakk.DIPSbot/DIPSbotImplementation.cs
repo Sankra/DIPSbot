@@ -36,7 +36,6 @@ namespace Hjerpbakk.DIPSbot
         /// </summary>
         public async Task Close()
         {
-            slackIntegration.MessageReceived -= MessageReceived;
             await slackIntegration.Close();
         }
 
@@ -46,8 +45,7 @@ namespace Hjerpbakk.DIPSbot
         /// <returns>No object or value is returned by this method when it completes.</returns>
         public async Task Connect()
         {
-            await slackIntegration.Connect();
-            slackIntegration.MessageReceived += MessageReceived;
+            await slackIntegration.Connect(MessageReceived);
         }
 
         /// <summary>

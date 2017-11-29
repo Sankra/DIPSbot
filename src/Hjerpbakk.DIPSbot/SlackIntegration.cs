@@ -16,66 +16,32 @@ namespace Hjerpbakk.DIPSbot
 	/// </summary>
 	public sealed class SlackIntegration : ISlackIntegration
 	{
-		readonly ISlackConnector connector;
-		readonly string slackKey;
+        readonly QueuedSlackConnection connection;
 
-		ISlackConnection connection;
-
-		/// <summary>
-		///     Constructor.
-		/// </summary>
-		/// <param name="connector">The Slack connector to use.</param>
-		/// <param name="configuration">The Slack configuration.</param>
-		public SlackIntegration(ISlackConnector connector, IReadOnlyAppConfiguration configuration)
+        public SlackIntegration(QueuedSlackConnection connection)
 		{
-			this.connector = connector ?? throw new ArgumentNullException(nameof(connector));
-
-            // TODO: sjekk configuration mot null
-            if (string.IsNullOrEmpty(configuration.SlackAPIToken))
-			{
-                throw new ArgumentException(nameof(configuration.SlackAPIToken));
-			}
-
-            slackKey = configuration.SlackAPIToken;
-		}
-
-		/// <summary>
-		///     Raised everytime the bot gets a DM.
-		/// </summary>
-		public event MessageReceivedEventHandler MessageReceived
-		{
-			add => connection.OnMessageReceived += value;
-			remove => connection.OnMessageReceived -= value;
+            this.connection = connection;
 		}
 
 		/// <summary>
 		///     Connects the bot to Slack.
 		/// </summary>
 		/// <returns>No object or value is returned by this method when it completes.</returns>
-		public async Task Connect()
+        public async Task Connect(Func<SlackMessage, Task> messageReceived)
 		{
-			connection = await connector.Connect(slackKey);
-            if (connection == null) {
-                throw new ArgumentException("Could not connect to Slack.");
-            }
+            await connection.Connect(messageReceived);
 		}
 
-        // TODO: Abonner på flere events og track feil bedre
-        // TODO: Less typing notifications...
-
-        public async Task Close()
-		{
+        public async Task Close() {
             await connection.Close();
-		}
+        }
 
-		/// <summary>
-		///     Gets all the users in the Slack team.
-		/// </summary>
-		/// <returns>All users.</returns>
-		public async Task<IEnumerable<SlackUser>> GetAllUsers()
-		{
-			return await connection.GetUsers();
-		}
+        /// <summary>
+        ///     Gets all the users in the Slack team.
+        /// </summary>
+        /// <returns>All users.</returns>
+        public async Task<IEnumerable<SlackUser>> GetAllUsers() => 
+            await connection.GetAllUsers();
 
 		/// <summary>
 		///     Gets the user with the given Id.
@@ -89,9 +55,7 @@ namespace Hjerpbakk.DIPSbot
 				throw new ArgumentException(nameof(userId));
 			}
 
-			return connection.UserCache.ContainsKey(userId)
-				? connection.UserCache[userId]
-				: (await GetAllUsers()).SingleOrDefault(u => u.Id == userId);
+            return await connection.GetUser(userId);
 		}
 
 		/// <summary>
@@ -108,25 +72,28 @@ namespace Hjerpbakk.DIPSbot
 				throw new ArgumentException(nameof(text));
 			}
 
-			var channel = await connection.JoinDirectMessageChannel(user.Id);
+            var channel = await connection.GetDirectMessageChannel(user.Id);
 			var message = new BotMessage { ChatHub = channel, Text = text };
-			await connection.Say(message);
+            connection.SendMessage(message);
 		}
 
-        public async Task SendMessageToChannel(SlackChatHub channel, string text, params SlackAttachment[] attachments) {
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        public async Task SendMessageToChannel(SlackChatHub channel, string text, params SlackAttachment[] attachments)
+        {
             var message = new BotMessage { ChatHub = channel, Text = text };
             if (attachments.Length > 0) {
                 message.Attachments = attachments;
             }
 
-			await connection.Say(message);
+            connection.SendMessage(message);
         }
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
-		public async Task AddUsersToChannel(IEnumerable<SlackUser> users, string channelName)
-		{
-			// TODO: nullsjekker
-			var channels = await connection.GetChannels();
-			var devChannel = channels.Single(c => c.Name == channelName);
-		}
+		//public async Task AddUsersToChannel(IEnumerable<SlackUser> users, string channelName)
+		//{
+		//	// TODO: nullsjekker
+		//	var channels = await connection.GetChannels();
+		//	var devChannel = channels.Single(c => c.Name == channelName);
+		//}
 	}
 }

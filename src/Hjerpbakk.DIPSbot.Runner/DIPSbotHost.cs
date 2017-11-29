@@ -15,6 +15,7 @@ using Hjerpbakk.DIPSBot.Services;
 using Hjerpbakk.DIPSBot.Telemetry;
 using Microsoft.ApplicationInsights;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Hjerpbakk.DIPSbot.Runner
 {
@@ -53,6 +54,7 @@ namespace Hjerpbakk.DIPSbot.Runner
 					}
 					catch (Exception e)
 					{
+                        e = e.Demystify();
 						Console.WriteLine($"Error connecting to Slack or other services: {e}");
                         telemetryServiceClient.TrackException(e, $"Error connecting to Slack {restartCount}");
 						return "";
@@ -70,6 +72,7 @@ namespace Hjerpbakk.DIPSbot.Runner
 			}
             catch (Exception e)
             {
+                e = e.Demystify();
                 telemetryServiceClient.TrackException(e, $"Died unexpectedly {restartCount}");
                 return e.ToString();
             }
@@ -83,7 +86,7 @@ namespace Hjerpbakk.DIPSbot.Runner
 				DIPSbot = null;
                 Console.WriteLine("DIPSbot stopped.");
             } catch (Exception e) {
-                return e.ToString();
+                return e.Demystify().ToString();
             }
 
             return "";
@@ -93,6 +96,7 @@ namespace Hjerpbakk.DIPSbot.Runner
             Interlocked.Increment(ref restartCount);
             manualResetEvent.Set();
             Console.WriteLine("Trying to restart. Cause of death:");
+            exception = exception.Demystify();
             Console.WriteLine(exception);
 
             telemetryServiceClient.TrackException(exception, $"Bot died during message handling, trying to restart {restartCount}");
@@ -109,12 +113,22 @@ namespace Hjerpbakk.DIPSbot.Runner
             serviceContainer.RegisterInstance(httpClient);
             var serviceDiscoveryClient = new ServiceDiscoveryClient(httpClient, configuration.ServiceDiscoveryServerName);
 
-            // TODO: Smoothify
-            var kitchenServiceTask = serviceDiscoveryClient.GetServiceURL(configuration.KitchenResponsibleServiceName);
-            var comicsServiceTask = serviceDiscoveryClient.GetServiceURL(configuration.ComicsServiceName);
-            await Task.WhenAll(kitchenServiceTask, comicsServiceTask);
-            configuration.KitchenServiceURL = kitchenServiceTask.Result;
-            configuration.ComicsServiceURL = comicsServiceTask.Result;
+            try
+            {
+                // TODO: Kan gjøres samtidig og med bedre feilhåndtering
+                var kitchenServiceTask = serviceDiscoveryClient.GetServiceURL(configuration.KitchenResponsibleServiceName);
+                var comicsServiceTask = serviceDiscoveryClient.GetServiceURL(configuration.ComicsServiceName);
+                await Task.WhenAll(kitchenServiceTask, comicsServiceTask);
+                configuration.KitchenServiceURL = kitchenServiceTask.Result;
+                configuration.ComicsServiceURL = comicsServiceTask.Result;
+            }
+            catch (Exception e)
+            {
+                // TODO: Hvordan skal actions takle at ting er utilgjengelige?
+                configuration.KitchenServiceURL = null;
+                configuration.ComicsServiceURL = null;
+                telemetryServiceClient.TrackException(e.Demystify(), $"Could not get URLs of dependant services");
+            }
 
             serviceContainer.RegisterInstance(configuration.Context);
             serviceContainer.RegisterInstance<IReadOnlyAppConfiguration>(configuration);
@@ -122,6 +136,8 @@ namespace Hjerpbakk.DIPSbot.Runner
 
 			serviceContainer.Register<ISlackConnector, SlackConnector.SlackConnector>(new PerContainerLifetime());
 			serviceContainer.Register<ISlackIntegration, SlackIntegration>(new PerContainerLifetime());
+            serviceContainer.Register<SlackConnection>(new PerContainerLifetime());
+            serviceContainer.Register<QueuedSlackConnection>(new PerContainerLifetime());
 
             serviceContainer.Register<ComicsClient>(new PerContainerLifetime());
             serviceContainer.Register<IKitchenResponsibleClient, KitchenResponsibleClient>(new PerContainerLifetime());

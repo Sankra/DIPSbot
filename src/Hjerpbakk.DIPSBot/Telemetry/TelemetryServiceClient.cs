@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
@@ -23,6 +24,7 @@ namespace Hjerpbakk.DIPSBot.Telemetry
                 return;
             }
 
+            exception = exception.Demystify();
             var telemetry = new ExceptionTelemetry(exception)
             {
                 Message = callsite,

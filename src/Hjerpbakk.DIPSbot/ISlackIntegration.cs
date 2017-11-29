@@ -11,16 +11,7 @@ namespace Hjerpbakk.DIPSbot
 	/// </summary>
 	public interface ISlackIntegration
 	{
-		/// <summary>
-		///     Raised everytime the bot gets a DM.
-		/// </summary>
-		event MessageReceivedEventHandler MessageReceived;
-
-		/// <summary>
-		///     Connects the bot to Slack.
-		/// </summary>
-		/// <returns>No object or value is returned by this method when it completes.</returns>
-		Task Connect();
+        Task Connect(Func<SlackMessage, Task> messageReceived);
 
         Task Close();
 
