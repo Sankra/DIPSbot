@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <ReleaseVersion>0.2.10.0</ReleaseVersion>
+    <ReleaseVersion>0.3.0.0</ReleaseVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,9 +18,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="config.json" />
+    <None Remove="scooter.json" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="scooter.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -28,5 +32,10 @@
     <Reference Include="Hjerpbakk.ServiceDiscovery.Client">
       <HintPath>..\..\lib\Hjerpbakk.ServiceDiscovery.Client.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="scooter.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

@@ -17,6 +17,7 @@ namespace Hjerpbakk.DIPSBot.Actions
             this.comicsClient = comicsClient;
 		}
 
+        // TODO: Legg inn  muligheten for å både se (for vanlige brukere) og oppdatere hvilke tegneserier som skal vises..
         public async Task Execute(SlackMessage message, MessageHandler caller) {
             var comicURL = await comicsClient.GetRandomComicAsync();
             var comic = new SlackAttachment { ImageUrl = comicURL };

@@ -160,6 +160,7 @@ namespace Hjerpbakk.DIPSbot.Runner
             serviceContainer.Register<RemoveEmployeeAction>(new PerContainerLifetime());
             serviceContainer.Register<ComicsAction>(new PerContainerLifetime());
             serviceContainer.Register<VersionAction>(new PerContainerLifetime());
+            serviceContainer.Register<ScooterAction>(new PerContainerLifetime());
 			
 			serviceContainer.Register<DIPSbotImplementation>(new PerContainerLifetime());
 

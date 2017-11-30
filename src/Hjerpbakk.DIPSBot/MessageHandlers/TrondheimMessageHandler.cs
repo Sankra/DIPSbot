@@ -6,6 +6,7 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers
 {
     class TrondheimMessageHandler : MessageHandler
     {
+        // TODO: Karsklag should also get this
         public TrondheimMessageHandler(IServiceContainer serviceContainer) : base(serviceContainer)
 		{
             AddCommand<ComicsAction>(new BotMentionedPredicate(), new ComicsPredicate());
@@ -14,6 +15,7 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers
             AddCommand<ThanksAction>(new BotMentionedPredicate(), new ThanksPredicate());
             AddCommand<NegativeAction>(new BotMentionedPredicate(), new NegativePredicate());
             AddCommand<VersionAction>(new BotMentionedPredicate(), new VersionPredicate());
+            AddCommand<ScooterAction>(new ScooterPredicate());
             AddCommandListingAsUnknownCommand(new BotMentionedPredicate());
         }
     }
