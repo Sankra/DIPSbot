@@ -10,11 +10,11 @@
     <ProjectReference Include="..\Hjerpbakk.DIPSBot\Hjerpbakk.DIPSBot.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="LightInject" Version="5.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="SlackConnector" Version="4.1.33" />
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.4.0" />
     <PackageReference Include="Ben.Demystifier" Version="0.0.5" />
+    <PackageReference Include="LightInject" Version="5.1.1" />
+    <PackageReference Include="SlackConnector" Version="4.1.44" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="config.json" />

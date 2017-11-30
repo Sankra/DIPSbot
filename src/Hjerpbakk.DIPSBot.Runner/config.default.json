@@ -2,7 +2,7 @@
   "SlackAPIToken": "[SlackAPIToken]",
   "AdminUser": "[AdminUser]",
   "BotUser": "[BotUser]",
-  "ServiceDiscoveryServerName": "[ServiceDiscoveryServerName]",
+  "ServiceDiscoveryURL": "[ServiceDiscoveryServerName]",
   "KitchenResponsibleServiceName": "[KitchenResponsibleServiceName]",
   "ComicsServiceName": "[ComicsServiceName]",
   "InstrumentationKey": "[InstrumentationKey]"

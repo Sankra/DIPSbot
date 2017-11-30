@@ -14,7 +14,7 @@ namespace Hjerpbakk.DIPSBot.Configuration
 
         public Action<Exception> FatalExceptionHandler { get; set; }
 
-        public string ServiceDiscoveryServerName { get; set; }
+        public string ServiceDiscoveryURL { get; set; }
         public string KitchenResponsibleServiceName { get; set; }
         public string ComicsServiceName { get; set; }
 

@@ -111,7 +111,7 @@ namespace Hjerpbakk.DIPSbot.Runner
 
             var httpClient = new HttpClient();
             serviceContainer.RegisterInstance(httpClient);
-            var serviceDiscoveryClient = new ServiceDiscoveryClient(httpClient, configuration.ServiceDiscoveryServerName);
+            var serviceDiscoveryClient = new ServiceDiscoveryClient(httpClient, configuration.ServiceDiscoveryURL);
 
             try
             {

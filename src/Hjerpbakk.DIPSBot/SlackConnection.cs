@@ -54,7 +54,7 @@ namespace Hjerpbakk.DIPSBot
             }
 
             await Close();
-            await Connect(messageReceived):
+            await Connect(messageReceived);
             return connection;
         }
 
