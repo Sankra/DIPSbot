@@ -1,5 +1,6 @@
 ﻿using System;
 using Hjerpbakk.DIPSBot.Telemetry;
+using Hjerpbakk.ServiceDiscovery.Client.Model;
 
 namespace Hjerpbakk.DIPSBot.Configuration
 {
@@ -23,5 +24,6 @@ namespace Hjerpbakk.DIPSBot.Configuration
         public string InstrumentationKey { get; set; }
 
         public Context Context { get; set; }
+        public Service Service { get; set; }
     }
 }

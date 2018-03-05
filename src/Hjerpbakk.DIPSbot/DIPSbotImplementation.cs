@@ -4,6 +4,8 @@ using Hjerpbakk.DIPSBot.Configuration;
 using Hjerpbakk.DIPSBot.MessageHandlers;
 using Hjerpbakk.DIPSBot.Services;
 using Hjerpbakk.DIPSBot.Telemetry;
+using Hjerpbakk.ServiceDiscovery.Client;
+using Hjerpbakk.ServiceDiscovery.Client.Model;
 using LightInject;
 using SlackConnector.Models;
 
@@ -15,9 +17,11 @@ namespace Hjerpbakk.DIPSbot
         readonly ISlackIntegration slackIntegration;
         readonly IDebuggingService debuggingService;
         readonly ITelemetryServiceClient telemetryServiceClient;
+        readonly ServiceDiscoveryClient serviceDiscoveryClient;
 
         readonly Action<Exception> fatalExceptionHandler;
         readonly SlackUser adminUser;
+        readonly Service service;
 
         public DIPSbotImplementation(IServiceContainer serviceContainer)
         {
@@ -29,6 +33,8 @@ namespace Hjerpbakk.DIPSbot
             adminUser = new SlackUser { Id = configuration.AdminUser };
             debuggingService = serviceContainer.GetInstance<IDebuggingService>();
             telemetryServiceClient = serviceContainer.GetInstance<ITelemetryServiceClient>();
+            serviceDiscoveryClient = serviceContainer.GetInstance<ServiceDiscoveryClient>();
+            service = configuration.Service;
         }
 
         /// <summary>
@@ -60,6 +66,7 @@ namespace Hjerpbakk.DIPSbot
             MessageHandler messageHandler = null;
 			try
             {
+                await serviceDiscoveryClient.Heartbeat(service);
                 if (MessageIsInvalid(message))
                 {
                     return;

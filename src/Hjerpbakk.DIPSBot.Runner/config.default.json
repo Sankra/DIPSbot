@@ -6,5 +6,9 @@
   "ApiKey": "[ApiKey]",
   "KitchenResponsibleServiceName": "[KitchenResponsibleServiceName]",
   "ComicsServiceName": "[ComicsServiceName]",
-  "InstrumentationKey": "[InstrumentationKey]"
+  "InstrumentationKey": "[InstrumentationKey]",
+  "Service": {
+    "Name": "[Name]",
+    "IP": "[IP]"
+  }
 }
