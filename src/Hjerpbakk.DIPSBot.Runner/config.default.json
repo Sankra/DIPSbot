@@ -3,6 +3,7 @@
   "AdminUser": "[AdminUser]",
   "BotUser": "[BotUser]",
   "ServiceDiscoveryURL": "[ServiceDiscoveryServerName]",
+  "ApiKey": "[ApiKey]",
   "KitchenResponsibleServiceName": "[KitchenResponsibleServiceName]",
   "ComicsServiceName": "[ComicsServiceName]",
   "InstrumentationKey": "[InstrumentationKey]"

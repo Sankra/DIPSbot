@@ -19,6 +19,7 @@ namespace Hjerpbakk.DIPSBot.Actions
         readonly IReadOnlyAppConfiguration configuration;
 
         readonly Regex numberInStringRegex;
+        // TODO: Denne kan flyttes en felles plass
         readonly Regex slackUserRegex;
 
         public KitchenResponsibleAction(ISlackIntegration slackIntegration, IKitchenResponsibleClient kitchenResponsibleClient, IReadOnlyAppConfiguration configuration)

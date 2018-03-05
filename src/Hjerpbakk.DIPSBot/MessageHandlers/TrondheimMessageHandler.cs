@@ -9,6 +9,7 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers
         // TODO: Karsklag should also get this
         public TrondheimMessageHandler(IServiceContainer serviceContainer) : base(serviceContainer)
 		{
+            // TODO: Trondheim is superset of channel
             AddCommand<ComicsAction>(new BotMentionedPredicate(), new ComicsPredicate());
             AddCommand<KitchenResponsibleAction>(new BotMentionedPredicate(), new KitchenPredicate());
             AddCommand<WeekAction>(new BotMentionedPredicate(), new WeekPredicate());

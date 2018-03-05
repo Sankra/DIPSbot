@@ -111,7 +111,7 @@ namespace Hjerpbakk.DIPSbot.Runner
 
             var httpClient = new HttpClient();
             serviceContainer.RegisterInstance(httpClient);
-            var serviceDiscoveryClient = new ServiceDiscoveryClient(httpClient, configuration.ServiceDiscoveryURL);
+            var serviceDiscoveryClient = new ServiceDiscoveryClient(httpClient, configuration.ServiceDiscoveryUrl, configuration.ApiKey);
 
             try
             {
@@ -161,6 +161,8 @@ namespace Hjerpbakk.DIPSbot.Runner
             serviceContainer.Register<ComicsAction>(new PerContainerLifetime());
             serviceContainer.Register<VersionAction>(new PerContainerLifetime());
             serviceContainer.Register<ScooterAction>(new PerContainerLifetime());
+            serviceContainer.Register<SwapKitchenWeekAction>(new PerContainerLifetime());
+            serviceContainer.Register<SwapAnswerAction>(new PerContainerLifetime());
 			
 			serviceContainer.Register<DIPSbotImplementation>(new PerContainerLifetime());
 

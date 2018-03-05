@@ -41,14 +41,15 @@ namespace Hjerpbakk.DIPSBot
             while (true) {
                 var loopStartTimeStamp = DateTime.UtcNow;
                 if (slackMessageQueue.TryDequeue(out BotMessage message)) {
-                    try
-                    {
+                    //try
+                    //{
+                        // TODO: OM vi krasjer pga. for mange kall, si fra her https://api.slack.com/docs/rate-limits
                         slackConnection.GetConnection().GetAwaiter().GetResult().Say(message).GetAwaiter();
-                    }
-                    catch (Exception ex)
-                    {
+                    //}
+                    //catch (Exception ex)
+                    //{
                         // TODO: Si fra at har krasjet uten å ta ned hele dritten
-                    }
+                    //}
 
                 }
 

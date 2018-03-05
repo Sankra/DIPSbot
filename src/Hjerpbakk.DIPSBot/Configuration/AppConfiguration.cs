@@ -3,7 +3,7 @@ using Hjerpbakk.DIPSBot.Telemetry;
 
 namespace Hjerpbakk.DIPSBot.Configuration
 {
-    public class AppConfiguration : IReadOnlyAppConfiguration
+    public class AppConfiguration : IReadOnlyAppConfiguration, IServiceDiscoveryConfiguration
     {
         public string SlackAPIToken { get; set; }
         public string AdminUser { get; set; }
@@ -14,7 +14,9 @@ namespace Hjerpbakk.DIPSBot.Configuration
 
         public Action<Exception> FatalExceptionHandler { get; set; }
 
-        public string ServiceDiscoveryURL { get; set; }
+        public string ServiceDiscoveryUrl { get; set; }
+        public string ApiKey { get; set; }
+
         public string KitchenResponsibleServiceName { get; set; }
         public string ComicsServiceName { get; set; }
 

@@ -2,11 +2,11 @@
 
 namespace Hjerpbakk.DIPSBot.Predicates
 {
-    struct ScooterPredicate : IPredicate
+    struct SwapAnswerPredicate : IPredicate
     {
-        public string CommandText => "scooter";
+        public string CommandText => "";
 
         public bool ShouldExecute(SlackMessage message) =>
-            message.Text.Contains("scooter");
+            message.Text == "ja" || message.Text == "nei";
     }
 }

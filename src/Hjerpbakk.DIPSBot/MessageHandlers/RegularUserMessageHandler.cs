@@ -8,6 +8,8 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers
     {
         public RegularUserMessageHandler(IServiceContainer serviceContainer) : base(serviceContainer)
 		{
+            AddCommand<SwapAnswerAction>(new SwapAnswerPredicate());
+            AddCommand<SwapKitchenWeekAction>(new SwapKitchenWeekPredicate());
             AddCommand<ComicsAction>(new ComicsPredicate());
             AddCommand<KitchenResponsibleAction>(new KitchenPredicate());
             AddCommand<WeekAction>(new WeekPredicate());

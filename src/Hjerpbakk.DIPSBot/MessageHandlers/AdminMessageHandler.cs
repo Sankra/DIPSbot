@@ -12,6 +12,8 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers
         {
             // TODO: Get all actions and predicates...
             // TODO: Add echo functionality
+            AddCommand<SwapAnswerAction>(new SwapAnswerPredicate());
+            AddCommand<SwapKitchenWeekAction>(new SwapKitchenWeekPredicate());
             AddCommand<ComicsAction>(new ComicsPredicate());
 			AddCommand<KitchenResponsibleAction>(new KitchenPredicate());
             AddCommand<AddEmployeeAction>(new AddEmployeePredicate());

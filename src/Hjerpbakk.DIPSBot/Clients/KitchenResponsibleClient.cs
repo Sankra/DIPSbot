@@ -40,6 +40,7 @@ namespace Hjerpbakk.DIPSBot.Clients
             return JsonConvert.DeserializeObject<EmployeeWeek[]>(weeksAndEmployees);
         }
 
+        // TODO: KitchenServiceURL ble satt til noe annet. forbedre og si fra når blir endret
         public async Task<EmployeeWeek> GetNextWeekForEmployee(SlackUser employee)
         {
             var employeeAndWeek = await httpClient.GetStringAsync(configuration.KitchenServiceURL + "employee/" + employee.Id);
