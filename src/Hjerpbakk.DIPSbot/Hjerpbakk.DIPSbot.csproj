@@ -16,6 +16,7 @@
         <Folder Include="Predicates\" />
         <Folder Include="Configuration\" />
         <Folder Include="Telemetry\" />
+        <Folder Include="Model\BikeShare\" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Ben.Demystifier" Version="0.1.1" />
