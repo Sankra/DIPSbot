@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
@@ -24,6 +24,8 @@
         <PackageReference Include="LightInject" Version="5.1.5" />
         <PackageReference Include="WindowsAzure.Storage" Version="9.3.0" />
         <PackageReference Include="SlackConnector" Version="4.2.65" />
+        <PackageReference Include="BikeshareClient" Version="1.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.1.1" />
     </ItemGroup>
     <ItemGroup>
         <Reference Include="Hjerpbakk.ServiceDiscoveryClient">
