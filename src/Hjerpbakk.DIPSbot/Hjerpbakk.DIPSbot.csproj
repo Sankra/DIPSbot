@@ -19,12 +19,12 @@
     <Folder Include="Telemetry\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.5.1" />
     <PackageReference Include="Ben.Demystifier" Version="0.1.1" />
-    <PackageReference Include="LightInject" Version="5.1.2" />
-    <PackageReference Include="WindowsAzure.Storage" Version="9.1.0" />
-    <PackageReference Include="SlackConnector" Version="4.1.52" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.4" />
+    <PackageReference Include="LightInject" Version="5.1.5" />
+    <PackageReference Include="WindowsAzure.Storage" Version="9.3.0" />
+    <PackageReference Include="SlackConnector" Version="4.2.65" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Hjerpbakk.ServiceDiscoveryClient">
