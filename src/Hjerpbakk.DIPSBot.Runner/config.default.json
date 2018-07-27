@@ -11,4 +11,5 @@
     "Name": "[Name]",
     "IP": "[IP]"
   }
+  "GoogleMapsApiKey": "[GoogleMapsApiKey]"
 }

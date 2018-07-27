@@ -2,13 +2,10 @@
 using Hjerpbakk.DIPSBot.Predicates;
 using LightInject;
 
-namespace Hjerpbakk.DIPSBot.MessageHandlers
-{
-    class TrondheimMessageHandler : MessageHandler
-    {
+namespace Hjerpbakk.DIPSBot.MessageHandlers {
+    class TrondheimMessageHandler : MessageHandler {
         // TODO: Karsklag should also get this
-        public TrondheimMessageHandler(IServiceContainer serviceContainer) : base(serviceContainer)
-		{
+        public TrondheimMessageHandler(IServiceContainer serviceContainer) : base(serviceContainer) {
             // TODO: Trondheim is superset of channel
             AddCommand<ComicsAction>(new BotMentionedPredicate(), new ComicsPredicate());
             AddCommand<KitchenResponsibleAction>(new BotMentionedPredicate(), new KitchenPredicate());
@@ -17,6 +14,7 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers
             AddCommand<NegativeAction>(new BotMentionedPredicate(), new NegativePredicate());
             AddCommand<VersionAction>(new BotMentionedPredicate(), new VersionPredicate());
             AddCommand<ScooterAction>(new ScooterPredicate());
+            AddCommand<BikeShareAction>(new BikeSharePredicate());
             AddCommandListingAsUnknownCommand(new BotMentionedPredicate());
         }
     }

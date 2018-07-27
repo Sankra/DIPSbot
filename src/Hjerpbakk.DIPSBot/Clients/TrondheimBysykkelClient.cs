@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Web;
 using BikeshareClient;
 using BikeshareClient.Models;
+using Hjerpbakk.DIPSBot.Configuration;
 using Hjerpbakk.DIPSBot.Model.BikeShare;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
@@ -20,9 +21,9 @@ namespace Hjerpbakk.DIPSBot.Clients {
         readonly IMemoryCache memoryCache;
         readonly MemoryCacheEntryOptions cacheEntryOptions;
 
-        public TrondheimBysykkelClient(HttpClient httpClient, string googleMapsApiKey, IMemoryCache memoryCache) {
+        public TrondheimBysykkelClient(HttpClient httpClient, IGoogleMapsConfiguration googleMapsConfiguration, IMemoryCache memoryCache) {
             this.httpClient = httpClient;
-            baseQueryString = "https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins={0}&destinations={1}&region=no&mode=walking&key=" + googleMapsApiKey;
+            baseQueryString = "https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins={0}&destinations={1}&region=no&mode=walking&key=" + googleMapsConfiguration.GoogleMapsApiKey;
             this.memoryCache = memoryCache;
             cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetAbsoluteExpiration(TimeSpan.FromDays(1));

@@ -1,6 +1,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSBot.Clients;
+using Hjerpbakk.DIPSBot.Configuration;
 using Microsoft.Extensions.Caching.Memory;
 using Xunit;
 
@@ -16,8 +17,13 @@ namespace Tests {
         }
 
         // TODO: How to use API key in tests while not checking it in?
-        TrondheimBysykkelClient CreateClient() => new TrondheimBysykkelClient(new HttpClient(),
-                                                                              "",
-                                                                              new MemoryCache(new MemoryCacheOptions()));
+        TrondheimBysykkelClient CreateClient() {
+            var googleMapsConfiguration = new AppConfiguration {
+                GoogleMapsApiKey = ""
+            };
+            return new TrondheimBysykkelClient(new HttpClient(),
+                                               googleMapsConfiguration,
+                                               new MemoryCache(new MemoryCacheOptions()));
+        }
     }
 }

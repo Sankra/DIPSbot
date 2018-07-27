@@ -2,10 +2,8 @@
 using Hjerpbakk.DIPSBot.Telemetry;
 using Hjerpbakk.ServiceDiscovery.Client.Model;
 
-namespace Hjerpbakk.DIPSBot.Configuration
-{
-    public class AppConfiguration : IReadOnlyAppConfiguration, IServiceDiscoveryConfiguration
-    {
+namespace Hjerpbakk.DIPSBot.Configuration {
+    public class AppConfiguration : IReadOnlyAppConfiguration, IServiceDiscoveryConfiguration, IGoogleMapsConfiguration {
         public string SlackAPIToken { get; set; }
         public string AdminUser { get; set; }
         public string BotUser { get; set; }
@@ -25,5 +23,7 @@ namespace Hjerpbakk.DIPSBot.Configuration
 
         public Context Context { get; set; }
         public Service Service { get; set; }
+
+        public string GoogleMapsApiKey { get; set; }
     }
 }
