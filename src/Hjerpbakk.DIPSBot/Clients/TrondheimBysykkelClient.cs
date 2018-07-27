@@ -35,14 +35,14 @@ namespace Hjerpbakk.DIPSBot.Clients {
                 throw new ArgumentNullException(nameof(userAddress));
             }
 
-            var encodedAddress = HttpUtility.UrlEncode(userAddress);
-            return await GetOrSet(encodedAddress, FindNearestStation);
+            return await FindNearestStation();
 
             async Task<BikeStation> FindNearestStation() {
                 var allStationsInArea = await GetInformationOnAllStations();
-                var routes = await FindRoutesToAllStations();
-                var sortedStations = SortStationsByDistanceFromUser();
+                var encodedAddress = HttpUtility.UrlEncode(userAddress);
+                var routes = await GetOrSet(encodedAddress, FindRoutesToAllStations);
 
+                var sortedStations = SortStationsByDistanceFromUser();
                 var nearestStation = sortedStations.First().Value;
                 var stationStatus = allStationsInArea.StationsStatus.Single(s => s.Id == nearestStation.Id);
                 return new BikeStation(nearestStation.Name,
