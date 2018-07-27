@@ -9,7 +9,7 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers {
             AddCommand<ThanksAction>(new BotMentionedPredicate(), new ThanksPredicate());
             AddCommand<NegativeAction>(new BotMentionedPredicate(), new NegativePredicate());
             AddCommand<VersionAction>(new BotMentionedPredicate(), new VersionPredicate());
-            AddCommand<ScooterAction>(new ScooterPredicate());
+            AddCommand<ScooterAction>(new BotMentionedPredicate(), new ScooterPredicate());
             AddCommandListingAsUnknownCommand(new BotMentionedPredicate());
         }
     }

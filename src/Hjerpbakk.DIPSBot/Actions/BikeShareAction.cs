@@ -21,12 +21,21 @@ namespace Hjerpbakk.DIPSBot.Actions {
             // TODO: Finne nærmeste holdeplass med ledig plass til å legge fra seg sykkel
             // TODO: Finne nærmes holdeplass for å hente seg sykkel
             var userAddress = GetUserAddressFromMessage();
+            if (string.IsNullOrEmpty(userAddress)) {
+                await slackIntegration.SendMessageToChannel(message.ChatHub, $"Cannot find nearest bike station to an empty address.");
+                return;
+            }
+
             await slackIntegration.SendMessageToChannel(message.ChatHub, $"I'll find the bike station nearest to {userAddress}...");
 
-            var station = await bikeShareClient.FindNearesBikeSharingStation(userAddress);
-
-            await slackIntegration.SendMessageToChannel(message.ChatHub,
+            try {
+                var station = await bikeShareClient.FindNearesBikeSharingStation(userAddress);
+                await slackIntegration.SendMessageToChannel(message.ChatHub,
                                                         $"{station.Name}, {station.Address}, {station.FreeBikes} free bikes / {station.AvailableSpace} free locks. Estimated walking time from {userAddress} is {TimeSpan.FromSeconds(station.Distance).ToString(@"hh\:mm\:ss")}.");
+            } catch (Exception e) {
+                await slackIntegration.SendMessageToChannel(message.ChatHub, $"Could not route to a bike station: {e.Message}");
+                return;
+            }
 
             string GetUserAddressFromMessage() {
                 var cleanedMessageText = message.Text;
