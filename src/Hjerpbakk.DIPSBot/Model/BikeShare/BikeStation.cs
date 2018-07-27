@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics;
 
 namespace Hjerpbakk.DIPSBot.Model.BikeShare {
-    [DebuggerDisplay("{Address} has {FreeBikes}/{AvailableSpace} bikes", Name = "{Name}")]
-    public class Station {
-        public Station(string name, string address, int freeBikes, int availableSpace, double latitude, double longitude) {
+    [DebuggerDisplay("{Address} has {FreeBikes} / {AvailableSpace} bikes", Name = "{Name}")]
+    public class BikeStation {
+        public BikeStation(string name, string address, int freeBikes, int availableSpace, double latitude, double longitude, long distance) {
             Name = name;
             Address = address;
             FreeBikes = freeBikes;
@@ -11,6 +11,7 @@ namespace Hjerpbakk.DIPSBot.Model.BikeShare {
             // TODO: something about location
             Latitude = latitude;
             Longitude = longitude;
+            Distance = distance;
         }
 
         public string Name { get; }
@@ -19,7 +20,6 @@ namespace Hjerpbakk.DIPSBot.Model.BikeShare {
         public int AvailableSpace { get; }
         public double Latitude { get; }
         public double Longitude { get; }
-
-        public override string ToString() => $"{Name}: {FreeBikes} / {AvailableSpace}";
+        public long Distance { get; }
     }
 }

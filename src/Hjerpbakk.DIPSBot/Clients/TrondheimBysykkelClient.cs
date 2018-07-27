@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using BikeshareClient;
-using Hjerpbakk.DIPSBot.Model;
 using Hjerpbakk.DIPSBot.Model.BikeShare;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 
 namespace Hjerpbakk.DIPSBot.Clients {
     public class TrondheimBysykkelClient {
+        const int StationsCacheKey = 1;
+
+        readonly HttpClient httpClient;
         readonly IMemoryCache memoryCache;
         readonly MemoryCacheEntryOptions cacheEntryOptions;
 
@@ -20,7 +21,8 @@ namespace Hjerpbakk.DIPSBot.Clients {
 
         readonly Client bikeshareClient;
 
-        public TrondheimBysykkelClient(IMemoryCache memoryCache, string googleMapsApiKey) {
+        public TrondheimBysykkelClient(HttpClient httpClient, IMemoryCache memoryCache, string googleMapsApiKey) {
+            this.httpClient = httpClient;
             this.memoryCache = memoryCache;
             cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetAbsoluteExpiration(TimeSpan.FromDays(1));
@@ -29,68 +31,78 @@ namespace Hjerpbakk.DIPSBot.Clients {
             bikeshareClient = new Client("http://gbfs.urbansharing.com/trondheim/");
         }
 
-        public async Task<Station> FindNearesBikeSharingStation(string userAddress) {
-            // TODO: get nearest station based on users address and use this to select station
-            // TODO: cache location info of stations
-            var stations = await bikeshareClient.GetStationsAsync();
+        public async Task<BikeStation> FindNearesBikeSharingStation(string userAddress) {
+            if (string.IsNullOrEmpty(userAddress)) {
+                throw new ArgumentNullException(nameof(userAddress));
+            }
 
-            // TODO: cache results based on address too
-            userAddress = HttpUtility.UrlEncode("Beddingen 10");
+            var encodedAddress = HttpUtility.UrlEncode(userAddress);
+            return await GetOrSet(encodedAddress, FindNearestStation);
 
-            // TODO: for lolz, men kanskje nyttig å vise 2. og 3. alternativ?
-            var allStations = new List<(long duration, BikeshareClient.Models.Station station)>();
+            async Task<BikeStation> FindNearestStation() {
+                var allStationsInArea = await GetInformationOnAllStations();
+                var queryString = string.Format(baseQueryString, encodedAddress, allStationsInArea.Coordinates);
+                var response = await httpClient.GetStringAsync(queryString);
+                var routes = JsonConvert.DeserializeObject<Route>(response);
 
+                if (routes.Rows.Length == 0) {
+                    return null;
+                }
 
-            BikeshareClient.Models.Station nearestStation = null;
-            var smallestDuration = long.MaxValue;
-            foreach (var station in stations) {
-                // TODO: From DI
-                using (var httpClient = new HttpClient()) {
-                    var queryString = string.Format(baseQueryString, userAddress, $"{station.Latitude},{station.Longitude}");
-                    var response = await httpClient.GetStringAsync(queryString);
-                    var route = JsonConvert.DeserializeObject<Route>(response);
-                    // TODO: support more routes in result
-                    // TODO: more robust error handling
-                    Console.WriteLine(response);
-
-                    var duration = route.Rows[0].Elements[0].Duration?.Value;
-                    // TODO: for lolz
-                    if (duration.HasValue) {
-                        allStations.Add((duration.Value, station));
+                var nearestStations = new SortedList<long, BikeshareClient.Models.Station>();
+                var route = routes.Rows[0];
+                for (int i = 0; i < route.Elements.Length; i++) {
+                    var element = route.Elements[i];
+                    if (element.Status != "OK") {
+                        continue;
                     }
 
-                    if (duration.HasValue && duration < smallestDuration) {
-                        smallestDuration = duration.Value;
-                        nearestStation = station;
+                    nearestStations.Add(element.Duration.Value, allStationsInArea.Stations[i]);
+                }
+
+                var nearestStation = nearestStations.First().Value;
+                var stationStatus = allStationsInArea.StationsStatus.Single(s => s.Id == nearestStation.Id);
+                return new BikeStation(nearestStation.Name,
+                                   nearestStation.Address,
+                                   stationStatus.BikesAvailable,
+                                   stationStatus.DocksAvailable,
+                                   nearestStation.Latitude,
+                                   nearestStation.Longitude,
+                                   nearestStations.First().Key);
+
+                async Task<AllStationsInArea> GetInformationOnAllStations() {
+                    var stationTask = GetOrSet(StationsCacheKey, async () => {
+                        var stations = (await bikeshareClient.GetStationsAsync()).ToArray();
+                        var coordinates = string.Join("|", stations.Select(station => $"{station.Latitude},{station.Longitude}").ToArray());
+                        return (stations, coordinates);
+                    });
+                    var stationStatusTask = bikeshareClient.GetStationsStatusAsync();
+                    await Task.WhenAll(stationTask, stationStatusTask);
+
+                    if (stationTask.IsFaulted) {
+                        throw stationTask.Exception;
                     }
+
+                    if (stationStatusTask.IsFaulted) {
+                        throw stationStatusTask.Exception;
+                    }
+
+                    var stationsAndCoordinates = stationTask.Result;
+                    var stationsStatus = stationStatusTask.Result;
+                    return new AllStationsInArea(stationsAndCoordinates.stations,
+                                                 stationsAndCoordinates.coordinates,
+                                                 stationsStatus);
                 }
             }
 
-            // TODO: for lolz
-            var orderedStations = allStations.OrderBy(d => d.duration);
+            async Task<T> GetOrSet<T>(object key, Func<Task<T>> create) {
+                if (!memoryCache.TryGetValue(key, out T view)) {
+                    view = await create();
+                    memoryCache.Set(key, view, cacheEntryOptions);
+                }
 
-            // TODO: Could not find a station
-            if (nearestStation == null) {
-                return null;
+                return view;
             }
-
-            var stationStatus = (await bikeshareClient.GetStationsStatusAsync()).Single(s => s.Id == nearestStation.Id);
-
-            return new Station(nearestStation.Name,
-                               nearestStation.Address,
-                               stationStatus.BikesAvailable,
-                               stationStatus.DocksAvailable,
-                               nearestStation.Latitude,
-                               nearestStation.Longitude);
-        }
-
-        async Task<T> GetOrSet<T>(object key, Func<Task<T>> create) {
-            if (!memoryCache.TryGetValue(key, out T view)) {
-                view = await create();
-                memoryCache.Set(key, view, cacheEntryOptions);
-            }
-
-            return view;
         }
     }
 }

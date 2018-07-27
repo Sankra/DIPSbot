@@ -1,3 +1,4 @@
+using System.Net.Http;
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSBot.Clients;
 using Microsoft.Extensions.Caching.Memory;
@@ -9,13 +10,14 @@ namespace Tests {
         public async Task StationNearestGløsIsReturnedCorrectly() {
             var client = CreateClient();
 
-            var bikeShareStation = await client.FindNearesBikeSharingStation("Høyskoleveien");
+            var bikeShareStation = await client.FindNearesBikeSharingStation("Beddingen 10");
 
             Assert.Equal("TMV-odden", bikeShareStation.Name);
         }
 
         // TODO: How to use API key in tests while not checking it in?
-        TrondheimBysykkelClient CreateClient() => new TrondheimBysykkelClient(new MemoryCache(new MemoryCacheOptions()),
+        TrondheimBysykkelClient CreateClient() => new TrondheimBysykkelClient(new HttpClient(),
+                                                                              new MemoryCache(new MemoryCacheOptions()),
                                                                               "");
     }
 }
