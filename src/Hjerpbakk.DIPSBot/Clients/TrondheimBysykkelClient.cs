@@ -14,7 +14,8 @@ using Newtonsoft.Json;
 namespace Hjerpbakk.DIPSBot.Clients {
     public class TrondheimBysykkelClient {
         readonly HttpClient httpClient;
-        readonly string baseQueryString;
+        readonly string baseDistanceQueryString;
+        readonly string baseImageQueryString;
 
         readonly Client bikeshareClient;
 
@@ -23,7 +24,12 @@ namespace Hjerpbakk.DIPSBot.Clients {
 
         public TrondheimBysykkelClient(HttpClient httpClient, IGoogleMapsConfiguration googleMapsConfiguration, IMemoryCache memoryCache) {
             this.httpClient = httpClient;
-            baseQueryString = "https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins={0}&destinations={1}&region=no&mode=walking&key=" + googleMapsConfiguration.GoogleMapsApiKey;
+            baseDistanceQueryString = "https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins={0}&destinations={1}&region=no&mode=walking&key=" + googleMapsConfiguration.GoogleMapsApiKey;
+            // TODO: Add real locations
+            // TODO: Add route
+            // TODO: Decide for or against custom icon
+            // TODO: Decide size and scale factor...
+            baseImageQueryString = "https://maps.googleapis.com/maps/api/staticmap?size=600x600&scale=2&maptype=roadmap&region=no&markers=color:green%7Clabel:A%7CBeddingen+10&markers=icon:https://hjerpbakk.com/assets/img/parking.png%7C63.435399485821023,10.409983098506927&key=" + googleMapsConfiguration.GoogleMapsApiKey;
             this.memoryCache = memoryCache;
             cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetAbsoluteExpiration(TimeSpan.FromDays(1));
@@ -78,7 +84,7 @@ namespace Hjerpbakk.DIPSBot.Clients {
                 }
 
                 async Task<Element[]> FindRoutesToAllStations() {
-                    var queryString = string.Format(baseQueryString, encodedAddress, allStationsInArea.Coordinates);
+                    var queryString = string.Format(baseDistanceQueryString, encodedAddress, allStationsInArea.Coordinates);
                     var response = await httpClient.GetStringAsync(queryString);
                     var route = JsonConvert.DeserializeObject<Route>(response);
 
