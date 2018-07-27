@@ -20,6 +20,8 @@ namespace Hjerpbakk.DIPSBot.Actions {
         public async Task Execute(SlackMessage message, MessageHandler caller) {
             // TODO: Finne nærmeste holdeplass med ledig plass til å legge fra seg sykkel
             // TODO: Finne nærmes holdeplass for å hente seg sykkel
+            // TODO: Returnere 2 andre alternativer også. Ta de med på bildet?????
+            // TODO: Gjør det mulig å få ut veien fra der du er, til holdeplassen, via sykling til dropoff, til dit skal
             var userAddress = GetUserAddressFromMessage();
             if (string.IsNullOrEmpty(userAddress)) {
                 await slackIntegration.SendMessageToChannel(message.ChatHub, $"Cannot find nearest bike station to an empty address.");
@@ -30,8 +32,11 @@ namespace Hjerpbakk.DIPSBot.Actions {
 
             try {
                 var station = await bikeShareClient.FindNearesBikeSharingStation(userAddress);
+                var imageUrl = await bikeShareClient.FindDirectionsImage(userAddress, station);
+                var routeImage = new SlackAttachment { ImageUrl = imageUrl };
                 await slackIntegration.SendMessageToChannel(message.ChatHub,
-                                                        $"{station.Name}, {station.Address}, {station.FreeBikes} free bikes / {station.AvailableSpace} free locks. Estimated walking time from {userAddress} is {TimeSpan.FromSeconds(station.Distance).ToString(@"hh\:mm\:ss")}.");
+                                                            $"{station.Name}, {station.Address}, {station.FreeBikes} free bikes / {station.AvailableSpace} free locks. Estimated walking time from {userAddress} is {TimeSpan.FromSeconds(station.Distance).ToString(@"hh\:mm\:ss")}.",
+                                                            routeImage);
             } catch (Exception e) {
                 await slackIntegration.SendMessageToChannel(message.ChatHub, $"Could not route to a bike station: {e.Message}");
                 return;

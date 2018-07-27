@@ -15,7 +15,8 @@ namespace Hjerpbakk.DIPSBot.Clients {
     public class TrondheimBysykkelClient {
         readonly HttpClient httpClient;
         readonly string baseDistanceQueryString;
-        readonly string baseImageQueryString;
+        readonly string baseRouteQueryString;
+        readonly string baseImageUrl;
 
         readonly Client bikeshareClient;
 
@@ -24,12 +25,11 @@ namespace Hjerpbakk.DIPSBot.Clients {
 
         public TrondheimBysykkelClient(HttpClient httpClient, IGoogleMapsConfiguration googleMapsConfiguration, IMemoryCache memoryCache) {
             this.httpClient = httpClient;
-            baseDistanceQueryString = "https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins={0}&destinations={1}&region=no&mode=walking&key=" + googleMapsConfiguration.GoogleMapsApiKey;
-            // TODO: Add real locations
-            // TODO: Add route
+            baseDistanceQueryString = "https://maps.googleapis.com/maps/api/distancematrix/json?origins={0}&destinations={1}&region=no&mode=walking&units=metric&key=" + googleMapsConfiguration.GoogleMapsApiKey;
+            baseRouteQueryString = "https://maps.googleapis.com/maps/api/directions/json?origin={0}&destination={1}&region=no&mode=walking&units=metric&key=" + googleMapsConfiguration.GoogleMapsApiKey;
             // TODO: Decide for or against custom icon
             // TODO: Decide size and scale factor...
-            baseImageQueryString = "https://maps.googleapis.com/maps/api/staticmap?size=600x600&scale=2&maptype=roadmap&region=no&markers=color:green%7Clabel:A%7CBeddingen+10&markers=icon:https://hjerpbakk.com/assets/img/parking.png%7C63.435399485821023,10.409983098506927&key=" + googleMapsConfiguration.GoogleMapsApiKey;
+            baseImageUrl = "https://maps.googleapis.com/maps/api/staticmap?size=600x600&scale=2&maptype=roadmap&region=no&markers=icon:https://hjerpbakk.com/assets/img/person.png%7C{0}&markers=icon:https://hjerpbakk.com/assets/img/parking.png%3F1%7C{1}&path=weight:5%7Ccolor:blue%7Cenc:{2}&key=" + googleMapsConfiguration.GoogleMapsApiKey;
             this.memoryCache = memoryCache;
             cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetAbsoluteExpiration(TimeSpan.FromDays(1));
@@ -46,7 +46,7 @@ namespace Hjerpbakk.DIPSBot.Clients {
             async Task<BikeStation> FindNearestStation() {
                 var allStationsInArea = await GetInformationOnAllStations();
                 var encodedAddress = HttpUtility.UrlEncode(userAddress);
-                var routes = await GetOrSet(encodedAddress, FindRoutesToAllStations);
+                var routeDistances = await GetOrSet(encodedAddress, FindRoutesToAllStations);
 
                 var sortedStations = SortStationsByDistanceFromUser();
                 var nearestStation = sortedStations.First().Value;
@@ -86,19 +86,19 @@ namespace Hjerpbakk.DIPSBot.Clients {
                 async Task<Element[]> FindRoutesToAllStations() {
                     var queryString = string.Format(baseDistanceQueryString, encodedAddress, allStationsInArea.Coordinates);
                     var response = await httpClient.GetStringAsync(queryString);
-                    var route = JsonConvert.DeserializeObject<Route>(response);
+                    var routeDistance = JsonConvert.DeserializeObject<RouteDistance>(response);
 
-                    if (route.Rows.Length == 0) {
+                    if (routeDistance.Rows.Length == 0) {
                         throw new InvalidOperationException($"Could not find any routes from {userAddress} to any bike sharing stations.");
                     }
 
-                    return route.Rows[0].Elements;
+                    return routeDistance.Rows[0].Elements;
                 }
 
                 SortedList<long, Station> SortStationsByDistanceFromUser() {
                     var nearestStations = new SortedList<long, Station>();
-                    for (int i = 0; i < routes.Length; i++) {
-                        var element = routes[i];
+                    for (int i = 0; i < routeDistances.Length; i++) {
+                        var element = routeDistances[i];
                         if (element.Status != "OK") {
                             continue;
                         }
@@ -117,6 +117,24 @@ namespace Hjerpbakk.DIPSBot.Clients {
                 }
 
                 return result;
+            }
+        }
+
+        public async Task<string> FindDirectionsImage(string from, BikeStation bikeStation) {
+            // TODO: use same cache as with address
+            var routePolyline = await FindDetailedRouteToStation();
+            var imageUrl = string.Format(baseImageUrl, from, $"{bikeStation.Latitude},{bikeStation.Longitude}", routePolyline);
+            return imageUrl;
+
+            async Task<string> FindDetailedRouteToStation() {
+                var queryString = string.Format(baseRouteQueryString, from, $"{bikeStation.Latitude},{bikeStation.Longitude}");
+                var response = await httpClient.GetStringAsync(queryString);
+                var route = JsonConvert.DeserializeObject<Route>(response);
+                if (route.Status != "OK" || route.Routes.Length == 0) {
+                    throw new InvalidOperationException($"Could not find a route from {from} to {bikeStation.Name}, {bikeStation.Address}.");
+                }
+
+                return route.Routes[0].OverviewPolyline.Points;
             }
         }
     }
