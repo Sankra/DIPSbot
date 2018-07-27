@@ -57,7 +57,7 @@ namespace Hjerpbakk.DIPSBot.Clients {
                     const int StationsCacheKey = 1337;
                     var stationTask = GetOrSet(StationsCacheKey, async () => {
                         var stations = (await bikeshareClient.GetStationsAsync()).ToArray();
-                        var coordinates = string.Join("|", stations.Select(station => $"{station.Latitude},{station.Longitude}").ToArray());
+                        var coordinates = HttpUtility.UrlEncode(string.Join("|", stations.Select(station => $"{station.Latitude},{station.Longitude}").ToArray()));
                         return (stations, coordinates);
                     });
                     var stationStatusTask = bikeshareClient.GetStationsStatusAsync();
