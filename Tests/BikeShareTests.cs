@@ -17,7 +17,7 @@ namespace Tests {
 
         // TODO: How to use API key in tests while not checking it in?
         TrondheimBysykkelClient CreateClient() => new TrondheimBysykkelClient(new HttpClient(),
-                                                                              new MemoryCache(new MemoryCacheOptions()),
-                                                                              "");
+                                                                              "",
+                                                                              new MemoryCache(new MemoryCacheOptions()));
     }
 }

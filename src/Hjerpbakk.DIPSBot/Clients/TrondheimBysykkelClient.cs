@@ -5,29 +5,27 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using BikeshareClient;
+using BikeshareClient.Models;
 using Hjerpbakk.DIPSBot.Model.BikeShare;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 
 namespace Hjerpbakk.DIPSBot.Clients {
     public class TrondheimBysykkelClient {
-        const int StationsCacheKey = 1;
-
         readonly HttpClient httpClient;
-        readonly IMemoryCache memoryCache;
-        readonly MemoryCacheEntryOptions cacheEntryOptions;
-
         readonly string baseQueryString;
 
         readonly Client bikeshareClient;
 
-        public TrondheimBysykkelClient(HttpClient httpClient, IMemoryCache memoryCache, string googleMapsApiKey) {
+        readonly IMemoryCache memoryCache;
+        readonly MemoryCacheEntryOptions cacheEntryOptions;
+
+        public TrondheimBysykkelClient(HttpClient httpClient, string googleMapsApiKey, IMemoryCache memoryCache) {
             this.httpClient = httpClient;
+            baseQueryString = "https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins={0}&destinations={1}&region=no&mode=walking&key=" + googleMapsApiKey;
             this.memoryCache = memoryCache;
             cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetAbsoluteExpiration(TimeSpan.FromDays(1));
-
-            baseQueryString = "https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins={0}&destinations={1}&region=no&mode=walking&key=" + googleMapsApiKey;
             bikeshareClient = new Client("http://gbfs.urbansharing.com/trondheim/");
         }
 
@@ -41,26 +39,10 @@ namespace Hjerpbakk.DIPSBot.Clients {
 
             async Task<BikeStation> FindNearestStation() {
                 var allStationsInArea = await GetInformationOnAllStations();
-                var queryString = string.Format(baseQueryString, encodedAddress, allStationsInArea.Coordinates);
-                var response = await httpClient.GetStringAsync(queryString);
-                var routes = JsonConvert.DeserializeObject<Route>(response);
+                var routes = await FindRoutesToAllStations();
+                var sortedStations = SortStationsByDistanceFromUser();
 
-                if (routes.Rows.Length == 0) {
-                    return null;
-                }
-
-                var nearestStations = new SortedList<long, BikeshareClient.Models.Station>();
-                var route = routes.Rows[0];
-                for (int i = 0; i < route.Elements.Length; i++) {
-                    var element = route.Elements[i];
-                    if (element.Status != "OK") {
-                        continue;
-                    }
-
-                    nearestStations.Add(element.Duration.Value, allStationsInArea.Stations[i]);
-                }
-
-                var nearestStation = nearestStations.First().Value;
+                var nearestStation = sortedStations.First().Value;
                 var stationStatus = allStationsInArea.StationsStatus.Single(s => s.Id == nearestStation.Id);
                 return new BikeStation(nearestStation.Name,
                                    nearestStation.Address,
@@ -68,9 +50,10 @@ namespace Hjerpbakk.DIPSBot.Clients {
                                    stationStatus.DocksAvailable,
                                    nearestStation.Latitude,
                                    nearestStation.Longitude,
-                                   nearestStations.First().Key);
+                                   sortedStations.First().Key);
 
                 async Task<AllStationsInArea> GetInformationOnAllStations() {
+                    const int StationsCacheKey = 1337;
                     var stationTask = GetOrSet(StationsCacheKey, async () => {
                         var stations = (await bikeshareClient.GetStationsAsync()).ToArray();
                         var coordinates = string.Join("|", stations.Select(station => $"{station.Latitude},{station.Longitude}").ToArray());
@@ -79,29 +62,54 @@ namespace Hjerpbakk.DIPSBot.Clients {
                     var stationStatusTask = bikeshareClient.GetStationsStatusAsync();
                     await Task.WhenAll(stationTask, stationStatusTask);
 
-                    if (stationTask.IsFaulted) {
-                        throw stationTask.Exception;
+                    VerifyTaskCompletedSuccessfully(stationTask);
+                    VerifyTaskCompletedSuccessfully(stationStatusTask);
+
+                    return new AllStationsInArea(stationTask.Result.stations,
+                                                 stationTask.Result.coordinates,
+                                                 stationStatusTask.Result);
+
+                    void VerifyTaskCompletedSuccessfully(Task task) {
+                        if (task.IsFaulted) {
+                            throw task.Exception;
+                        }
+                    }
+                }
+
+                async Task<Element[]> FindRoutesToAllStations() {
+                    var queryString = string.Format(baseQueryString, encodedAddress, allStationsInArea.Coordinates);
+                    var response = await httpClient.GetStringAsync(queryString);
+                    var route = JsonConvert.DeserializeObject<Route>(response);
+
+                    if (route.Rows.Length == 0) {
+                        throw new InvalidOperationException($"Could not find any routes from {userAddress} to any bike sharing stations.");
                     }
 
-                    if (stationStatusTask.IsFaulted) {
-                        throw stationStatusTask.Exception;
+                    return route.Rows[0].Elements;
+                }
+
+                SortedList<long, Station> SortStationsByDistanceFromUser() {
+                    var nearestStations = new SortedList<long, Station>();
+                    for (int i = 0; i < routes.Length; i++) {
+                        var element = routes[i];
+                        if (element.Status != "OK") {
+                            continue;
+                        }
+
+                        nearestStations.Add(element.Duration.Value, allStationsInArea.Stations[i]);
                     }
 
-                    var stationsAndCoordinates = stationTask.Result;
-                    var stationsStatus = stationStatusTask.Result;
-                    return new AllStationsInArea(stationsAndCoordinates.stations,
-                                                 stationsAndCoordinates.coordinates,
-                                                 stationsStatus);
+                    return nearestStations;
                 }
             }
 
             async Task<T> GetOrSet<T>(object key, Func<Task<T>> create) {
-                if (!memoryCache.TryGetValue(key, out T view)) {
-                    view = await create();
-                    memoryCache.Set(key, view, cacheEntryOptions);
+                if (!memoryCache.TryGetValue(key, out T result)) {
+                    result = await create();
+                    memoryCache.Set(key, result, cacheEntryOptions);
                 }
 
-                return view;
+                return result;
             }
         }
     }
