@@ -11,16 +11,18 @@ namespace Hjerpbakk.DIPSBot.Actions {
     class BikeShareAction : IAction {
         readonly ISlackIntegration slackIntegration;
         readonly TrondheimBysykkelClient bikeShareClient;
+        readonly ImgurClient imgurClient;
 
-        public BikeShareAction(ISlackIntegration slackIntegration, TrondheimBysykkelClient bikeShareClient) {
+        public BikeShareAction(ISlackIntegration slackIntegration, TrondheimBysykkelClient bikeShareClient, ImgurClient imgurClient) {
             this.slackIntegration = slackIntegration;
             this.bikeShareClient = bikeShareClient;
+            this.imgurClient = imgurClient;
         }
 
         public async Task Execute(SlackMessage message, MessageHandler caller) {
             // TODO: Finne nærmeste holdeplass med ledig plass til å legge fra seg sykkel
             // TODO: Finne nærmes holdeplass for å hente seg sykkel
-            // TODO: Returnere 2 andre alternativer også. Ta de med på bildet?????
+            // TODO: Returnere 2 andre alternativer også og ta de med på bildet
             // TODO: Gjør det mulig å få ut veien fra der du er, til holdeplassen, via sykling til dropoff, til dit skal
             var userAddress = GetUserAddressFromMessage();
             if (string.IsNullOrEmpty(userAddress)) {
@@ -32,10 +34,12 @@ namespace Hjerpbakk.DIPSBot.Actions {
 
             try {
                 var station = await bikeShareClient.FindNearesBikeSharingStation(userAddress);
-                var imageUrl = await bikeShareClient.FindDirectionsImage(userAddress, station);
+                var mapsImageUrl = await bikeShareClient.FindDirectionsImage(userAddress, station);
+                var imageUrl = await imgurClient.UploadImage(mapsImageUrl);
                 var routeImage = new SlackAttachment { ImageUrl = imageUrl };
+                var response = $"{station.Name}, {station.Address}, {station.FreeBikes} free bikes / {station.AvailableSpace} free locks. Estimated walking time from {userAddress} is {TimeSpan.FromSeconds(station.Distance).ToString(@"hh\:mm\:ss")}.";
                 await slackIntegration.SendMessageToChannel(message.ChatHub,
-                                                            $"{station.Name}, {station.Address}, {station.FreeBikes} free bikes / {station.AvailableSpace} free locks. Estimated walking time from {userAddress} is {TimeSpan.FromSeconds(station.Distance).ToString(@"hh\:mm\:ss")}.",
+                                                            response,
                                                             routeImage);
             } catch (Exception e) {
                 await slackIntegration.SendMessageToChannel(message.ChatHub, $"Could not route to a bike station: {e.Message}");
@@ -61,7 +65,7 @@ namespace Hjerpbakk.DIPSBot.Actions {
                 cleanedMessageText = cleanedMessageText.Remove(0, bikeIndex).Replace(Bike, "").Replace(Sykkel, "").Trim();
 
                 var jsonObject = (JObject)JsonConvert.DeserializeObject(message.RawData);
-                var originalMessage = (string)(jsonObject.Property("text").Value);
+                var originalMessage = (string)jsonObject.Property("text").Value;
                 return originalMessage.Substring(message.Text.IndexOf(cleanedMessageText, StringComparison.CurrentCulture), cleanedMessageText.Length);
             }
         }

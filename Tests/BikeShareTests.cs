@@ -30,7 +30,6 @@ namespace Tests {
             Assert.Equal("https://maps.googleapis.com/maps/api/staticmap?size=600x600&scale=2&maptype=roadmap&region=no&markers=icon:https://hjerpbakk.com/assets/img/person.png%7CBeddingen 10&markers=icon:https://hjerpbakk.com/assets/img/parking.png%3F1%7C63.435399485821,10.4099830985069&path=weight:5%7Ccolor:blue%7Cenc:_tdbK{wp~@yAvDGv@DjAJxABTGz@BhAJT&key=", imageUrl);
         }
 
-        // TODO: How to use API key in tests while not checking it in?
         TrondheimBysykkelClient CreateClient() {
             var googleMapsConfiguration = new AppConfiguration {
                 GoogleMapsApiKey = ""

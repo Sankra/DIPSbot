@@ -23,6 +23,7 @@
         <Folder Include="Configuration\" />
         <Folder Include="Telemetry\" />
         <Folder Include="Model\BikeShare\" />
+        <Folder Include="Model\Imgur\" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Ben.Demystifier" Version="0.1.1" />

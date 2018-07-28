@@ -28,7 +28,7 @@ namespace Hjerpbakk.DIPSBot.Clients {
             baseDistanceQueryString = "https://maps.googleapis.com/maps/api/distancematrix/json?origins={0}&destinations={1}&region=no&mode=walking&units=metric&key=" + googleMapsConfiguration.GoogleMapsApiKey;
             baseRouteQueryString = "https://maps.googleapis.com/maps/api/directions/json?origin={0}&destination={1}&region=no&mode=walking&units=metric&key=" + googleMapsConfiguration.GoogleMapsApiKey;
             // TODO: Decide for or against custom icon
-            // TODO: Decide size and scale factor...
+            // TODO: Decide size
             baseImageUrl = "https://maps.googleapis.com/maps/api/staticmap?size=600x600&scale=2&maptype=roadmap&region=no&markers=icon:https://hjerpbakk.com/assets/img/person.png%7C{0}&markers=icon:https://hjerpbakk.com/assets/img/parking.png%3F1%7C{1}&path=weight:5%7Ccolor:blue%7Cenc:{2}&key=" + googleMapsConfiguration.GoogleMapsApiKey;
             this.memoryCache = memoryCache;
             cacheEntryOptions = new MemoryCacheEntryOptions()
@@ -49,7 +49,7 @@ namespace Hjerpbakk.DIPSBot.Clients {
                 var routeDistances = await GetOrSet(encodedAddress, FindRoutesToAllStations);
 
                 var sortedStations = SortStationsByDistanceFromUser();
-                var nearestStation = sortedStations.First().Value;
+                var nearestStation = sortedStations.First().station;
                 var stationStatus = allStationsInArea.StationsStatus.Single(s => s.Id == nearestStation.Id);
                 return new BikeStation(nearestStation.Name,
                                    nearestStation.Address,
@@ -57,7 +57,7 @@ namespace Hjerpbakk.DIPSBot.Clients {
                                    stationStatus.DocksAvailable,
                                    nearestStation.Latitude,
                                    nearestStation.Longitude,
-                                   sortedStations.First().Key);
+                                   sortedStations.First().distance);
 
                 async Task<AllStationsInArea> GetInformationOnAllStations() {
                     const int StationsCacheKey = 1337;
@@ -95,17 +95,18 @@ namespace Hjerpbakk.DIPSBot.Clients {
                     return routeDistance.Rows[0].Elements;
                 }
 
-                SortedList<long, Station> SortStationsByDistanceFromUser() {
-                    var nearestStations = new SortedList<long, Station>();
+                (long distance, Station station)[] SortStationsByDistanceFromUser() {
+                    var reachableStations = new List<(long distance, Station station)>();
                     for (int i = 0; i < routeDistances.Length; i++) {
                         var element = routeDistances[i];
                         if (element.Status != "OK") {
                             continue;
                         }
 
-                        nearestStations.Add(element.Duration.Value, allStationsInArea.Stations[i]);
+                        reachableStations.Add((element.Duration.Value, allStationsInArea.Stations[i]));
                     }
 
+                    var nearestStations = reachableStations.OrderBy(s => s.distance).ToArray();
                     return nearestStations;
                 }
             }
@@ -124,6 +125,9 @@ namespace Hjerpbakk.DIPSBot.Clients {
             // TODO: use same cache as with address
             var routePolyline = await FindDetailedRouteToStation();
             var imageUrl = string.Format(baseImageUrl, from, $"{bikeStation.Latitude},{bikeStation.Longitude}", routePolyline);
+
+            // TODO: Shorten URL and check if this works...
+
             return imageUrl;
 
             async Task<string> FindDetailedRouteToStation() {
