@@ -3,14 +3,14 @@ using BikeshareClient.Models;
 
 namespace Hjerpbakk.DIPSBot.Model.BikeShare {
     public readonly struct AllStationsInArea {
-        public AllStationsInArea(Station[] stations, string coordinates, IEnumerable<StationStatus> stationsStatus) {
+        public AllStationsInArea(Station[] stations, IEnumerable<StationStatus> stationsStatus, string pipedCoordinatesToAllStations) {
             Stations = stations;
-            Coordinates = coordinates;
             StationsStatus = stationsStatus;
+            PipedCoordinatesToAllStations = pipedCoordinatesToAllStations;
         }
 
         public Station[] Stations { get; }
-        public string Coordinates { get; }
         public IEnumerable<StationStatus> StationsStatus { get; }
+        public string PipedCoordinatesToAllStations { get; }
     }
 }

@@ -10,12 +10,14 @@ using SlackConnector.Models;
 namespace Hjerpbakk.DIPSBot.Actions {
     class BikeShareAction : IAction {
         readonly ISlackIntegration slackIntegration;
-        readonly TrondheimBysykkelClient bikeShareClient;
+        readonly BikeShareClient bikeShareClient;
+        readonly GoogleMapsClient googleMapsClient;
         readonly ImgurClient imgurClient;
 
-        public BikeShareAction(ISlackIntegration slackIntegration, TrondheimBysykkelClient bikeShareClient, ImgurClient imgurClient) {
+        public BikeShareAction(ISlackIntegration slackIntegration, BikeShareClient bikeShareClient, GoogleMapsClient googleMapsClient, ImgurClient imgurClient) {
             this.slackIntegration = slackIntegration;
             this.bikeShareClient = bikeShareClient;
+            this.googleMapsClient = googleMapsClient;
             this.imgurClient = imgurClient;
         }
 
@@ -33,14 +35,15 @@ namespace Hjerpbakk.DIPSBot.Actions {
             await slackIntegration.SendMessageToChannel(message.ChatHub, $"I'll find the bike station nearest to {userAddress}...");
 
             try {
-                var station = await bikeShareClient.FindNearesBikeSharingStation(userAddress);
-                var mapsImageUrl = await bikeShareClient.FindDirectionsImage(userAddress, station);
-                var imageUrl = await imgurClient.UploadImage(mapsImageUrl);
-                var routeImage = new SlackAttachment { ImageUrl = imageUrl };
-                var response = $"{station.Name}, {station.Address}, {station.FreeBikes} free bikes / {station.AvailableSpace} free locks. Estimated walking time from {userAddress} is {TimeSpan.FromSeconds(station.Distance).ToString(@"hh\:mm\:ss")}.";
+                var allBikeSharingStations = await bikeShareClient.GetAllBikeSharingStations();
+                var nearestStation = await googleMapsClient.FindBikeSharingStationNearestToAddress(userAddress, allBikeSharingStations);
+                var directionsImage = await googleMapsClient.CreateImageWithDirections(userAddress, nearestStation);
+                var publicImageUrl = await imgurClient.UploadImage(directionsImage);
+                var directionsImageAttachment = new SlackAttachment { ImageUrl = publicImageUrl };
+                var response = $"{nearestStation.Name}, {nearestStation.Address}, {nearestStation.FreeBikes} free bikes / {nearestStation.AvailableSpace} free locks. Estimated walking time from {userAddress} is {TimeSpan.FromSeconds(nearestStation.Distance).ToString(@"hh\:mm\:ss")}.";
                 await slackIntegration.SendMessageToChannel(message.ChatHub,
                                                             response,
-                                                            routeImage);
+                                                            directionsImageAttachment);
             } catch (Exception e) {
                 await slackIntegration.SendMessageToChannel(message.ChatHub, $"Could not route to a bike station: {e.Message}");
                 return;

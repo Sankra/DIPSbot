@@ -1,5 +1,5 @@
 ﻿namespace Hjerpbakk.DIPSBot.Configuration {
-    public interface ImgurConfiguration {
+    public interface IImgurConfiguration : IConfiguration {
         string ImgurClientId { get; }
     }
 }

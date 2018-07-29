@@ -23,4 +23,15 @@
     <ItemGroup>
         <ProjectReference Include="..\src\Hjerpbakk.DIPSBot\Hjerpbakk.DIPSBot.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <Folder Include="TestData\" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Remove="TestData\config.json" />
+    </ItemGroup>
+    <ItemGroup>
+      <Content Include="TestData\config.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
 </Project>

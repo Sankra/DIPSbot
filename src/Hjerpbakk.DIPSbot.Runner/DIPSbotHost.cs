@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
+using BikeshareClient;
 using Hjerpbakk.DIPSbot.Services;
 using Hjerpbakk.DIPSBot;
 using Hjerpbakk.DIPSBot.Actions;
@@ -69,7 +70,7 @@ namespace Hjerpbakk.DIPSbot.Runner {
             serviceContainer.RegisterInstance(configuration.Context);
             serviceContainer.RegisterInstance<IReadOnlyAppConfiguration>(configuration);
             serviceContainer.RegisterInstance<IGoogleMapsConfiguration>(configuration);
-            serviceContainer.RegisterInstance<ImgurConfiguration>(configuration);
+            serviceContainer.RegisterInstance<IImgurConfiguration>(configuration);
             serviceContainer.RegisterInstance(serviceDiscoveryClient);
 
             serviceContainer.Register<ISlackConnector, SlackConnector.SlackConnector>(new PerContainerLifetime());
@@ -83,7 +84,9 @@ namespace Hjerpbakk.DIPSbot.Runner {
             serviceContainer.Register<IDebuggingService, DebuggingService>(new PerContainerLifetime());
 
             serviceContainer.Register<IMemoryCache>(serviceFactory => new MemoryCache(new MemoryCacheOptions()), new PerContainerLifetime());
-            serviceContainer.Register<TrondheimBysykkelClient>(new PerContainerLifetime());
+            serviceContainer.Register<IBikeshareClient>(serviceFactory => new Client(configuration.BikeShareApiEndpoint), new PerContainerLifetime());
+            serviceContainer.Register<BikeShareClient>(new PerContainerLifetime());
+            serviceContainer.Register<GoogleMapsClient>(new PerContainerLifetime());
             serviceContainer.Register<ImgurClient>(new PerContainerLifetime());
 
             serviceContainer.Register<AdminMessageHandler>(new PerContainerLifetime());

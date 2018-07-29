@@ -12,5 +12,6 @@
     "IP": "[IP]"
   },
   "GoogleMapsApiKey": "[GoogleMapsApiKey]",
-  "ImgurClientId": "[ImgurClientKey]"
+  "ImgurClientId": "[ImgurClientKey]",
+  "BikeShareApiEndpoint": "[BikeShareApiEndpoint]"
 }

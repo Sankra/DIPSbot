@@ -13,7 +13,7 @@ namespace Hjerpbakk.DIPSBot.Clients {
         readonly HttpClient httpClient;
         readonly string clientId;
 
-        public ImgurClient(ImgurConfiguration imgurConfiguration, HttpClient httpClient) {
+        public ImgurClient(IImgurConfiguration imgurConfiguration, HttpClient httpClient) {
             clientId = imgurConfiguration.ImgurClientId;
             this.httpClient = httpClient;
         }
