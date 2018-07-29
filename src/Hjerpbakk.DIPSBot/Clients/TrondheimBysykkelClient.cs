@@ -110,23 +110,11 @@ namespace Hjerpbakk.DIPSBot.Clients {
                     return nearestStations;
                 }
             }
-
-            async Task<T> GetOrSet<T>(object key, Func<Task<T>> create) {
-                if (!memoryCache.TryGetValue(key, out T result)) {
-                    result = await create();
-                    memoryCache.Set(key, result, cacheEntryOptions);
-                }
-
-                return result;
-            }
         }
 
         public async Task<string> FindDirectionsImage(string from, BikeStation bikeStation) {
-            // TODO: use same cache as with address
-            var routePolyline = await FindDetailedRouteToStation();
+            var routePolyline = await GetOrSet(from + "directions", FindDetailedRouteToStation);
             var imageUrl = string.Format(baseImageUrl, from, $"{bikeStation.Latitude},{bikeStation.Longitude}", routePolyline);
-
-            // TODO: Shorten URL and check if this works...
 
             return imageUrl;
 
@@ -140,6 +128,15 @@ namespace Hjerpbakk.DIPSBot.Clients {
 
                 return route.Routes[0].OverviewPolyline.Points;
             }
+        }
+
+        async Task<T> GetOrSet<T>(object key, Func<Task<T>> create) {
+            if (!memoryCache.TryGetValue(key, out T result)) {
+                result = await create();
+                memoryCache.Set(key, result, cacheEntryOptions);
+            }
+
+            return result;
         }
     }
 }
