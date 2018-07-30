@@ -9,6 +9,7 @@ namespace Hjerpbakk.DIPSBot.Model.BikeShare {
             PipedCoordinatesToAllStations = pipedCoordinatesToAllStations;
         }
 
+        // TODO: Is ugly
         public Station[] Stations { get; }
         public IEnumerable<StationStatus> StationsStatus { get; }
         public string PipedCoordinatesToAllStations { get; }

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Hjerpbakk.DIPSbot;
 using Hjerpbakk.DIPSBot.Clients;
 using Hjerpbakk.DIPSBot.MessageHandlers;
+using Hjerpbakk.DIPSBot.Model.BikeShare;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SlackConnector.Models;
@@ -24,28 +25,37 @@ namespace Hjerpbakk.DIPSBot.Actions {
         public async Task Execute(SlackMessage message, MessageHandler caller) {
             // TODO: Finne nærmeste holdeplass med ledig plass til å legge fra seg sykkel
             // TODO: Finne nærmes holdeplass for å hente seg sykkel
-            // TODO: Returnere 2 andre alternativer også og ta de med på bildet
             // TODO: Gjør det mulig å få ut veien fra der du er, til holdeplassen, via sykling til dropoff, til dit skal
             var userAddress = GetUserAddressFromMessage();
             if (string.IsNullOrEmpty(userAddress)) {
-                await slackIntegration.SendMessageToChannel(message.ChatHub, $"Cannot find nearest bike station to an empty address.");
+                await slackIntegration.SendMessageToChannel(message.ChatHub, $"Cannot find near bike stations to an empty address.");
                 return;
             }
 
-            await slackIntegration.SendMessageToChannel(message.ChatHub, $"I'll find the bike station nearest to {userAddress}...");
+            await slackIntegration.SendMessageToChannel(message.ChatHub, $"I'll find the bike stations nearest to {userAddress}...");
 
             try {
                 var allBikeSharingStations = await bikeShareClient.GetAllBikeSharingStations();
-                var nearestStation = await googleMapsClient.FindBikeSharingStationNearestToAddress(userAddress, allBikeSharingStations);
-                var directionsImage = await googleMapsClient.CreateImageWithDirections(userAddress, nearestStation);
+                var nearestStations = await googleMapsClient.FindBikeSharingStationsNearestToAddress(userAddress, allBikeSharingStations);
+                var labelledBikeShareStations = new LabelledBikeShareStation[nearestStations.Length];
+                var response = string.Empty;
+                for (int i = 0; i < nearestStations.Length; i++) {
+                    var neartStation = nearestStations[i];
+                    var label = (char)('A' + i);
+                    labelledBikeShareStations[i] = new LabelledBikeShareStation(label, nearestStations[i]);
+                    response += "\n" + $"{neartStation.Name} ({label}), {neartStation.Address}, {neartStation.FreeBikes} free bikes / {neartStation.AvailableSpace} free locks. Estimated walking time from {userAddress} is {TimeSpan.FromSeconds(neartStation.Distance).ToString(@"hh\:mm\:ss")}.";
+                }
+
+                await slackIntegration.SendMessageToChannel(message.ChatHub, response);
+
+                var directionsImage = await googleMapsClient.CreateImageWithDirections(userAddress, labelledBikeShareStations);
                 var publicImageUrl = await imgurClient.UploadImage(directionsImage);
                 var directionsImageAttachment = new SlackAttachment { ImageUrl = publicImageUrl };
-                var response = $"{nearestStation.Name}, {nearestStation.Address}, {nearestStation.FreeBikes} free bikes / {nearestStation.AvailableSpace} free locks. Estimated walking time from {userAddress} is {TimeSpan.FromSeconds(nearestStation.Distance).ToString(@"hh\:mm\:ss")}.";
                 await slackIntegration.SendMessageToChannel(message.ChatHub,
-                                                            response,
+                                                            "Here's how you get there",
                                                             directionsImageAttachment);
             } catch (Exception e) {
-                await slackIntegration.SendMessageToChannel(message.ChatHub, $"Could not route to a bike station: {e.Message}");
+                await slackIntegration.SendMessageToChannel(message.ChatHub, $"Could not route to any bike station: {e.Message}");
                 return;
             }
 

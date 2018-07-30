@@ -2,13 +2,12 @@
 
 namespace Hjerpbakk.DIPSBot.Model.BikeShare {
     [DebuggerDisplay("{Address} has {FreeBikes} / {AvailableSpace} bikes", Name = "{Name}")]
-    public class BikeStation {
-        public BikeStation(string name, string address, int freeBikes, int availableSpace, double latitude, double longitude, long distance) {
+    public class BikeShareStation {
+        public BikeShareStation(string name, string address, int freeBikes, int availableSpace, double latitude, double longitude, long distance) {
             Name = name;
             Address = address;
             FreeBikes = freeBikes;
             AvailableSpace = availableSpace;
-            // TODO: something about location
             Latitude = latitude;
             Longitude = longitude;
             Distance = distance;

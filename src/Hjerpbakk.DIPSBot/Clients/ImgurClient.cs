@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSBot.Configuration;
 using Hjerpbakk.DIPSBot.Model.Imgur;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Hjerpbakk.DIPSBot.Clients {
     public class ImgurClient {

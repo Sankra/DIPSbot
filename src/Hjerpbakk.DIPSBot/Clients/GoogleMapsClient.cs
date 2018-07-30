@@ -13,6 +13,8 @@ using System.Collections.Generic;
 
 namespace Hjerpbakk.DIPSBot.Clients {
     public class GoogleMapsClient {
+        const int MaxResultSize = 3;
+
         readonly HttpClient httpClient;
 
         readonly string baseDistanceQueryString;
@@ -23,15 +25,14 @@ namespace Hjerpbakk.DIPSBot.Clients {
 
         public GoogleMapsClient(IGoogleMapsConfiguration googleMapsConfiguration, HttpClient httpClient, IMemoryCache memoryCache) {
             this.httpClient = httpClient;
+            // TODO: region must also be configurable. If empty, do not use region
             baseDistanceQueryString = "https://maps.googleapis.com/maps/api/distancematrix/json?origins={0}&destinations={1}&region=no&mode=walking&units=metric&key=" + googleMapsConfiguration.GoogleMapsApiKey;
             baseRouteQueryString = "https://maps.googleapis.com/maps/api/directions/json?origin={0}&destination={1}&region=no&mode=walking&units=metric&key=" + googleMapsConfiguration.GoogleMapsApiKey;
-            // TODO: Decide for or against custom icon
-            // TODO: Decide size
-            baseImageUrl = "https://maps.googleapis.com/maps/api/staticmap?size=600x600&scale=2&maptype=roadmap&region=no&markers=icon:https://hjerpbakk.com/assets/img/person.png%7C{0}&markers=icon:https://hjerpbakk.com/assets/img/parking.png%3F1%7C{1}&path=weight:5%7Ccolor:blue%7Cenc:{2}&key=" + googleMapsConfiguration.GoogleMapsApiKey;
+            baseImageUrl = "https://maps.googleapis.com/maps/api/staticmap?size=600x600&scale=2&maptype=roadmap&region=no&{0}&{1}&path=weight:5%7Ccolor:blue%7Cenc:{2}&key=" + googleMapsConfiguration.GoogleMapsApiKey;
             this.memoryCache = memoryCache;
         }
 
-        public async Task<BikeStation> FindBikeSharingStationNearestToAddress(string fromAddress, AllStationsInArea allStationsInArea) {
+        public async Task<BikeShareStation[]> FindBikeSharingStationsNearestToAddress(string fromAddress, AllStationsInArea allStationsInArea) {
             if (string.IsNullOrEmpty(fromAddress)) {
                 throw new ArgumentNullException(nameof(fromAddress));
             }
@@ -40,15 +41,21 @@ namespace Hjerpbakk.DIPSBot.Clients {
             var routeDistances = await memoryCache.GetOrSet(encodedAddress, FindRoutesToAllStations);
 
             var sortedStations = SortStationsByDistanceFromUser();
-            var nearestStation = sortedStations.First().station;
-            var stationStatus = allStationsInArea.StationsStatus.Single(s => s.Id == nearestStation.Id);
-            return new BikeStation(nearestStation.Name,
-                               nearestStation.Address,
-                               stationStatus.BikesAvailable,
-                               stationStatus.DocksAvailable,
-                               nearestStation.Latitude,
-                               nearestStation.Longitude,
-                               sortedStations.First().distance);
+
+            var nearestStations = new BikeShareStation[3];
+            for (int i = 0; i < MaxResultSize; i++) {
+                var nearStation = sortedStations[i].station;
+                var stationStatus = allStationsInArea.StationsStatus.Single(s => s.Id == nearStation.Id);
+                nearestStations[i] = new BikeShareStation(nearStation.Name,
+                                                     nearStation.Address,
+                                                     stationStatus.BikesAvailable,
+                                                     stationStatus.DocksAvailable,
+                                                     nearStation.Latitude,
+                                                     nearStation.Longitude,
+                                                     sortedStations[i].distance);
+            }
+
+            return nearestStations;
 
             async Task<Element[]> FindRoutesToAllStations() {
                 var queryString = string.Format(baseDistanceQueryString, encodedAddress, allStationsInArea.PipedCoordinatesToAllStations);
@@ -73,23 +80,32 @@ namespace Hjerpbakk.DIPSBot.Clients {
                     reachableStations.Add((element.Duration.Value, allStationsInArea.Stations[i]));
                 }
 
-                var nearestStations = reachableStations.OrderBy(s => s.distance).ToArray();
-                return nearestStations;
+                return reachableStations.OrderBy(s => s.distance).ToArray(); ;
             }
         }
 
-        public async Task<string> CreateImageWithDirections(string from, BikeStation bikeStation) {
-            var routePolyline = await memoryCache.GetOrSet(from + "directions", FindDetailedRouteToStation);
-            var imageUrl = string.Format(baseImageUrl, from, $"{bikeStation.Latitude},{bikeStation.Longitude}", routePolyline);
+        public async Task<string> CreateImageWithDirections(string from, LabelledBikeShareStation[] nearestBikeStations) {
+            if (string.IsNullOrEmpty(from)) {
+                throw new ArgumentNullException(nameof(from));
+            }
 
+            if (nearestBikeStations == null || nearestBikeStations.Length == 0 || nearestBikeStations.Length > MaxResultSize) {
+                throw new ArgumentException($"Number of bike sharing stations must be between 1 and {MaxResultSize}", nameof(nearestBikeStations));
+            }
+
+            var routePolyline = await memoryCache.GetOrSet(from + "directions", FindDetailedRouteToStation);
+            var userMarker = $"markers=color:green%7Clabel:U%7C{from}";
+            var stationMarkers = string.Join("&", nearestBikeStations.Select(bikeShareStation => $"markers=color:red%7Clabel:{bikeShareStation.Label}%7C{bikeShareStation.BikeShareStation.Latitude},{bikeShareStation.BikeShareStation.Longitude}"));
+            var imageUrl = string.Format(baseImageUrl, userMarker, stationMarkers, routePolyline);
             return imageUrl;
 
             async Task<string> FindDetailedRouteToStation() {
-                var queryString = string.Format(baseRouteQueryString, from, $"{bikeStation.Latitude},{bikeStation.Longitude}");
+                var bikeShareStation = nearestBikeStations[0].BikeShareStation;
+                var queryString = string.Format(baseRouteQueryString, from, $"{bikeShareStation.Latitude},{bikeShareStation.Longitude}");
                 var response = await httpClient.GetStringAsync(queryString);
                 var route = JsonConvert.DeserializeObject<Route>(response);
                 if (route.Status != "OK" || route.Routes.Length == 0) {
-                    throw new InvalidOperationException($"Could not find a route from {from} to {bikeStation.Name}, {bikeStation.Address}.");
+                    throw new InvalidOperationException($"Could not find a route from {from} to {bikeShareStation.Name}, {bikeShareStation.Address}.");
                 }
 
                 return route.Routes[0].OverviewPolyline.Points;

@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Hjerpbakk.DIPSBot.Clients;
@@ -19,24 +20,33 @@ namespace Tests {
         }
 
         [Fact]
-        public async Task FindBikeSharingStationNearestToAddress() {
+        public async Task FindBikeSharingStationsNearestToAddress() {
             var json = File.ReadAllText("../../../TestData/stations.json");
             var allBikeSharingStations = JsonConvert.DeserializeObject<AllStationsInArea>(json);
 
-            var bikeShareStation = await googleMapsClient.FindBikeSharingStationNearestToAddress("Beddingen 10", allBikeSharingStations);
+            var bikeShareStations = await googleMapsClient.FindBikeSharingStationsNearestToAddress("Beddingen 10", allBikeSharingStations);
 
-            Assert.Equal("TMV-odden", bikeShareStation.Name);
+            Assert.Equal("TMV-odden", bikeShareStations[0].Name);
+            Assert.Equal("Bassengbakken", bikeShareStations[1].Name);
+            Assert.Equal("Dokkparken", bikeShareStations[2].Name);
         }
 
         [Fact]
         public async Task CreateImageWithDirections() {
-            var bikeStation = Create(63.435399485821023D, 10.409983098506927D);
+            var bikeStations = Create((63.435399485821023D, 10.409983098506927D),
+                                      (63.435920064727952D, 10.414788275957108D),
+                                      (63.433509009133566D, 10.411412715911865D));
 
-            var imageUrl = await googleMapsClient.CreateImageWithDirections("Beddingen 10", bikeStation);
+            var imageUrl = await googleMapsClient.CreateImageWithDirections("Beddingen 10", bikeStations);
 
-            Assert.Contains("https://maps.googleapis.com/maps/api/staticmap?size=600x600&scale=2&maptype=roadmap&region=no&markers=icon:https://hjerpbakk.com/assets/img/person.png%7CBeddingen 10&markers=icon:https://hjerpbakk.com/assets/img/parking.png%3F1%7C63.435399485821,10.4099830985069&path=weight:5%7Ccolor:blue%7Cenc:_tdbK{wp~@yAvDGv@DjAJxABTGz@BhAJT&key=", imageUrl);
+            Assert.Contains("https://maps.googleapis.com/maps/api/staticmap?size=600x600&scale=2&maptype=roadmap&region=no&markers=color:green%7Clabel:U%7CBeddingen 10&markers=color:red%7Clabel:A%7C63.435399485821,10.4099830985069&markers=color:red%7Clabel:B%7C63.435920064728,10.4147882759571&markers=color:red%7Clabel:C%7C63.4335090091336,10.4114127159119&path=weight:5%7Ccolor:blue%7Cenc:_tdbK{wp~@yAvDGv@DjAJxABTGz@BhAJT&key=", imageUrl);
         }
 
-        BikeStation Create(double latitude, double longitude) => new BikeStation("", "", 0, 0, latitude, longitude, 0L);
+        LabelledBikeShareStation[] Create(params (double latitude, double longitude)[] coordinates) {
+            var labelIndex = 0;
+            return coordinates.Select(cord => new LabelledBikeShareStation(
+                (char)('A' + labelIndex++),
+                new BikeShareStation("", "", 0, 0, cord.latitude, cord.longitude, 0L))).ToArray();
+        }
     }
 }
