@@ -14,12 +14,11 @@ namespace Hjerpbakk.DIPSBot.Clients {
     public class GoogleMapsClient {
         const int MaxResultSize = 3;
 
-        readonly HttpClient httpClient;
-
         readonly string baseDistanceQueryString;
         readonly string baseRouteQueryString;
         readonly string baseImageUrl;
 
+        readonly HttpClient httpClient;
         readonly IMemoryCache memoryCache;
 
         public GoogleMapsClient(IGoogleMapsConfiguration googleMapsConfiguration, HttpClient httpClient, IMemoryCache memoryCache) {
@@ -42,8 +41,9 @@ namespace Hjerpbakk.DIPSBot.Clients {
 
             var sortedStations = SortStationsByDistanceFromUser();
 
-            var nearestStations = new BikeShareStationWithWalkingDuration[3];
-            for (int i = 0; i < MaxResultSize; i++) {
+            var resultLength = sortedStations.Length < MaxResultSize ? sortedStations.Length : MaxResultSize;
+            var nearestStations = new BikeShareStationWithWalkingDuration[resultLength];
+            for (int i = 0; i < nearestStations.Length; i++) {
                 nearestStations[i] = new BikeShareStationWithWalkingDuration(
                     allStationsInArea.BikeShareStations[sortedStations[i].index],
                     sortedStations[i].duration);
