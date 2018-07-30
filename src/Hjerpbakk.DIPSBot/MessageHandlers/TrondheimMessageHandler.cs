@@ -14,7 +14,7 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers {
             AddCommand<NegativeAction>(new BotMentionedPredicate(), new NegativePredicate());
             AddCommand<VersionAction>(new BotMentionedPredicate(), new VersionPredicate());
             AddCommand<ScooterAction>(new BotMentionedPredicate(), new ScooterPredicate());
-            AddCommand<BikeShareAction>(new BotMentionedPredicate(), new BikeSharePredicate());
+            AddCommand<BikeSharingAction>(new BotMentionedPredicate(), new BikeSharingPredicate());
             AddCommandListingAsUnknownCommand(new BotMentionedPredicate());
         }
     }

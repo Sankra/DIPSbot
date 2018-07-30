@@ -14,5 +14,5 @@
   "GoogleMapsApiKey": "[GoogleMapsApiKey]",
   "MapsRegion": "[MapsRegion]",
   "ImgurClientId": "[ImgurClientKey]",
-  "BikeShareApiEndpoint": "[BikeShareApiEndpoint]"
+  "BikeSharingApiEndpoint": "[BikeSharingApiEndpoint]"
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Hjerpbakk.DIPSBot.Configuration;
 using Hjerpbakk.DIPSBot.Extensions;
-using Hjerpbakk.DIPSBot.Model.BikeShare;
+using Hjerpbakk.DIPSBot.Model.BikeSharing;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 
@@ -31,7 +31,7 @@ namespace Hjerpbakk.DIPSBot.Clients {
             this.memoryCache = memoryCache;
         }
 
-        public async Task<BikeShareStationWithWalkingDuration[]> FindBikeSharingStationsNearestToAddress(string fromAddress, AllStationsInArea allStationsInArea) {
+        public async Task<BikeSharingStationWithWalkingDuration[]> FindBikeSharingStationsNearestToAddress(string fromAddress, AllStationsInArea allStationsInArea) {
             if (string.IsNullOrEmpty(fromAddress)) {
                 throw new ArgumentNullException(nameof(fromAddress));
             }
@@ -39,10 +39,10 @@ namespace Hjerpbakk.DIPSBot.Clients {
             var routeDistances = await FindRoutesToAllStations();
             var sortedStations = SortStationsByDistanceFromUser();
             var resultLength = sortedStations.Length < MaxResultSize ? sortedStations.Length : MaxResultSize;
-            var nearestStations = new BikeShareStationWithWalkingDuration[resultLength];
+            var nearestStations = new BikeSharingStationWithWalkingDuration[resultLength];
             for (int i = 0; i < nearestStations.Length; i++) {
-                nearestStations[i] = new BikeShareStationWithWalkingDuration(
-                    allStationsInArea.BikeShareStations[sortedStations[i].index],
+                nearestStations[i] = new BikeSharingStationWithWalkingDuration(
+                    allStationsInArea.BikeSharingStations[sortedStations[i].index],
                     sortedStations[i].duration);
             }
 
@@ -76,7 +76,7 @@ namespace Hjerpbakk.DIPSBot.Clients {
             }
         }
 
-        public async Task<string> CreateImageWithDirections(string from, LabelledBikeShareStation[] nearestBikeStations) {
+        public async Task<string> CreateImageWithDirections(string from, LabelledBikeSharingStation[] nearestBikeStations) {
             if (string.IsNullOrEmpty(from)) {
                 throw new ArgumentNullException(nameof(from));
             }
@@ -87,17 +87,17 @@ namespace Hjerpbakk.DIPSBot.Clients {
 
             var routePolyline = await memoryCache.GetOrSet(from + "directions", FindDetailedRouteToStation);
             var userMarker = $"markers=color:green%7Clabel:U%7C{from}";
-            var stationMarkers = string.Join("&", nearestBikeStations.Select(bikeShareStation => $"markers=color:red%7Clabel:{bikeShareStation.Label}%7C{bikeShareStation.BikeShareStation.Latitude},{bikeShareStation.BikeShareStation.Longitude}"));
+            var stationMarkers = string.Join("&", nearestBikeStations.Select(bikeSharingStation => $"markers=color:red%7Clabel:{bikeSharingStation.Label}%7C{bikeSharingStation.BikeSharingStation.Latitude},{bikeSharingStation.BikeSharingStation.Longitude}"));
             var imageUrl = string.Format(baseImageUrl, userMarker, stationMarkers, routePolyline);
             return imageUrl;
 
             async Task<string> FindDetailedRouteToStation() {
-                var bikeShareStation = nearestBikeStations[0].BikeShareStation;
-                var queryString = string.Format(baseRouteQueryString, from, $"{bikeShareStation.Latitude},{bikeShareStation.Longitude}");
+                var bikeSharingStation = nearestBikeStations[0].BikeSharingStation;
+                var queryString = string.Format(baseRouteQueryString, from, $"{bikeSharingStation.Latitude},{bikeSharingStation.Longitude}");
                 var response = await httpClient.GetStringAsync(queryString);
                 var route = JsonConvert.DeserializeObject<Route>(response);
                 if (route.Status != "OK" || route.Routes.Length == 0) {
-                    throw new InvalidOperationException($"Could not find a route from {from} to {bikeShareStation.Name}, {bikeShareStation.Address}.");
+                    throw new InvalidOperationException($"Could not find a route from {from} to {bikeSharingStation.Name}, {bikeSharingStation.Address}.");
                 }
 
                 return route.Routes[0].OverviewPolyline.Points;

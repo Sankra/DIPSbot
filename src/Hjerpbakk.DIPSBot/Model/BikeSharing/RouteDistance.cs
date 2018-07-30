@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Hjerpbakk.DIPSBot.Model.BikeShare {
+namespace Hjerpbakk.DIPSBot.Model.BikeSharing {
     public readonly struct RouteDistance {
         [JsonConstructor]
         public RouteDistance(Row[] rows, string status) {

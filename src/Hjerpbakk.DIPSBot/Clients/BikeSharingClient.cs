@@ -4,23 +4,23 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using BikeshareClient;
 using Hjerpbakk.DIPSBot.Extensions;
-using Hjerpbakk.DIPSBot.Model.BikeShare;
+using Hjerpbakk.DIPSBot.Model.BikeSharing;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Hjerpbakk.DIPSBot.Clients {
-    public class BikeShareClient {
+    public class BikeSharingClient {
         readonly IBikeshareClient bikeshareClient;
 
         readonly HttpClient httpClient;
         readonly IMemoryCache memoryCache;
 
-        public BikeShareClient(IBikeshareClient bikeshareClient, HttpClient httpClient, IMemoryCache memoryCache) {
+        public BikeSharingClient(IBikeshareClient bikeshareClient, HttpClient httpClient, IMemoryCache memoryCache) {
             this.httpClient = httpClient;
             this.bikeshareClient = bikeshareClient;
             this.memoryCache = memoryCache;
         }
 
-        public async Task<AllStationsInArea> GetAllBikeSharingStations(Intention intention) {
+        public async Task<AllStationsInArea> GetBikeSharingStationsMatchingIntention(Intention intention) {
             const int StationsCacheKey = 1337;
             var stationsTask = memoryCache.GetOrSet(StationsCacheKey, async () => {
                 return await bikeshareClient.GetStationsAsync();

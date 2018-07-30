@@ -13,7 +13,7 @@ namespace Hjerpbakk.DIPSBot.MessageHandlers {
             AddCommand<ThanksAction>(new ThanksPredicate());
             AddCommand<NegativeAction>(new NegativePredicate());
             AddCommand<ScooterAction>(new ScooterPredicate());
-            AddCommand<BikeShareAction>(new BikeSharePredicate());
+            AddCommand<BikeSharingAction>(new BikeSharingPredicate());
             AddCommandListingAsUnknownCommand(new TruePredicate());
         }
     }

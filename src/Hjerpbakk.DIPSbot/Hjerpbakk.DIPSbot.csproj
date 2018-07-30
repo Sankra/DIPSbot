@@ -22,7 +22,7 @@
         <Folder Include="Predicates\" />
         <Folder Include="Configuration\" />
         <Folder Include="Telemetry\" />
-        <Folder Include="Model\BikeShare\" />
+        <Folder Include="Model\BikeSharing\" />
         <Folder Include="Model\Imgur\" />
     </ItemGroup>
     <ItemGroup>

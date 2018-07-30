@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace Hjerpbakk.DIPSBot.Model.BikeShare {
+namespace Hjerpbakk.DIPSBot.Model.BikeSharing {
     [DebuggerDisplay("{Address} has {FreeBikes} / {AvailableSpace} bikes", Name = "{Name}")]
-    public class BikeShareStation {
-        public BikeShareStation(string name, string address, int freeBikes, int availableSpace, double latitude, double longitude) {
+    public class BikeSharingStation {
+        public BikeSharingStation(string name, string address, int freeBikes, int availableSpace, double latitude, double longitude) {
             Name = name ?? throw new ArgumentNullException(nameof(name));
             Address = address ?? throw new ArgumentNullException(nameof(address));
             FreeBikes = freeBikes;

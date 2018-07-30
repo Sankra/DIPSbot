@@ -7,7 +7,7 @@ namespace Hjerpbakk.DIPSBot.Configuration {
                                     IServiceDiscoveryConfiguration,
                                     IGoogleMapsConfiguration,
                                     IImgurConfiguration,
-                                    IBikeShareConfiguration {
+                                    IBikeSharingConfiguration {
         public string SlackAPIToken { get; set; }
         public string AdminUser { get; set; }
         public string BotUser { get; set; }
@@ -32,7 +32,7 @@ namespace Hjerpbakk.DIPSBot.Configuration {
 
         public string ImgurClientId { get; set; }
 
-        public string BikeShareApiEndpoint { get; set; }
+        public string BikeSharingApiEndpoint { get; set; }
         public string MapsRegion { get; set; }
     }
 }

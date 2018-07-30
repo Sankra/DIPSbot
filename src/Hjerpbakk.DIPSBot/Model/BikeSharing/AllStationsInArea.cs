@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using BikeshareClient.Models;
 
-namespace Hjerpbakk.DIPSBot.Model.BikeShare {
+namespace Hjerpbakk.DIPSBot.Model.BikeSharing {
     public readonly struct AllStationsInArea {
         public AllStationsInArea(IEnumerable<Station> stations, IEnumerable<StationStatus> stationsStatus) {
             if (stations == null) {
@@ -21,9 +21,9 @@ namespace Hjerpbakk.DIPSBot.Model.BikeShare {
                 throw new ArgumentException($"{nameof(stations)} length ({stationsArray.Length}) must be equal to {nameof(stationsStatus)} length {stationsStatusArray.Length}.");
             }
 
-            BikeShareStations = new BikeShareStation[stationsArray.Length];
+            BikeSharingStations = new BikeSharingStation[stationsArray.Length];
             for (int i = 0; i < stationsArray.Length; i++) {
-                BikeShareStations[i] = new BikeShareStation(stationsArray[i].Name,
+                BikeSharingStations[i] = new BikeSharingStation(stationsArray[i].Name,
                                                             stationsArray[i].Address,
                                                             stationsStatusArray[i].BikesAvailable,
                                                             stationsStatusArray[i].DocksAvailable,
@@ -32,8 +32,8 @@ namespace Hjerpbakk.DIPSBot.Model.BikeShare {
             }
         }
 
-        public BikeShareStation[] BikeShareStations { get; }
+        public BikeSharingStation[] BikeSharingStations { get; }
         public string PipedCoordinatesToAllStations
-            => HttpUtility.UrlEncode(string.Join("|", BikeShareStations.Select(station => $"{station.Latitude},{station.Longitude}").ToArray()));
+            => HttpUtility.UrlEncode(string.Join("|", BikeSharingStations.Select(station => $"{station.Latitude},{station.Longitude}").ToArray()));
     }
 }

@@ -84,10 +84,11 @@ namespace Hjerpbakk.DIPSbot.Runner {
             serviceContainer.Register<IDebuggingService, DebuggingService>(new PerContainerLifetime());
 
             serviceContainer.Register<IMemoryCache>(serviceFactory => new MemoryCache(new MemoryCacheOptions()), new PerContainerLifetime());
-            serviceContainer.Register<IBikeshareClient>(serviceFactory => new Client(configuration.BikeShareApiEndpoint), new PerContainerLifetime());
-            serviceContainer.Register<BikeShareClient>(new PerContainerLifetime());
+            serviceContainer.Register<IBikeshareClient>(serviceFactory => new Client(configuration.BikeSharingApiEndpoint), new PerContainerLifetime());
+            serviceContainer.Register<BikeSharingClient>(new PerContainerLifetime());
             serviceContainer.Register<GoogleMapsClient>(new PerContainerLifetime());
             serviceContainer.Register<ImgurClient>(new PerContainerLifetime());
+            serviceContainer.Register<BikeSharingService>(new PerContainerLifetime());
 
             serviceContainer.Register<AdminMessageHandler>(new PerContainerLifetime());
             serviceContainer.Register<ChannelMessageHandler>(new PerContainerLifetime());
@@ -108,7 +109,7 @@ namespace Hjerpbakk.DIPSbot.Runner {
             serviceContainer.Register<ScooterAction>(new PerContainerLifetime());
             serviceContainer.Register<SwapKitchenWeekAction>(new PerContainerLifetime());
             serviceContainer.Register<SwapAnswerAction>(new PerContainerLifetime());
-            serviceContainer.Register<BikeShareAction>(new PerContainerLifetime());
+            serviceContainer.Register<BikeSharingAction>(new PerContainerLifetime());
 
             serviceContainer.Register<DIPSbotImplementation>(new PerContainerLifetime());
 

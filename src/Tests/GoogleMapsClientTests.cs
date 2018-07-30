@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using BikeshareClient.Models;
 using Hjerpbakk.DIPSBot.Clients;
 using Hjerpbakk.DIPSBot.Configuration;
-using Hjerpbakk.DIPSBot.Model.BikeShare;
+using Hjerpbakk.DIPSBot.Model.BikeSharing;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using Tests.TestData;
@@ -30,11 +30,11 @@ namespace Tests {
                 stationsTestData.Stations,
                 stationsTestData.Stations.Select(s => new StationStatus(s.Id, 0, 0, 0, 0, 0, DateTime.MinValue)));
 
-            var bikeShareStations = await googleMapsClient.FindBikeSharingStationsNearestToAddress("Beddingen 10", allStationsInArea);
+            var bikeSharingStations = await googleMapsClient.FindBikeSharingStationsNearestToAddress("Beddingen 10", allStationsInArea);
 
-            Assert.Equal("TMV-odden", bikeShareStations[0].BikeShareStation.Name);
-            Assert.Equal("Bassengbakken", bikeShareStations[1].BikeShareStation.Name);
-            Assert.Equal("Dokkparken", bikeShareStations[2].BikeShareStation.Name);
+            Assert.Equal("TMV-odden", bikeSharingStations[0].BikeSharingStation.Name);
+            Assert.Equal("Bassengbakken", bikeSharingStations[1].BikeSharingStation.Name);
+            Assert.Equal("Dokkparken", bikeSharingStations[2].BikeSharingStation.Name);
         }
 
         [Fact]
@@ -48,11 +48,11 @@ namespace Tests {
             Assert.Contains("https://maps.googleapis.com/maps/api/staticmap?size=600x600&scale=2&maptype=roadmap&region=no&markers=color:green%7Clabel:U%7CBeddingen 10&markers=color:red%7Clabel:A%7C63.435399485821,10.4099830985069&markers=color:red%7Clabel:B%7C63.435920064728,10.4147882759571&markers=color:red%7Clabel:C%7C63.4335090091336,10.4114127159119&path=weight:5%7Ccolor:blue%7Cenc:_tdbK{wp~@yAvDGv@DjAJxABTGz@BhAJT&key=", imageUrl);
         }
 
-        LabelledBikeShareStation[] Create(params (double latitude, double longitude)[] coordinates) {
+        LabelledBikeSharingStation[] Create(params (double latitude, double longitude)[] coordinates) {
             var labelIndex = 0;
-            return coordinates.Select(cord => new LabelledBikeShareStation(
+            return coordinates.Select(cord => new LabelledBikeSharingStation(
                                     (char)('A' + labelIndex++),
-                                    new BikeShareStation("", "", 0, 0, cord.latitude, cord.longitude)))
+                                    new BikeSharingStation("", "", 0, 0, cord.latitude, cord.longitude)))
                               .ToArray();
         }
 
