@@ -29,10 +29,7 @@ namespace Hjerpbakk.DIPSBot.Services {
                 var nearStation = nearestStations[i].BikeSharingStation;
                 var label = (char)('A' + i);
                 labelledBikeSharingStations[i] = new LabelledBikeSharingStation(label, nearStation);
-
-                var walkingDuration = nearestStations[i].WalkingDuration;
-                var timeToWalkToStation = walkingDuration < 86400L ? TimeSpan.FromSeconds(walkingDuration).ToString(@"hh\:mm\:ss") : "too long";
-                responses[i] = "\n" + $"{nearStation.Name} ({label}), {nearStation.Address}, {nearStation.FreeBikes} free bikes / {nearStation.AvailableSpace} free locks. Estimated walking time from {location} is {timeToWalkToStation}.";
+                responses[i] = "\n" + $"{nearStation.Name} ({label}), {nearStation.Address}, {nearStation.FreeBikes} free bikes / {nearStation.AvailableSpace} free locks. Estimated walking time is {nearestStations[i].WalkingDuration.Text}.";
             }
 
             return new BikeSharingStationsInformation(responses, labelledBikeSharingStations);

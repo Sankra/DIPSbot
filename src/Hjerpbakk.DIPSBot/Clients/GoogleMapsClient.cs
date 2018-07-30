@@ -48,18 +48,18 @@ namespace Hjerpbakk.DIPSBot.Clients {
 
             return nearestStations;
 
-            (long duration, int index)[] SortStationsByDistanceFromUser() {
-                var reachableStations = new List<(long duration, int index)>();
+            (Duration duration, int index)[] SortStationsByDistanceFromUser() {
+                var reachableStations = new List<(Duration duration, int index)>();
                 for (int i = 0; i < routeDistances.Length; i++) {
                     var element = routeDistances[i];
                     if (element.Status != "OK") {
                         continue;
                     }
 
-                    reachableStations.Add((element.Duration.Value, i));
+                    reachableStations.Add((element.Duration, i));
                 }
 
-                return reachableStations.OrderBy(s => s.duration).ToArray(); ;
+                return reachableStations.OrderBy(s => s.duration.Value).ToArray(); ;
             }
         }
 
@@ -111,8 +111,8 @@ namespace Hjerpbakk.DIPSBot.Clients {
 
         async Task<Element[]> FindWalkingDurationsToDestinations(string from, string to) {
             var encodedFrom = HttpUtility.UrlEncode(from);
-            var encodedTo = HttpUtility.UrlEncode(to);
-            var queryString = string.Format(baseDistanceQueryString, encodedFrom, encodedTo);
+            //var encodedTo = HttpUtility.UrlEncode(to);
+            var queryString = string.Format(baseDistanceQueryString, encodedFrom, to);
             var response = await httpClient.GetStringAsync(queryString);
             var routeDistance = JsonConvert.DeserializeObject<RouteDistance>(response);
 
