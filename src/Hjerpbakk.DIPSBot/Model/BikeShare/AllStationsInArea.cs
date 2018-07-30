@@ -32,10 +32,6 @@ namespace Hjerpbakk.DIPSBot.Model.BikeShare {
             }
         }
 
-        public AllStationsInArea(IEnumerable<BikeShareStation> bikeShareStations) {
-            BikeShareStations = bikeShareStations.ToArray();
-        }
-
         public BikeShareStation[] BikeShareStations { get; }
         public string PipedCoordinatesToAllStations
             => HttpUtility.UrlEncode(string.Join("|", BikeShareStations.Select(station => $"{station.Latitude},{station.Longitude}").ToArray()));

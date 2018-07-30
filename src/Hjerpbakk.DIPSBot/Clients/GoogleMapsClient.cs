@@ -54,7 +54,7 @@ namespace Hjerpbakk.DIPSBot.Clients {
                 var response = await httpClient.GetStringAsync(queryString);
                 var routeDistance = JsonConvert.DeserializeObject<RouteDistance>(response);
 
-                if (routeDistance.Rows.Length == 0) {
+                if (routeDistance.Status != "OK" || routeDistance.Rows.Length == 0) {
                     throw new InvalidOperationException($"Could not find any routes from {fromAddress} to any bike sharing stations.");
                 }
 

@@ -1,39 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
-
-using System.Globalization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+﻿using Newtonsoft.Json;
 
 namespace Hjerpbakk.DIPSBot.Model.BikeShare {
-    // TODO: readonly structs FTW
-    public class RouteDistance {
-        [JsonProperty("destination_addresses")]
-        public string[] DestinationAddresses { get; set; }
+    public readonly struct RouteDistance {
+        [JsonConstructor]
+        public RouteDistance(Row[] rows, string status) {
+            Rows = rows;
+            Status = status;
+        }
 
-        [JsonProperty("origin_addresses")]
-        public string[] OriginAddresses { get; set; }
-
-        [JsonProperty("rows")]
-        public Row[] Rows { get; set; }
-
-        [JsonProperty("status")]
-        public string Status { get; set; }
+        public Row[] Rows { get; }
+        public string Status { get; }
     }
 
-    public class Row {
-        [JsonProperty("elements")]
-        public Element[] Elements { get; set; }
+    public readonly struct Row {
+        [JsonConstructor]
+        public Row(Element[] elements) {
+            Elements = elements;
+        }
+
+        public Element[] Elements { get; }
     }
 
-    public class Element {
-        [JsonProperty("distance")]
-        public Distance Distance { get; set; }
+    public readonly struct Element {
+        [JsonConstructor]
+        public Element(Duration duration, string status) {
+            Duration = duration;
+            Status = status;
+        }
 
-        [JsonProperty("duration")]
-        public Distance Duration { get; set; }
+        public Duration Duration { get; }
+        public string Status { get; }
+    }
 
-        [JsonProperty("status")]
-        public string Status { get; set; }
+    public readonly struct Duration {
+        [JsonConstructor]
+        public Duration(string text, long value) {
+            Text = text;
+            Value = value;
+        }
+
+        public string Text { get; }
+        public long Value { get; }
     }
 }
