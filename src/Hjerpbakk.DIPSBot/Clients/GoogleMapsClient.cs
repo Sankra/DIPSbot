@@ -1,15 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
-using BikeshareClient.Models;
 using Hjerpbakk.DIPSBot.Configuration;
+using Hjerpbakk.DIPSBot.Extensions;
 using Hjerpbakk.DIPSBot.Model.BikeShare;
 using Microsoft.Extensions.Caching.Memory;
-using Hjerpbakk.DIPSBot.Extensions;
 using Newtonsoft.Json;
-using System.Linq;
-using System.Collections.Generic;
 
 namespace Hjerpbakk.DIPSBot.Clients {
     public class GoogleMapsClient {
@@ -25,10 +24,11 @@ namespace Hjerpbakk.DIPSBot.Clients {
 
         public GoogleMapsClient(IGoogleMapsConfiguration googleMapsConfiguration, HttpClient httpClient, IMemoryCache memoryCache) {
             this.httpClient = httpClient;
-            // TODO: region must also be configurable. If empty, do not use region
-            baseDistanceQueryString = "https://maps.googleapis.com/maps/api/distancematrix/json?origins={0}&destinations={1}&region=no&mode=walking&units=metric&key=" + googleMapsConfiguration.GoogleMapsApiKey;
-            baseRouteQueryString = "https://maps.googleapis.com/maps/api/directions/json?origin={0}&destination={1}&region=no&mode=walking&units=metric&key=" + googleMapsConfiguration.GoogleMapsApiKey;
-            baseImageUrl = "https://maps.googleapis.com/maps/api/staticmap?size=600x600&scale=2&maptype=roadmap&region=no&{0}&{1}&path=weight:5%7Ccolor:blue%7Cenc:{2}&key=" + googleMapsConfiguration.GoogleMapsApiKey;
+
+            var region = string.IsNullOrEmpty(googleMapsConfiguration.MapsRegion) ? string.Empty : "&region=" + googleMapsConfiguration.MapsRegion;
+            baseDistanceQueryString = "https://maps.googleapis.com/maps/api/distancematrix/json?origins={0}&destinations={1}" + region + "&mode=walking&units=metric&key=" + googleMapsConfiguration.GoogleMapsApiKey;
+            baseRouteQueryString = "https://maps.googleapis.com/maps/api/directions/json?origin={0}&destination={1}" + region + "&mode=walking&units=metric&key=" + googleMapsConfiguration.GoogleMapsApiKey;
+            baseImageUrl = "https://maps.googleapis.com/maps/api/staticmap?size=600x600&scale=2&maptype=roadmap" + region + "&{0}&{1}&path=weight:5%7Ccolor:blue%7Cenc:{2}&key=" + googleMapsConfiguration.GoogleMapsApiKey;
             this.memoryCache = memoryCache;
         }
 

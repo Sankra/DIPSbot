@@ -12,6 +12,7 @@
     "IP": "[IP]"
   },
   "GoogleMapsApiKey": "[GoogleMapsApiKey]",
+  "MapsRegion": "[MapsRegion]",
   "ImgurClientId": "[ImgurClientKey]",
   "BikeShareApiEndpoint": "[BikeShareApiEndpoint]"
 }

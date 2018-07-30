@@ -33,5 +33,6 @@ namespace Hjerpbakk.DIPSBot.Configuration {
         public string ImgurClientId { get; set; }
 
         public string BikeShareApiEndpoint { get; set; }
+        public string MapsRegion { get; set; }
     }
 }

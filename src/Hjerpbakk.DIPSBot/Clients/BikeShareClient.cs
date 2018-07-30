@@ -1,7 +1,5 @@
-﻿using System.Linq;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Threading.Tasks;
-using System.Web;
 using BikeshareClient;
 using Hjerpbakk.DIPSBot.Extensions;
 using Hjerpbakk.DIPSBot.Model.BikeShare;
