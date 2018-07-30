@@ -100,7 +100,8 @@ namespace Hjerpbakk.DIPSBot.Clients {
                 throw new ArgumentException($"{nameof(to)} cannot be null or empty.", nameof(to));
             }
 
-            var routes = await FindWalkingDurationsToDestinations(from, to);
+            var encodedTo = HttpUtility.UrlEncode(to);
+            var routes = await FindWalkingDurationsToDestinations(from, encodedTo);
             var validRoutes = routes.Where(r => r.Status == "OK").ToArray();
             if (validRoutes.Length == 0) {
                 throw new InvalidOperationException($"Could not find any routes from {from} to {to}.");
@@ -111,7 +112,6 @@ namespace Hjerpbakk.DIPSBot.Clients {
 
         async Task<Element[]> FindWalkingDurationsToDestinations(string from, string to) {
             var encodedFrom = HttpUtility.UrlEncode(from);
-            //var encodedTo = HttpUtility.UrlEncode(to);
             var queryString = string.Format(baseDistanceQueryString, encodedFrom, to);
             var response = await httpClient.GetStringAsync(queryString);
             var routeDistance = JsonConvert.DeserializeObject<RouteDistance>(response);
