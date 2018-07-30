@@ -36,7 +36,7 @@ namespace Hjerpbakk.DIPSBot.Clients {
                 throw new ArgumentNullException(nameof(fromAddress));
             }
 
-            var routeDistances = await FindRoutesToAllStations();
+            var routeDistances = await FindWalkingDurationsToDestinations(fromAddress, allStationsInArea.PipedCoordinatesToAllStations);
             var sortedStations = SortStationsByDistanceFromUser();
             var resultLength = sortedStations.Length < MaxResultSize ? sortedStations.Length : MaxResultSize;
             var nearestStations = new BikeSharingStationWithWalkingDuration[resultLength];
@@ -47,19 +47,6 @@ namespace Hjerpbakk.DIPSBot.Clients {
             }
 
             return nearestStations;
-
-            async Task<Element[]> FindRoutesToAllStations() {
-                var encodedAddress = HttpUtility.UrlEncode(fromAddress);
-                var queryString = string.Format(baseDistanceQueryString, encodedAddress, allStationsInArea.PipedCoordinatesToAllStations);
-                var response = await httpClient.GetStringAsync(queryString);
-                var routeDistance = JsonConvert.DeserializeObject<RouteDistance>(response);
-
-                if (routeDistance.Status != "OK" || routeDistance.Rows.Length == 0) {
-                    throw new InvalidOperationException($"Could not find any routes from {fromAddress} to any bike sharing stations.");
-                }
-
-                return routeDistance.Rows[0].Elements;
-            }
 
             (long duration, int index)[] SortStationsByDistanceFromUser() {
                 var reachableStations = new List<(long duration, int index)>();
@@ -102,6 +89,38 @@ namespace Hjerpbakk.DIPSBot.Clients {
 
                 return route.Routes[0].OverviewPolyline.Points;
             }
+        }
+
+        public async Task<Duration> GetWalkingDuration(string from, string to) {
+            if (string.IsNullOrEmpty(from)) {
+                throw new ArgumentException($"{nameof(from)} cannot be null or empty.", nameof(from));
+            }
+
+            if (string.IsNullOrEmpty(to)) {
+                throw new ArgumentException($"{nameof(to)} cannot be null or empty.", nameof(to));
+            }
+
+            var routes = await FindWalkingDurationsToDestinations(from, to);
+            var validRoutes = routes.Where(r => r.Status == "OK").ToArray();
+            if (validRoutes.Length == 0) {
+                throw new InvalidOperationException($"Could not find any routes from {from} to {to}.");
+            }
+
+            return validRoutes.OrderBy(r => r.Duration).First().Duration;
+        }
+
+        async Task<Element[]> FindWalkingDurationsToDestinations(string from, string to) {
+            var encodedFrom = HttpUtility.UrlEncode(from);
+            var encodedTo = HttpUtility.UrlEncode(to);
+            var queryString = string.Format(baseDistanceQueryString, encodedFrom, encodedTo);
+            var response = await httpClient.GetStringAsync(queryString);
+            var routeDistance = JsonConvert.DeserializeObject<RouteDistance>(response);
+
+            if (routeDistance.Status != "OK" || routeDistance.Rows.Length == 0) {
+                throw new InvalidOperationException($"Could not find any routes from {from} to {to}.");
+            }
+
+            return routeDistance.Rows[0].Elements;
         }
     }
 }

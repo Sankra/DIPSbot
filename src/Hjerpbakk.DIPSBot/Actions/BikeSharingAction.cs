@@ -20,7 +20,6 @@ namespace Hjerpbakk.DIPSBot.Actions {
         }
 
         public async Task Execute(SlackMessage message, MessageHandler caller) {
-            // TODO: Gjør det mulig å få ut veien fra der du er, til holdeplassen, via sykling til dropoff, til dit skal
             var locationAndIntention = GetUserLocationAndIntentFromMessage();
             if (string.IsNullOrEmpty(locationAndIntention.location)) {
                 await slackIntegration.SendMessageToChannel(message.ChatHub, $"Cannot find near bike stations to an empty address.");

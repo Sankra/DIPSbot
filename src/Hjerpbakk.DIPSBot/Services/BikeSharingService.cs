@@ -43,5 +43,26 @@ namespace Hjerpbakk.DIPSBot.Services {
             var publicImageUrl = await imgurClient.UploadImage(directionsImage);
             return publicImageUrl;
         }
+
+        public async Task<string> GetQuickestRoute(string from, string to) {
+            if (string.IsNullOrEmpty(from)) {
+                throw new ArgumentException($"{nameof(from)} cannot be null or empty.", nameof(from));
+            }
+
+            if (string.IsNullOrEmpty(to)) {
+                throw new ArgumentException($"{nameof(to)} cannot be null or empty.", nameof(to));
+            }
+
+            var walkingDuration = googleMapsClient.GetWalkingDuration(from, to);
+
+            // TODO: Combination:
+            // - Walking duration to nearest free station
+            // - bike duration to station nearest to destination
+            // - walking duration from that station to destination
+            // TODO: choose the quickest
+            // TODO: show on map
+
+            return "";
+        }
     }
 }

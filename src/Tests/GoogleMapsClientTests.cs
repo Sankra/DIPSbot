@@ -48,6 +48,16 @@ namespace Tests {
             Assert.Contains("https://maps.googleapis.com/maps/api/staticmap?size=600x600&scale=2&maptype=roadmap&region=no&markers=color:green%7Clabel:U%7CBeddingen 10&markers=color:red%7Clabel:A%7C63.435399485821,10.4099830985069&markers=color:red%7Clabel:B%7C63.435920064728,10.4147882759571&markers=color:red%7Clabel:C%7C63.4335090091336,10.4114127159119&path=weight:5%7Ccolor:blue%7Cenc:_tdbK{wp~@yAvDGv@DjAJxABTGz@BhAJT&key=", imageUrl);
         }
 
+        [Fact]
+        public async Task GetWalkingDuration() {
+            const string From = "Beddingen 10";
+            const string To = "Lerkendal Stadion";
+
+            var duration = await googleMapsClient.GetWalkingDuration(From, To);
+
+            Assert.Equal(2281, duration.Value);
+        }
+
         LabelledBikeSharingStation[] Create(params (double latitude, double longitude)[] coordinates) {
             var labelIndex = 0;
             return coordinates.Select(cord => new LabelledBikeSharingStation(
