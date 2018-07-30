@@ -1,7 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using BikeshareClient.Models;
 using Hjerpbakk.DIPSBot.Clients;
 using Hjerpbakk.DIPSBot.Configuration;
 using Hjerpbakk.DIPSBot.Model.BikeShare;
@@ -22,9 +25,12 @@ namespace Tests {
         [Fact]
         public async Task FindBikeSharingStationsNearestToAddress() {
             var json = File.ReadAllText("../../../TestData/stations.json");
-            var allBikeSharingStations = JsonConvert.DeserializeObject<AllStationsInArea>(json);
+            var stationsTestData = JsonConvert.DeserializeObject<StationsTestData>(json);
+            var allStationsInArea = new AllStationsInArea(
+                stationsTestData.Stations,
+                stationsTestData.Stations.Select(s => new StationStatus(s.Id, 0, 0, 0, 0, 0, DateTime.MinValue)));
 
-            var bikeShareStations = await googleMapsClient.FindBikeSharingStationsNearestToAddress("Beddingen 10", allBikeSharingStations);
+            var bikeShareStations = await googleMapsClient.FindBikeSharingStationsNearestToAddress("Beddingen 10", allStationsInArea);
 
             Assert.Equal("TMV-odden", bikeShareStations[0].Name);
             Assert.Equal("Bassengbakken", bikeShareStations[1].Name);
@@ -46,7 +52,16 @@ namespace Tests {
             var labelIndex = 0;
             return coordinates.Select(cord => new LabelledBikeShareStation(
                 (char)('A' + labelIndex++),
-                new BikeShareStation("", "", 0, 0, cord.latitude, cord.longitude, 0L))).ToArray();
+                new BikeShareStationWithWalkingDuration("", "", 0, 0, cord.latitude, cord.longitude, 0L))).ToArray();
+        }
+
+        public readonly struct StationsTestData {
+            [JsonConstructor]
+            public StationsTestData(IEnumerable<Station> stations) {
+                Stations = stations;
+            }
+
+            public IEnumerable<Station> Stations { get; }
         }
     }
 }

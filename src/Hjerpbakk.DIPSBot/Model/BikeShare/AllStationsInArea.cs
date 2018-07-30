@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Web;
 using BikeshareClient.Models;
 
 namespace Hjerpbakk.DIPSBot.Model.BikeShare {
     public readonly struct AllStationsInArea {
-        public AllStationsInArea(Station[] stations, StationStatus[] stationsStatus, string pipedCoordinatesToAllStations) {
+        public AllStationsInArea(IEnumerable<Station> stations, IEnumerable<StationStatus> stationsStatus) {
             if (stations == null) {
                 throw new ArgumentNullException(nameof(stations));
             }
@@ -13,18 +15,20 @@ namespace Hjerpbakk.DIPSBot.Model.BikeShare {
                 throw new ArgumentNullException(nameof(stationsStatus));
             }
 
-            if (stations.Length != stationsStatus.Length) {
-                throw new ArgumentException($"{nameof(stations)} length ({stations.Length}) must be equal to {nameof(stationsStatus)} length {stationsStatus.Length}.");
+            var stationsArray = stations.ToArray();
+            var stationsStatusArray = stationsStatus.ToArray();
+            if (stationsArray.Length != stationsStatusArray.Length) {
+                throw new ArgumentException($"{nameof(stations)} length ({stationsArray.Length}) must be equal to {nameof(stationsStatus)} length {stationsStatusArray.Length}.");
             }
 
-            Stations = stations;
-            StationsStatus = stationsStatus;
-            PipedCoordinatesToAllStations = pipedCoordinatesToAllStations;
+            Stations = stationsArray;
+            StationsStatus = stationsStatusArray;
         }
 
         // TODO: Is ugly
         public Station[] Stations { get; }
-        public IEnumerable<StationStatus> StationsStatus { get; }
-        public string PipedCoordinatesToAllStations { get; }
+        public StationStatus[] StationsStatus { get; }
+        public string PipedCoordinatesToAllStations
+            => HttpUtility.UrlEncode(string.Join("|", Stations.Select(station => $"{station.Latitude},{station.Longitude}").ToArray()));
     }
 }

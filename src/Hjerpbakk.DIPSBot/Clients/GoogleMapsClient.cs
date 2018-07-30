@@ -32,7 +32,7 @@ namespace Hjerpbakk.DIPSBot.Clients {
             this.memoryCache = memoryCache;
         }
 
-        public async Task<BikeShareStation[]> FindBikeSharingStationsNearestToAddress(string fromAddress, AllStationsInArea allStationsInArea) {
+        public async Task<BikeShareStationWithWalkingDuration[]> FindBikeSharingStationsNearestToAddress(string fromAddress, AllStationsInArea allStationsInArea) {
             if (string.IsNullOrEmpty(fromAddress)) {
                 throw new ArgumentNullException(nameof(fromAddress));
             }
@@ -42,11 +42,11 @@ namespace Hjerpbakk.DIPSBot.Clients {
 
             var sortedStations = SortStationsByDistanceFromUser();
 
-            var nearestStations = new BikeShareStation[3];
+            var nearestStations = new BikeShareStationWithWalkingDuration[3];
             for (int i = 0; i < MaxResultSize; i++) {
                 var nearStation = sortedStations[i].station;
                 var stationStatus = allStationsInArea.StationsStatus.Single(s => s.Id == nearStation.Id);
-                nearestStations[i] = new BikeShareStation(nearStation.Name,
+                nearestStations[i] = new BikeShareStationWithWalkingDuration(nearStation.Name,
                                                      nearStation.Address,
                                                      stationStatus.BikesAvailable,
                                                      stationStatus.DocksAvailable,

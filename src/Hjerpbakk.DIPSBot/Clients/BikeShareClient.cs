@@ -22,20 +22,16 @@ namespace Hjerpbakk.DIPSBot.Clients {
 
         public async Task<AllStationsInArea> GetAllBikeSharingStations() {
             const int StationsCacheKey = 1337;
-            var stationTask = memoryCache.GetOrSet(StationsCacheKey, async () => {
-                var stations = (await bikeshareClient.GetStationsAsync()).ToArray();
-                var coordinates = HttpUtility.UrlEncode(string.Join("|", stations.Select(station => $"{station.Latitude},{station.Longitude}").ToArray()));
-                return (stations, coordinates);
+            var stationsTask = memoryCache.GetOrSet(StationsCacheKey, async () => {
+                return await bikeshareClient.GetStationsAsync();
             });
-            var stationStatusTask = bikeshareClient.GetStationsStatusAsync();
-            await Task.WhenAll(stationTask, stationStatusTask);
 
-            VerifyTaskCompletedSuccessfully(stationTask);
-            VerifyTaskCompletedSuccessfully(stationStatusTask);
+            var stationsStatusTask = bikeshareClient.GetStationsStatusAsync();
+            await Task.WhenAll(stationsTask, stationsStatusTask);
 
-            return new AllStationsInArea(stationTask.Result.stations,
-                                         stationStatusTask.Result.ToArray(),
-                                         stationTask.Result.coordinates);
+            VerifyTaskCompletedSuccessfully(stationsTask);
+            VerifyTaskCompletedSuccessfully(stationsStatusTask);
+            return new AllStationsInArea(stationsTask.Result, stationsStatusTask.Result);
 
             void VerifyTaskCompletedSuccessfully(Task task) {
                 if (task.IsFaulted) {
