@@ -21,14 +21,19 @@ namespace Hjerpbakk.DIPSBot.Model.BikeShare {
                 throw new ArgumentException($"{nameof(stations)} length ({stationsArray.Length}) must be equal to {nameof(stationsStatus)} length {stationsStatusArray.Length}.");
             }
 
-            Stations = stationsArray;
-            StationsStatus = stationsStatusArray;
+            BikeShareStations = new BikeShareStation[stationsArray.Length];
+            for (int i = 0; i < stationsArray.Length; i++) {
+                BikeShareStations[i] = new BikeShareStation(stationsArray[i].Name,
+                                                            stationsArray[i].Address,
+                                                            stationsStatusArray[i].BikesAvailable,
+                                                            stationsStatusArray[i].DocksAvailable,
+                                                            stationsArray[i].Latitude,
+                                                            stationsArray[i].Longitude);
+            }
         }
 
-        // TODO: Is ugly
-        public Station[] Stations { get; }
-        public StationStatus[] StationsStatus { get; }
+        public BikeShareStation[] BikeShareStations { get; }
         public string PipedCoordinatesToAllStations
-            => HttpUtility.UrlEncode(string.Join("|", Stations.Select(station => $"{station.Latitude},{station.Longitude}").ToArray()));
+            => HttpUtility.UrlEncode(string.Join("|", BikeShareStations.Select(station => $"{station.Latitude},{station.Longitude}").ToArray()));
     }
 }

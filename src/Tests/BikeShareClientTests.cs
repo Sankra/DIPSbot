@@ -1,4 +1,3 @@
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -7,7 +6,6 @@ using BikeshareClient;
 using Hjerpbakk.DIPSBot.Clients;
 using Hjerpbakk.DIPSBot.Configuration;
 using Microsoft.Extensions.Caching.Memory;
-using Newtonsoft.Json;
 using Tests.TestData;
 using Xunit;
 
@@ -25,16 +23,9 @@ namespace Tests {
         public async Task GetAllBikeSharingStations() {
             var allBikeSharingStations = await bikeShareClient.GetAllBikeSharingStations();
 
-            File.WriteAllText("/Users/sankra/Downloads/stations.json", JsonConvert.SerializeObject(allBikeSharingStations));
-
-            var orderedBikeSharingStations = allBikeSharingStations.Stations.OrderBy(s => s.Id);
-            var firstBikeSharingStation = orderedBikeSharingStations.First();
-            var orderedBikeSharingStatus = allBikeSharingStations.StationsStatus.OrderBy(s => s.Id);
-            Assert.Equal(allBikeSharingStations.Stations.Length - 1,
+            Assert.Equal(allBikeSharingStations.BikeShareStations.Length - 1,
                          Regex.Matches(allBikeSharingStations.PipedCoordinatesToAllStations, "%7c").Count);
-            Assert.Equal("1", firstBikeSharingStation.Id);
-            Assert.Equal("Dokkparken", firstBikeSharingStation.Name);
-            Assert.Equal("1", orderedBikeSharingStatus.First().Id);
+            Assert.NotNull(allBikeSharingStations.BikeShareStations.SingleOrDefault(s => s.Name == "Dokkparken"));
         }
     }
 }

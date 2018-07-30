@@ -44,16 +44,9 @@ namespace Hjerpbakk.DIPSBot.Clients {
 
             var nearestStations = new BikeShareStationWithWalkingDuration[3];
             for (int i = 0; i < MaxResultSize; i++) {
-                var nearStation = sortedStations[i].station;
-                var stationStatus = allStationsInArea.StationsStatus.Single(s => s.Id == nearStation.Id);
                 nearestStations[i] = new BikeShareStationWithWalkingDuration(
-                    new BikeShareStation(nearStation.Name,
-                        nearStation.Address,
-                        stationStatus.BikesAvailable,
-                        stationStatus.DocksAvailable,
-                        nearStation.Latitude,
-                        nearStation.Longitude),
-                    sortedStations[i].distance);
+                    allStationsInArea.BikeShareStations[sortedStations[i].index],
+                    sortedStations[i].duration);
             }
 
             return nearestStations;
@@ -70,18 +63,18 @@ namespace Hjerpbakk.DIPSBot.Clients {
                 return routeDistance.Rows[0].Elements;
             }
 
-            (long distance, Station station)[] SortStationsByDistanceFromUser() {
-                var reachableStations = new List<(long distance, Station station)>();
+            (long duration, int index)[] SortStationsByDistanceFromUser() {
+                var reachableStations = new List<(long duration, int index)>();
                 for (int i = 0; i < routeDistances.Length; i++) {
                     var element = routeDistances[i];
                     if (element.Status != "OK") {
                         continue;
                     }
 
-                    reachableStations.Add((element.Duration.Value, allStationsInArea.Stations[i]));
+                    reachableStations.Add((element.Duration.Value, i));
                 }
 
-                return reachableStations.OrderBy(s => s.distance).ToArray(); ;
+                return reachableStations.OrderBy(s => s.duration).ToArray(); ;
             }
         }
 
