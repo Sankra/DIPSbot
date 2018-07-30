@@ -34,7 +34,7 @@ namespace Hjerpbakk.DIPSBot.Clients {
             VerifyTaskCompletedSuccessfully(stationStatusTask);
 
             return new AllStationsInArea(stationTask.Result.stations,
-                                         stationStatusTask.Result,
+                                         stationStatusTask.Result.ToArray(),
                                          stationTask.Result.coordinates);
 
             void VerifyTaskCompletedSuccessfully(Task task) {
