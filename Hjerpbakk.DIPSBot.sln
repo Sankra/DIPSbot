@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hjerpbakk.DIPSBot.Runner", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hjerpbakk.DIPSBot", "src\Hjerpbakk.DIPSBot\Hjerpbakk.DIPSBot.csproj", "{582611E8-7C4B-4296-89E7-5D179173B309}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{22E4D07F-884B-4B47-83B9-9F23D2557858}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "src\Tests\Tests.csproj", "{22E4D07F-884B-4B47-83B9-9F23D2557858}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

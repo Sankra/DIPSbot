@@ -21,9 +21,6 @@
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.1.1" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\src\Hjerpbakk.DIPSBot\Hjerpbakk.DIPSBot.csproj" />
-    </ItemGroup>
-    <ItemGroup>
         <Folder Include="TestData\" />
     </ItemGroup>
     <ItemGroup>
@@ -33,5 +30,8 @@
         <Content Include="TestData\config.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\Hjerpbakk.DIPSBot\Hjerpbakk.DIPSBot.csproj" />
     </ItemGroup>
 </Project>
