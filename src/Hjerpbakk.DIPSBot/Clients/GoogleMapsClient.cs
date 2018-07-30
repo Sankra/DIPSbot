@@ -46,13 +46,14 @@ namespace Hjerpbakk.DIPSBot.Clients {
             for (int i = 0; i < MaxResultSize; i++) {
                 var nearStation = sortedStations[i].station;
                 var stationStatus = allStationsInArea.StationsStatus.Single(s => s.Id == nearStation.Id);
-                nearestStations[i] = new BikeShareStationWithWalkingDuration(nearStation.Name,
-                                                     nearStation.Address,
-                                                     stationStatus.BikesAvailable,
-                                                     stationStatus.DocksAvailable,
-                                                     nearStation.Latitude,
-                                                     nearStation.Longitude,
-                                                     sortedStations[i].distance);
+                nearestStations[i] = new BikeShareStationWithWalkingDuration(
+                    new BikeShareStation(nearStation.Name,
+                        nearStation.Address,
+                        stationStatus.BikesAvailable,
+                        stationStatus.DocksAvailable,
+                        nearStation.Latitude,
+                        nearStation.Longitude),
+                    sortedStations[i].distance);
             }
 
             return nearestStations;

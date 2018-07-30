@@ -32,9 +32,9 @@ namespace Tests {
 
             var bikeShareStations = await googleMapsClient.FindBikeSharingStationsNearestToAddress("Beddingen 10", allStationsInArea);
 
-            Assert.Equal("TMV-odden", bikeShareStations[0].Name);
-            Assert.Equal("Bassengbakken", bikeShareStations[1].Name);
-            Assert.Equal("Dokkparken", bikeShareStations[2].Name);
+            Assert.Equal("TMV-odden", bikeShareStations[0].BikeShareStation.Name);
+            Assert.Equal("Bassengbakken", bikeShareStations[1].BikeShareStation.Name);
+            Assert.Equal("Dokkparken", bikeShareStations[2].BikeShareStation.Name);
         }
 
         [Fact]
@@ -51,8 +51,9 @@ namespace Tests {
         LabelledBikeShareStation[] Create(params (double latitude, double longitude)[] coordinates) {
             var labelIndex = 0;
             return coordinates.Select(cord => new LabelledBikeShareStation(
-                (char)('A' + labelIndex++),
-                new BikeShareStationWithWalkingDuration("", "", 0, 0, cord.latitude, cord.longitude, 0L))).ToArray();
+                                    (char)('A' + labelIndex++),
+                                    new BikeShareStation("", "", 0, 0, cord.latitude, cord.longitude)))
+                              .ToArray();
         }
 
         public readonly struct StationsTestData {

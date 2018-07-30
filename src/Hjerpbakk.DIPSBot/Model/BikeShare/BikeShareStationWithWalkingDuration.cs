@@ -1,11 +1,13 @@
-﻿namespace Hjerpbakk.DIPSBot.Model.BikeShare {
-    public class BikeShareStationWithWalkingDuration : BikeShareStation {
-        // TODO: use BikeShareStation as property instead
-        public BikeShareStationWithWalkingDuration(string name, string address, int freeBikes, int availableSpace, double latitude, double longitude, long walkingDuration) :
-            base(name, address, freeBikes, availableSpace, latitude, longitude) {
+﻿using System;
+
+namespace Hjerpbakk.DIPSBot.Model.BikeShare {
+    public readonly struct BikeShareStationWithWalkingDuration {
+        public BikeShareStationWithWalkingDuration(BikeShareStation bikeShareStation, long walkingDuration) {
+            BikeShareStation = bikeShareStation ?? throw new ArgumentNullException(nameof(bikeShareStation));
             WalkingDuration = walkingDuration;
         }
 
+        public BikeShareStation BikeShareStation { get; }
         public long WalkingDuration { get; }
     }
 }

@@ -40,11 +40,13 @@ namespace Hjerpbakk.DIPSBot.Actions {
                 var labelledBikeShareStations = new LabelledBikeShareStation[nearestStations.Length];
                 var response = string.Empty;
                 for (int i = 0; i < nearestStations.Length; i++) {
-                    var neartStation = nearestStations[i];
+                    var nearStation = nearestStations[i].BikeShareStation;
                     var label = (char)('A' + i);
-                    labelledBikeShareStations[i] = new LabelledBikeShareStation(label, nearestStations[i]);
-                    var timeToWalkToStation = neartStation.WalkingDuration < 86400L ? TimeSpan.FromSeconds(neartStation.WalkingDuration).ToString(@"hh\:mm\:ss") : "too long";
-                    response += "\n" + $"{neartStation.Name} ({label}), {neartStation.Address}, {neartStation.FreeBikes} free bikes / {neartStation.AvailableSpace} free locks. Estimated walking time from {userAddress} is {timeToWalkToStation}.";
+                    labelledBikeShareStations[i] = new LabelledBikeShareStation(label, nearStation);
+
+                    var walkingDuration = nearestStations[i].WalkingDuration;
+                    var timeToWalkToStation = walkingDuration < 86400L ? TimeSpan.FromSeconds(walkingDuration).ToString(@"hh\:mm\:ss") : "too long";
+                    response += "\n" + $"{nearStation.Name} ({label}), {nearStation.Address}, {nearStation.FreeBikes} free bikes / {nearStation.AvailableSpace} free locks. Estimated walking time from {userAddress} is {timeToWalkToStation}.";
                 }
 
                 await slackIntegration.SendMessageToChannel(message.ChatHub, response);
