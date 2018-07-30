@@ -36,11 +36,8 @@ namespace Hjerpbakk.DIPSBot.Clients {
                 throw new ArgumentNullException(nameof(fromAddress));
             }
 
-            var encodedAddress = HttpUtility.UrlEncode(fromAddress);
-            var routeDistances = await memoryCache.GetOrSet(encodedAddress, FindRoutesToAllStations);
-
+            var routeDistances = await FindRoutesToAllStations();
             var sortedStations = SortStationsByDistanceFromUser();
-
             var resultLength = sortedStations.Length < MaxResultSize ? sortedStations.Length : MaxResultSize;
             var nearestStations = new BikeShareStationWithWalkingDuration[resultLength];
             for (int i = 0; i < nearestStations.Length; i++) {
@@ -52,6 +49,7 @@ namespace Hjerpbakk.DIPSBot.Clients {
             return nearestStations;
 
             async Task<Element[]> FindRoutesToAllStations() {
+                var encodedAddress = HttpUtility.UrlEncode(fromAddress);
                 var queryString = string.Format(baseDistanceQueryString, encodedAddress, allStationsInArea.PipedCoordinatesToAllStations);
                 var response = await httpClient.GetStringAsync(queryString);
                 var routeDistance = JsonConvert.DeserializeObject<RouteDistance>(response);

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using BikeshareClient;
 using Hjerpbakk.DIPSBot.Clients;
 using Hjerpbakk.DIPSBot.Configuration;
+using Hjerpbakk.DIPSBot.Model.BikeShare;
 using Microsoft.Extensions.Caching.Memory;
 using Tests.TestData;
 using Xunit;
@@ -21,7 +22,7 @@ namespace Tests {
 
         [Fact]
         public async Task GetAllBikeSharingStations() {
-            var allBikeSharingStations = await bikeShareClient.GetAllBikeSharingStations();
+            var allBikeSharingStations = await bikeShareClient.GetAllBikeSharingStations(Intention.Either);
 
             Assert.Equal(allBikeSharingStations.BikeShareStations.Length - 1,
                          Regex.Matches(allBikeSharingStations.PipedCoordinatesToAllStations, "%7c").Count);
