@@ -10,7 +10,7 @@ namespace Hjerpbakk.DIPSBot.Model.BikeShare {
             AvailableSpace = availableSpace;
             Latitude = latitude;
             Longitude = longitude;
-            Distance = distance;
+            WalkingDuration = distance;
         }
 
         public string Name { get; }
@@ -19,6 +19,6 @@ namespace Hjerpbakk.DIPSBot.Model.BikeShare {
         public int AvailableSpace { get; }
         public double Latitude { get; }
         public double Longitude { get; }
-        public long Distance { get; }
+        public long WalkingDuration { get; }
     }
 }
