@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using BikeshareClient;
 using Hjerpbakk.DIPSBot.Clients;
 using Hjerpbakk.DIPSBot.Configuration;
+using Hjerpbakk.DIPSBot.Model.BikeSharing;
 using Hjerpbakk.DIPSBot.Services;
 using Microsoft.Extensions.Caching.Memory;
 using Tests.TestData;
@@ -22,6 +23,18 @@ namespace Tests {
             var googleMapsClient = new GoogleMapsClient(config, httpClient, memoryCache);
             var imgurClient = new ImgurClient(config, httpClient);
             bikeSharingService = new BikeSharingService(bikeSharingClient, googleMapsClient, imgurClient);
+        }
+
+        [Fact]
+        public async Task GetInformationOnNearestBikeSharingStations() {
+            const string Location = "Beddingen 10";
+
+            var result = await bikeSharingService.GetInformationOnNearestBikeSharingStations(Location, Intention.Either);
+
+            Assert.Equal(3, result.Response.Length);
+            Assert.Equal("TMV-odden (A) has 12 free bikes / 16 free locks. Estimated walking time is 2 mins.", result.Response[0]);
+            Assert.Equal("Bassengbakken (B) has 14 free bikes / 14 free locks. Estimated walking time is 2 mins.", result.Response[1]);
+            Assert.Equal("Dokkparken (C) has 4 free bikes / 36 free locks. Estimated walking time is 3 mins.", result.Response[2]);
         }
 
         [Fact]
@@ -51,7 +64,7 @@ namespace Tests {
 
             var result = await bikeSharingService.GetQuickestRoute(From, To);
 
-            Assert.Equal("🚶 You can walk directly from Beddingen 10 to Olavshallen in 7 mins.", result.Directions);
+            Assert.Equal("🚲 The quickest route from Beddingen 10 to Olavshallen will take 6 mins. You should walk from Beddingen 10 to TMV-odden (2 mins), bicycle to Verftsbrua (1 min) and walk to Olavshallen (2 mins).", result.Directions);
         }
 
         [Fact]
@@ -71,7 +84,17 @@ namespace Tests {
 
             var result = await bikeSharingService.GetQuickestRoute(From, To);
 
-            Assert.Equal("🚲 The quickest route from Kolstadflata 10 to Olavshallen will take 1 hour 25 mins. You should walk from Kolstadflata 10 to Lerkendal (1 hour 13 mins), bicycle to Bakke bru (8 mins) and walk to Olavshallen (3 mins).", result.Directions);
+            Assert.Equal("🚲 The quickest route from Kolstadflata 10 to Olavshallen will take 1 hour 26 mins. You should walk from Kolstadflata 10 to Lerkendal (1 hour 13 mins), bicycle to Verftsbrua (10 mins) and walk to Olavshallen (2 mins).", result.Directions);
+        }
+
+        [Fact]
+        public async Task GetQuickestRoute6() {
+            const string From = "Tyholttårnet";
+            const string To = "Kristiansten Festning";
+
+            var result = await bikeSharingService.GetQuickestRoute(From, To);
+
+            Assert.Equal("🚶 You can walk directly from Tyholttårnet to Kristiansten Festning in 17 mins.", result.Directions);
         }
     }
 }

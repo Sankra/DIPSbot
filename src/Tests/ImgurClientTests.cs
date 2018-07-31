@@ -16,7 +16,7 @@ namespace Tests {
 
         [Fact]
         public async Task Upload() {
-            var linkToImage = await imgurClient.UploadImage("https://maps.googleapis.com/maps/api/staticmap?size=600x600&scale=2&maptype=roadmap&region=no&markers=icon:https://hjerpbakk.com/assets/img/person.png%7CBeddingen%2010&markers=icon:https://hjerpbakk.com/assets/img/parking.png%3F1%7C63.435399485821,10.4099830985069&path=weight:5%7Ccolor:blue%7Cenc:_tdbK{wp~@yAvDGv@DjAJxABTGz@BhAJT&key=");
+            var linkToImage = await imgurClient.UploadImage("https://hjerpbakk.com/img/git-remove-local-only-branches/git-remove-local-only-branches.png");
 
             Assert.StartsWith("https://i.imgur.com", linkToImage);
         }

@@ -28,7 +28,7 @@ namespace Hjerpbakk.DIPSBot.Services {
                 var nearStation = nearestStations[i].BikeSharingStation;
                 var label = (char)('A' + i);
                 labelledBikeSharingStations[i] = new LabelledBikeSharingStation(label, nearStation);
-                responses[i] = "\n" + $"{nearStation.Name} ({label}), {nearStation.Address}, {nearStation.FreeBikes} free bikes / {nearStation.AvailableSpace} free locks. Estimated walking time is {nearestStations[i].WalkingDuration.Text}.";
+                responses[i] = $"{nearStation.Name} ({label}) has {nearStation.FreeBikes} free bikes / {nearStation.AvailableSpace} free locks. Estimated walking time is {nearestStations[i].WalkingDuration.Text}.";
             }
 
             return new BikeSharingStationsInformation(responses, labelledBikeSharingStations);
