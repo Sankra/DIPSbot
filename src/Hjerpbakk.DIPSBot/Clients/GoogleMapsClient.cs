@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Web;
 using Hjerpbakk.DIPSBot.Configuration;
 using Hjerpbakk.DIPSBot.Extensions;
 using Hjerpbakk.DIPSBot.Model.BikeSharing;
+using Hjerpbakk.DIPSBot.Model.BikeSharing.Google;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 
@@ -25,18 +25,18 @@ namespace Hjerpbakk.DIPSBot.Clients {
             this.httpClient = httpClient;
 
             var region = string.IsNullOrEmpty(googleMapsConfiguration.MapsRegion) ? string.Empty : "&region=" + googleMapsConfiguration.MapsRegion;
-            baseDistanceQueryString = "https://maps.googleapis.com/maps/api/distancematrix/json?origins={0}&destinations={1}" + region + "&mode=walking&units=metric&key=" + googleMapsConfiguration.GoogleMapsApiKey;
-            baseRouteQueryString = "https://maps.googleapis.com/maps/api/directions/json?origin={0}&destination={1}" + region + "&mode=walking&units=metric&key=" + googleMapsConfiguration.GoogleMapsApiKey;
-            baseImageUrl = "https://maps.googleapis.com/maps/api/staticmap?size=600x600&scale=2&maptype=roadmap" + region + "&{0}&{1}&path=weight:5%7Ccolor:blue%7Cenc:{2}&key=" + googleMapsConfiguration.GoogleMapsApiKey;
+            // Google Maps Distance Matrix API
+            baseDistanceQueryString = "https://maps.googleapis.com/maps/api/distancematrix/json?origins={0}&destinations={1}" + region + "&mode={2}&units=metric&key=" + googleMapsConfiguration.GoogleMapsApiKey;
+            // Google Maps Directions API
+            baseRouteQueryString = "https://maps.googleapis.com/maps/api/directions/json?origin={0}&destination={1}" + region + "&mode={2}&units=metric&key=" + googleMapsConfiguration.GoogleMapsApiKey;
+            // Google Maps Static Image API
+            baseImageUrl = "https://maps.googleapis.com/maps/api/staticmap?size=600x600&scale=2&maptype=roadmap" + region + "&{0}&{1}&{2}&key=" + googleMapsConfiguration.GoogleMapsApiKey;
             this.memoryCache = memoryCache;
         }
 
-        public async Task<BikeSharingStationWithWalkingDuration[]> FindBikeSharingStationsNearestToAddress(string fromAddress, AllStationsInArea allStationsInArea) {
-            if (string.IsNullOrEmpty(fromAddress)) {
-                throw new ArgumentNullException(nameof(fromAddress));
-            }
-
-            var routeDistances = await FindWalkingDurationsToDestinations(fromAddress, allStationsInArea.PipedCoordinatesToAllStations);
+        public async Task<BikeSharingStationWithWalkingDuration[]> FindBikeSharingStationsNearestToLocation(Address location, AllStationsInArea allStationsInArea) {
+            var route = new Route(location, allStationsInArea.PipedCoordinatesToAllStations, TransportationMode.Walking);
+            var routeDistances = await FindDurationToDestinations(route);
             var sortedStations = SortStationsByDistanceFromUser();
             var resultLength = sortedStations.Length < MaxResultSize ? sortedStations.Length : MaxResultSize;
             var nearestStations = new BikeSharingStationWithWalkingDuration[resultLength];
@@ -63,61 +63,72 @@ namespace Hjerpbakk.DIPSBot.Clients {
             }
         }
 
-        public async Task<string> CreateImageWithDirections(string from, LabelledBikeSharingStation[] nearestBikeStations) {
-            if (string.IsNullOrEmpty(from)) {
-                throw new ArgumentNullException(nameof(from));
-            }
-
+        public async Task<string> CreateImageWithDirections(Address from, LabelledBikeSharingStation[] nearestBikeStations) {
             if (nearestBikeStations == null || nearestBikeStations.Length == 0 || nearestBikeStations.Length > MaxResultSize) {
                 throw new ArgumentException($"Number of bike sharing stations must be between 1 and {MaxResultSize}", nameof(nearestBikeStations));
             }
 
-            var routePolyline = await memoryCache.GetOrSet(from + "directions", FindDetailedRouteToStation);
+            var routePolyline = await memoryCache.GetOrSet(from.Value + "directions", FindDetailedRouteToStation);
             var userMarker = $"markers=color:green%7Clabel:U%7C{from}";
-            var stationMarkers = string.Join("&", nearestBikeStations.Select(bikeSharingStation => $"markers=color:red%7Clabel:{bikeSharingStation.Label}%7C{bikeSharingStation.BikeSharingStation.Latitude},{bikeSharingStation.BikeSharingStation.Longitude}"));
-            var imageUrl = string.Format(baseImageUrl, userMarker, stationMarkers, routePolyline);
+            var stationMarkers = string.Join("&", nearestBikeStations.Select(bikeSharingStation => $"markers=color:red%7Clabel:{bikeSharingStation.Label}%7C{bikeSharingStation.BikeSharingStation.Address.Value}"));
+            var imageUrl = string.Format(baseImageUrl, userMarker, stationMarkers, "path=weight:5%7Ccolor:blue%7Cenc:" + routePolyline.Points);
             return imageUrl;
 
-            async Task<string> FindDetailedRouteToStation() {
+            async Task<Polyline> FindDetailedRouteToStation() {
                 var bikeSharingStation = nearestBikeStations[0].BikeSharingStation;
-                var queryString = string.Format(baseRouteQueryString, from, $"{bikeSharingStation.Latitude},{bikeSharingStation.Longitude}");
-                var response = await httpClient.GetStringAsync(queryString);
-                var route = JsonConvert.DeserializeObject<Route>(response);
-                if (route.Status != "OK" || route.Routes.Length == 0) {
-                    throw new InvalidOperationException($"Could not find a route from {from} to {bikeSharingStation.Name}, {bikeSharingStation.Address}.");
-                }
-
-                return route.Routes[0].OverviewPolyline.Points;
+                var route = new Route(from, bikeSharingStation.Address, TransportationMode.Walking);
+                return (await GetDetailedRoute(route)).Segment;
             }
         }
 
-        public async Task<Duration> GetWalkingDuration(string from, string to) {
-            if (string.IsNullOrEmpty(from)) {
-                throw new ArgumentException($"{nameof(from)} cannot be null or empty.", nameof(from));
+        public string CreateRouteImage(TransportationMode transportationMode, params RouteSegment[] routeSegments) {
+            if (routeSegments.Length == 0) {
+                throw new ArgumentException(nameof(routeSegments));
             }
 
-            if (string.IsNullOrEmpty(to)) {
-                throw new ArgumentException($"{nameof(to)} cannot be null or empty.", nameof(to));
+            var from = $"markers=color:green%7Clabel:U%7C{routeSegments[0].Route.From}";
+            var to = $"markers=color:red%7Clabel:D%7C{routeSegments[routeSegments.Length - 1].Route.To}";
+            var path = $"path=weight:5%7Ccolor:green%7Cenc:{routeSegments[0].Segment.Points}";
+            switch (transportationMode) {
+                case TransportationMode.Walking:
+                    return string.Format(baseImageUrl, from, to, path);
+                case TransportationMode.Bicycling:
+                    var stations = $"markers=color:blue%7Clabel:B%7C{routeSegments[1].Route.From.UrlEncodedValue}%7C{routeSegments[1].Route.To.UrlEncodedValue}";
+                    path = $"{path}&path=weight:5%7Ccolor:blue%7Cenc:{routeSegments[1].Segment.Points}&path=weight:5%7Ccolor:green%7Cenc:{routeSegments[2].Segment.Points}";
+                    return string.Format(baseImageUrl, $"{from}&{to}", $"{stations}", path);
+                default:
+                    throw new NotImplementedException();
             }
+        }
 
-            var encodedTo = HttpUtility.UrlEncode(to);
-            var routes = await FindWalkingDurationsToDestinations(from, encodedTo);
+        public async Task<RouteDuration> GetDuration(Route route) {
+            var routes = await FindDurationToDestinations(route);
             var validRoutes = routes.Where(r => r.Status == "OK").ToArray();
             if (validRoutes.Length == 0) {
-                throw new InvalidOperationException($"Could not find any routes from {from} to {to}.");
+                throw new InvalidOperationException($"Could not find any routes from {route.From} to {route.To}.");
             }
 
-            return validRoutes.OrderBy(r => r.Duration).First().Duration;
+            return new RouteDuration(route, validRoutes.OrderBy(r => r.Duration).First().Duration);
         }
 
-        async Task<Element[]> FindWalkingDurationsToDestinations(string from, string to) {
-            var encodedFrom = HttpUtility.UrlEncode(from);
-            var queryString = string.Format(baseDistanceQueryString, encodedFrom, to);
+        public async Task<RouteSegment> GetDetailedRoute(Route route) {
+            var queryString = string.Format(baseRouteQueryString, route.From.UrlEncodedValue, route.To.UrlEncodedValue, route.EncodedTransportationMode);
             var response = await httpClient.GetStringAsync(queryString);
-            var routeDistance = JsonConvert.DeserializeObject<RouteDistance>(response);
+            var googleRoute = JsonConvert.DeserializeObject<GoogleRoute>(response);
+            if (googleRoute.Status != "OK" || googleRoute.Routes.Length == 0) {
+                throw new InvalidOperationException($"Could not find a {route.EncodedTransportationMode} route from {route.From} to {route.To}.");
+            }
+
+            return new RouteSegment(route, googleRoute.Routes[0].OverviewPolyline);
+        }
+
+        async Task<Element[]> FindDurationToDestinations(Route route) {
+            var queryString = string.Format(baseDistanceQueryString, route.From.UrlEncodedValue, route.To.UrlEncodedValue, route.EncodedTransportationMode);
+            var response = await httpClient.GetStringAsync(queryString);
+            var routeDistance = JsonConvert.DeserializeObject<GoogleRouteDistance>(response);
 
             if (routeDistance.Status != "OK" || routeDistance.Rows.Length == 0) {
-                throw new InvalidOperationException($"Could not find any routes from {from} to {to}.");
+                throw new InvalidOperationException($"Could not find any {route.EncodedTransportationMode} routes from {route.From} to {route.To}.");
             }
 
             return routeDistance.Rows[0].Elements;

@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using BikeshareClient.Models;
 
 namespace Hjerpbakk.DIPSBot.Model.BikeSharing {
     public readonly struct AllStationsInArea {
-        public AllStationsInArea(IEnumerable<Station> stations, IEnumerable<StationStatus> stationsStatus) {
+        public AllStationsInArea(in IEnumerable<Station> stations, in IEnumerable<StationStatus> stationsStatus) {
             if (stations == null) {
                 throw new ArgumentNullException(nameof(stations));
             }
@@ -24,7 +23,6 @@ namespace Hjerpbakk.DIPSBot.Model.BikeSharing {
             BikeSharingStations = new BikeSharingStation[stationsArray.Length];
             for (int i = 0; i < stationsArray.Length; i++) {
                 BikeSharingStations[i] = new BikeSharingStation(stationsArray[i].Name,
-                                                            stationsArray[i].Address,
                                                             stationsStatusArray[i].BikesAvailable,
                                                             stationsStatusArray[i].DocksAvailable,
                                                             stationsArray[i].Latitude,
@@ -33,7 +31,7 @@ namespace Hjerpbakk.DIPSBot.Model.BikeSharing {
         }
 
         public BikeSharingStation[] BikeSharingStations { get; }
-        public string PipedCoordinatesToAllStations
-            => HttpUtility.UrlEncode(string.Join("|", BikeSharingStations.Select(station => $"{station.Latitude},{station.Longitude}").ToArray()));
+        public Address PipedCoordinatesToAllStations
+            => new Address(string.Join("|", BikeSharingStations.Select(station => station.Address.Value).ToArray()));
     }
 }

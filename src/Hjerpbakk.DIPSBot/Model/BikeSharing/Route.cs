@@ -1,32 +1,18 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using System.Diagnostics;
 
 namespace Hjerpbakk.DIPSBot.Model.BikeSharing {
+    [DebuggerDisplay("{EncodedTransportationMode}", Name = "{From} - {To}")]
     public readonly struct Route {
-        [JsonConstructor]
-        public Route(RouteElement[] routes, string status) {
-            Routes = routes;
-            Status = status;
+        public Route(in Address from, in Address to, in TransportationMode transportationMode) {
+            From = from;
+            To = to;
+            TransportationMode = transportationMode;
         }
 
-        public RouteElement[] Routes { get; }
-        public string Status { get; }
-    }
-
-    public readonly struct RouteElement {
-        [JsonConstructor]
-        public RouteElement([JsonProperty("overview_polyline")] Polyline overviewPolyline) {
-            OverviewPolyline = overviewPolyline;
-        }
-
-        public Polyline OverviewPolyline { get; }
-    }
-
-    public readonly struct Polyline {
-        [JsonConstructor]
-        public Polyline(string points) {
-            Points = points;
-        }
-
-        public string Points { get; }
+        public Address From { get; }
+        public Address To { get; }
+        public TransportationMode TransportationMode { get; }
+        public string EncodedTransportationMode => Enum.GetName(typeof(TransportationMode), TransportationMode).ToLower();
     }
 }

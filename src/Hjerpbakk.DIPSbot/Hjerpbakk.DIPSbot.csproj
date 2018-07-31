@@ -24,6 +24,7 @@
         <Folder Include="Telemetry\" />
         <Folder Include="Model\BikeSharing\" />
         <Folder Include="Model\Imgur\" />
+        <Folder Include="Model\BikeSharing\Google\" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Ben.Demystifier" Version="0.1.1" />

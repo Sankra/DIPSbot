@@ -30,7 +30,7 @@ namespace Tests {
                 stationsTestData.Stations,
                 stationsTestData.Stations.Select(s => new StationStatus(s.Id, 0, 0, 0, 0, 0, DateTime.MinValue)));
 
-            var bikeSharingStations = await googleMapsClient.FindBikeSharingStationsNearestToAddress("Beddingen 10", allStationsInArea);
+            var bikeSharingStations = await googleMapsClient.FindBikeSharingStationsNearestToLocation("Beddingen 10", allStationsInArea);
 
             Assert.Equal("TMV-odden", bikeSharingStations[0].BikeSharingStation.Name);
             Assert.Equal("Bassengbakken", bikeSharingStations[1].BikeSharingStation.Name);
@@ -50,19 +50,46 @@ namespace Tests {
 
         [Fact]
         public async Task GetWalkingDuration() {
-            const string From = "Beddingen 10";
-            const string To = "Lerkendal Stadion";
+            var route = new Route("Beddingen 10", "Lerkendal Stadion", TransportationMode.Walking);
 
-            var duration = await googleMapsClient.GetWalkingDuration(From, To);
+            var routeDuration = await googleMapsClient.GetDuration(route);
 
-            Assert.Equal(2281, duration.Value);
+            Assert.Equal(2281, routeDuration.Duration.Value);
+        }
+
+        [Fact]
+        public async Task GetCyclingDuration() {
+            var route = new Route("Beddingen 14", "Klæbuveien 125", TransportationMode.Bicycling);
+
+            var routeDuration = await googleMapsClient.GetDuration(route);
+
+            Assert.Equal(775, routeDuration.Duration.Value);
+        }
+
+        [Fact]
+        public async Task GetDetailedWalkingRoute() {
+            var route = new Route("Klæbuveien 125", "Lerkendal Stadion", TransportationMode.Walking);
+
+            var routeSegment = await googleMapsClient.GetDetailedRoute(route);
+
+            Assert.Equal("ca`bK{qn~@mAn@@w@CkACaBk@L?M", routeSegment.Segment.Points);
+        }
+
+        [Fact]
+        public async Task GetDetailedCyclingRoute() {
+            var route = new Route("Beddingen 14", "Klæbuveien 125", TransportationMode.Bicycling);
+
+            var routeSegment = await googleMapsClient.GetDetailedRoute(route);
+
+            Assert.Equal(@"utdbKajp~@r@tASh@Y`B[fBCNKJBhAJpHFjFIbAXRL@fDjC`BrA@MBYBWHEJBPNj@f@^PxAhA~@p@j@f@hBpA~AxAhGhEZh@NPD\APANtCrBpAr@JaBd@mILqCL@v@Yb@Kp@A`AW|BaANI^?x@N`AVRHTTxCrEpB|CxAxB~@nAjBvBvBjC`@X|@XdDpAh@X|At@hAh@p@\z@d@VHVBX?zAe@lB_A`DyAlAq@RMtEkCp@Yl@[l@Y~Aw@nBaAv@a@ZQrAs@NQNGhAk@z@a@lAo@",
+                         routeSegment.Segment.Points);
         }
 
         LabelledBikeSharingStation[] Create(params (double latitude, double longitude)[] coordinates) {
             var labelIndex = 0;
             return coordinates.Select(cord => new LabelledBikeSharingStation(
                                     (char)('A' + labelIndex++),
-                                    new BikeSharingStation("", "", 0, 0, cord.latitude, cord.longitude)))
+                                    new BikeSharingStation("", 0, 0, cord.latitude, cord.longitude)))
                               .ToArray();
         }
 

@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using Hjerpbakk.DIPSbot;
-using Hjerpbakk.DIPSBot.Clients;
 using Hjerpbakk.DIPSBot.MessageHandlers;
 using Hjerpbakk.DIPSBot.Model.BikeSharing;
 using Hjerpbakk.DIPSBot.Services;
@@ -20,31 +21,31 @@ namespace Hjerpbakk.DIPSBot.Actions {
         }
 
         public async Task Execute(SlackMessage message, MessageHandler caller) {
-            var locationAndIntention = GetUserLocationAndIntentFromMessage();
-            if (string.IsNullOrEmpty(locationAndIntention.location)) {
-                await slackIntegration.SendMessageToChannel(message.ChatHub, $"Cannot find near bike stations to an empty address.");
-                return;
-            }
-
-            await slackIntegration.SendMessageToChannel(message.ChatHub, $"I'll find the bike stations nearest to {locationAndIntention.location}...");
-
             try {
-                var bikeSharingStationsInformation = await bikeSharingService.GetInformationOnNearestBikeSharingStations(locationAndIntention.location, locationAndIntention.intention);
-                foreach (var response in bikeSharingStationsInformation.Response) {
-                    await slackIntegration.SendMessageToChannel(message.ChatHub, response);
-                }
+                var (intention, location, destination) = GetUserLocationAndIntentFromMessage();
 
-                var publicImageUrl = await bikeSharingService.GetImageWithDirections(locationAndIntention.location, bikeSharingStationsInformation.LabelledBikeSharingStations);
-                var directionsImageAttachment = new SlackAttachment { ImageUrl = publicImageUrl };
-                await slackIntegration.SendMessageToChannel(message.ChatHub,
-                                                            "Here's how you get there:",
-                                                            directionsImageAttachment);
+                switch (intention) {
+                    case Intention.QuickestRoute:
+                        await GetQuickestRoute(location, destination);
+                        break;
+                    default:
+                        await FindNearestBikeSharingStation(intention, location);
+                        break;
+                }
             } catch (Exception e) {
                 await slackIntegration.SendMessageToChannel(message.ChatHub, $"Routing to bike sharing station failed: {e.Message}");
-                return;
             }
 
-            (Intention intention, string location) GetUserLocationAndIntentFromMessage() {
+            async Task GetQuickestRoute(Address from, Address to) {
+                await slackIntegration.SendMessageToChannel(message.ChatHub, $"Finding quickest route from {from} to {to}...");
+                var directionsAndImage = await bikeSharingService.GetQuickestRoute(from, to);
+                var directionsImageAttachment = new SlackAttachment { ImageUrl = directionsAndImage.ImageUrl };
+                await slackIntegration.SendMessageToChannel(message.ChatHub,
+                                                            directionsAndImage.Directions,
+                                                            directionsImageAttachment);
+            }
+
+            (Intention intention, Address location, Address destination) GetUserLocationAndIntentFromMessage() {
                 var cleanedMessageText = message.Text;
                 while (cleanedMessageText.IndexOf('<') != -1) {
                     var i = cleanedMessageText.IndexOf('<');
@@ -63,19 +64,45 @@ namespace Hjerpbakk.DIPSBot.Actions {
                 cleanedMessageText = cleanedMessageText.Remove(0, bikeIndex).Replace(Bike, "").Replace(Sykkel, "").Trim();
 
                 var jsonObject = (JObject)JsonConvert.DeserializeObject(message.RawData);
-                var originalMessage = (string)jsonObject.Property("text").Value;
+                var originalMessage = HttpUtility.HtmlDecode((string)jsonObject.Property("text").Value);
                 var addressIndex = message.Text.IndexOf(cleanedMessageText, StringComparison.CurrentCulture);
                 var address = originalMessage.Substring(addressIndex, cleanedMessageText.Length);
 
-                var modifier = originalMessage.Substring(0, originalMessage.Length - addressIndex);
-                var action = Intention.Either;
-                if (modifier.Contains("pick-up") || modifier.Contains("pickup") || modifier.Contains("hent")) {
-                    action = Intention.PickUp;
-                } else if (modifier.Contains("drop-off") || modifier.Contains("dropopp") || modifier.Contains("lever")) {
-                    action = Intention.DropOff;
+                var (index, length) = (address.IndexOf("->", StringComparison.CurrentCulture), 2);
+                if (index == -1) {
+                    (index, length) = (address.IndexOf(">", StringComparison.CurrentCulture), 1);
                 }
 
-                return (action, address);
+                if (index == -1) {
+                    var modifier = originalMessage.Substring(0, originalMessage.Length - addressIndex);
+                    var intention = Intention.Either;
+                    if (modifier.Contains("pick-up") || modifier.Contains("pickup") || modifier.Contains("hent")) {
+                        intention = Intention.PickUp;
+                    } else if (modifier.Contains("drop-off") || modifier.Contains("dropopp") || modifier.Contains("deliver") || modifier.Contains("lever")) {
+                        intention = Intention.DropOff;
+                    }
+
+                    return (intention, new Address(address), new Address());
+                }
+
+                var from = address.Substring(0, index - 1);
+                var to = address.Substring(index + length + 1, address.Length - index - length - 1);
+                return (Intention.QuickestRoute, new Address(from), new Address(to));
+            }
+
+            async Task FindNearestBikeSharingStation(Intention intention, Address location) {
+                await slackIntegration.SendMessageToChannel(message.ChatHub, $"I'll find the bike stations nearest to {location}...");
+
+                var bikeSharingStationsInformation = await bikeSharingService.GetInformationOnNearestBikeSharingStations(location, intention);
+                foreach (var response in bikeSharingStationsInformation.Response) {
+                    await slackIntegration.SendMessageToChannel(message.ChatHub, response);
+                }
+
+                var publicImageUrl = await bikeSharingService.GetImageWithDirections(location, bikeSharingStationsInformation.LabelledBikeSharingStations);
+                var directionsImageAttachment = new SlackAttachment { ImageUrl = publicImageUrl };
+                await slackIntegration.SendMessageToChannel(message.ChatHub,
+                                                            "Here's how you get there:",
+                                                            directionsImageAttachment);
             }
         }
     }

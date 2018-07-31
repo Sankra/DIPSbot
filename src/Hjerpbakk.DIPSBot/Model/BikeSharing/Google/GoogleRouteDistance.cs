@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics;
 using Newtonsoft.Json;
 
-namespace Hjerpbakk.DIPSBot.Model.BikeSharing {
-    public readonly struct RouteDistance {
+namespace Hjerpbakk.DIPSBot.Model.BikeSharing.Google {
+    public readonly struct GoogleRouteDistance {
         [JsonConstructor]
-        public RouteDistance(Row[] rows, string status) {
+        public GoogleRouteDistance(Row[] rows, string status) {
             Rows = rows;
             Status = status;
         }
@@ -34,6 +34,7 @@ namespace Hjerpbakk.DIPSBot.Model.BikeSharing {
         public string Status { get; }
     }
 
+    [DebuggerDisplay("{Text}")]
     public readonly struct Duration {
         [JsonConstructor]
         public Duration(string text, long value) {

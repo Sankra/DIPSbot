@@ -2,22 +2,19 @@
 using System.Diagnostics;
 
 namespace Hjerpbakk.DIPSBot.Model.BikeSharing {
-    [DebuggerDisplay("{Address} has {FreeBikes} / {AvailableSpace} bikes", Name = "{Name}")]
-    public class BikeSharingStation {
-        public BikeSharingStation(string name, string address, int freeBikes, int availableSpace, double latitude, double longitude) {
+    [DebuggerDisplay("{FreeBikes} free bikes / {AvailableSpace} free locks", Name = "{Name}")]
+    public readonly struct BikeSharingStation {
+        public BikeSharingStation(in string name, in int freeBikes, in int availableSpace, in double latitude, in double longitude) {
             Name = name ?? throw new ArgumentNullException(nameof(name));
-            Address = address ?? throw new ArgumentNullException(nameof(address));
+            Address = new Address(name, latitude, longitude);
             FreeBikes = freeBikes;
             AvailableSpace = availableSpace;
-            Latitude = latitude;
-            Longitude = longitude;
         }
 
         public string Name { get; }
-        public string Address { get; }
+        public Address Address { get; }
         public int FreeBikes { get; }
         public int AvailableSpace { get; }
-        public double Latitude { get; }
-        public double Longitude { get; }
+
     }
 }

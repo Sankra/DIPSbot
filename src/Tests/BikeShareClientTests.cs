@@ -25,7 +25,7 @@ namespace Tests {
             var allBikeSharingStations = await bikeSharingClient.GetBikeSharingStationsMatchingIntention(Intention.Either);
 
             Assert.Equal(allBikeSharingStations.BikeSharingStations.Length - 1,
-                         Regex.Matches(allBikeSharingStations.PipedCoordinatesToAllStations, "%7c").Count);
+                         Regex.Matches(allBikeSharingStations.PipedCoordinatesToAllStations.Value, "\\|").Count);
             Assert.NotNull(allBikeSharingStations.BikeSharingStations.SingleOrDefault(s => s.Name == "Dokkparken"));
         }
     }
