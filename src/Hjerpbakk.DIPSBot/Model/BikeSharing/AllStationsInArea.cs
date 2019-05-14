@@ -20,6 +20,13 @@ namespace Hjerpbakk.DIPSBot.Model.BikeSharing {
                 throw new ArgumentException($"{nameof(stations)} length ({stationsArray.Length}) must be equal to {nameof(stationsStatus)} length {stationsStatusArray.Length}.");
             }
 
+            // TODO: Match on ID, skip status for stations where status does not exist
+
+            // stationsTask.Result.Join(stationsStatusTask.Result,
+            //                                 station => station.Id,
+            //                                 stationStatus => stationStatus.Id,
+            //                                 (station, stationStatus) => new BikeSharingStation()).ToArray();
+
             BikeSharingStations = new BikeSharingStation[stationsArray.Length];
             for (int i = 0; i < stationsArray.Length; i++) {
                 BikeSharingStations[i] = new BikeSharingStation(stationsArray[i].Name,

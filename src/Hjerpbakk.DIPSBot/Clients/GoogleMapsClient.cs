@@ -81,6 +81,7 @@ namespace Hjerpbakk.DIPSBot.Clients {
             }
         }
 
+        // TODO: Use colors as the bysykkel in that city uses
         public string CreateRouteImage(TransportationMode transportationMode, params RouteSegment[] routeSegments) {
             if (routeSegments.Length == 0) {
                 throw new ArgumentException(nameof(routeSegments));

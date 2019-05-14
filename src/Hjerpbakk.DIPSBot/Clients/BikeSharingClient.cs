@@ -10,12 +10,9 @@ using Microsoft.Extensions.Caching.Memory;
 namespace Hjerpbakk.DIPSBot.Clients {
     public class BikeSharingClient {
         readonly IBikeshareClient bikeshareClient;
-
-        readonly HttpClient httpClient;
         readonly IMemoryCache memoryCache;
 
-        public BikeSharingClient(IBikeshareClient bikeshareClient, HttpClient httpClient, IMemoryCache memoryCache) {
-            this.httpClient = httpClient;
+        public BikeSharingClient(IBikeshareClient bikeshareClient, IMemoryCache memoryCache) {
             this.bikeshareClient = bikeshareClient;
             this.memoryCache = memoryCache;
         }

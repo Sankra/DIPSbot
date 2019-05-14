@@ -15,6 +15,5 @@ namespace Hjerpbakk.DIPSBot.Model.BikeSharing {
         public Address Address { get; }
         public int FreeBikes { get; }
         public int AvailableSpace { get; }
-
     }
 }

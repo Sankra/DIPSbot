@@ -12,6 +12,8 @@ namespace Hjerpbakk.DIPSBot.Services {
         readonly GoogleMapsClient googleMapsClient;
         readonly ImgurClient imgurClient;
 
+        // TODO: support calculating the cost of biking for more than 45 mins and present that to the user
+        // TODO: also, let the user use cheapskate mode: no costs can be allowed
         public BikeSharingService(BikeSharingClient bikeSharingClient, GoogleMapsClient googleMapsClient, ImgurClient imgurClient) {
             this.bikeSharingClient = bikeSharingClient;
             this.googleMapsClient = googleMapsClient;
@@ -107,5 +109,14 @@ namespace Hjerpbakk.DIPSBot.Services {
                 return routeString.ToString();
             }
         }
+
+        // TODO: Bug i boten
+        // TODO: Kan ta sentrum av Trondheim eller Bergen som default, noe annet dersom bot blir spurt direkte
+        //        Runar Ovesen Hjerpbakk[10:21]
+        //          @DIPS-bot sykkel
+
+        //          DIPS-bot APP[10:21]
+        //          I'll find the bike stations nearest to ...
+        //          Routing to bike sharing station failed: Could not find any walking routes from to 60.3916807123137,5.32789500356228|60.41292872156,5.32047362736728|60.4085821027847,5.32264858314181|60.3796857654707,5.35199363048093|60.3926768352763,5.31730828518914|60.3972375852603,5.31400131150076|60.3885300248931,5.31866523146437|60.3896720235288,5.33360508520195|60.3841809271021,5.33316077593804|60.3949312341227,5.31531945744109|60.3822547455628,5.33233246991085|60.3926514633774,5.32897691198161|60.3930981224131,5.32702272492588|60.3903244307599,5.33243965997826|60.3924553616501,5.32018517609686|60.3780246415187,5.35081815721242|60.3919836004134,5.32661819461282|60.3854312433031,5.33743178006262|60.3923426995371,5.31489050385062|60.3736379206283,5.35659456239955|60.3691798449766,5.34944379316585|60.3871980179501,5.32298004623954|60.3881668536764,5.32833480821864|60.382595986002,5.3253323435456|60.3914548486561,5.31889235970084|60.3895425243777,5.32962226854579|60.3998765227295,5.30468630789073|60.377119520251,5.33572172855838|60.395877002094,5.3077558277073|60.3937553200247,5.32179209580136.
     }
 }
